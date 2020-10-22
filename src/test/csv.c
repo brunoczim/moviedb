@@ -6,6 +6,10 @@
 #include "../csv.h"
 #include "../strbuf.h"
 
+/** 
+ * Tests the parser using a set of similar files. Error is never expected.
+ */
+
 void test_file(char const *path, struct strbuf *buf);
 
 int main(int argc, char const *argv[])
@@ -18,6 +22,8 @@ int main(int argc, char const *argv[])
     test_file("src/test/csv-cr.csv", &buf);
 
     puts("Ok");
+    
+    strbuf_free(&buf);
 
     return 0;
 }
@@ -37,7 +43,7 @@ void test_file(char const *path, struct strbuf *buf)
     csv_parser_init(&parser, file);
 
     assert(parser.line == 1);
-    assert(parser.col == 0);
+    assert(parser.column == 1);
 
     assert(!csv_is_error(&parser));
     assert(csv_is_row_boundary(&parser));
@@ -47,7 +53,7 @@ void test_file(char const *path, struct strbuf *buf)
     assert(strcmp(buf->ptr, "abc") == 0);
 
     assert(parser.line == 1);
-    assert(parser.col == 4);
+    assert(parser.column == 5);
 
     assert(!csv_is_error(&parser));
     assert(!csv_is_row_boundary(&parser));
@@ -63,7 +69,7 @@ void test_file(char const *path, struct strbuf *buf)
     assert(strcmp(buf->ptr, " ghj") == 0);
 
     assert(parser.line == 2);
-    assert(parser.col == 0);
+    assert(parser.column == 1);
 
     assert(!csv_is_error(&parser));
     assert(csv_is_row_boundary(&parser));
@@ -75,7 +81,7 @@ void test_file(char const *path, struct strbuf *buf)
             || strcmp(buf->ptr, "test\rthis") == 0);
 
     assert(parser.line == 3);
-    assert(parser.col == 6);
+    assert(parser.column == 7);
 
     assert(!csv_is_error(&parser));
     assert(!csv_is_row_boundary(&parser));
@@ -103,7 +109,7 @@ void test_file(char const *path, struct strbuf *buf)
     assert(csv_is_row_boundary(&parser));
     assert(csv_is_end_of_file(&parser));
     assert(parser.line == 4);
-    assert(parser.col == 0);
+    assert(parser.column == 1);
 
     fclose(file);
 }

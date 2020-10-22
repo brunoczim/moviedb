@@ -9,8 +9,16 @@ extern inline bool csv_is_row_boundary(struct csv_parser const *parser);
 
 extern inline bool csv_is_end_of_file(struct csv_parser const *parser);
 
-static void update_line_col(struct csv_parser *parser, int symbol);
+/**
+ * Given a character (symbol) read from a file, updates line and column
+ * accordingly. Uses the internal state to handle LF, CRLF and CR line endings.
+ */
+static void update_line_column(struct csv_parser *parser, int symbol);
 
+/**
+ * Performs the transtion of states, given a character (symbol) read from a
+ * file. Also writes the correct characters to the output buffer.
+ */
 static void transition(
         struct csv_parser *parser,
         int symbol,
@@ -24,12 +32,12 @@ void csv_parse_field(struct csv_parser *parser, struct strbuf *out)
 
     do {
         symbol = fgetc(parser->file);
-        update_line_col(parser, symbol);
+        update_line_column(parser, symbol);
         transition(parser, symbol, out);
     } while (parser->state != csv_comma && !csv_is_row_boundary(parser));
 }
 
-static void update_line_col(struct csv_parser *parser, int symbol)
+static void update_line_column(struct csv_parser *parser, int symbol)
 {
     switch (symbol) {
         case '\n':
@@ -39,17 +47,17 @@ static void update_line_col(struct csv_parser *parser, int symbol)
                     break;
                 default:
                     parser->line++;
-                    parser->col = 0;
+                    parser->column = 1;
                     break;
             }
             break;
         case '\r':
             parser->line++;
-            parser->col = 0;
+            parser->column = 1;
             break;
         default:
             if (symbol != EOF) {
-                parser->col++;
+                parser->column++;
             }
             break;
     }
@@ -61,6 +69,7 @@ static void transition(
         struct strbuf *out)
 {
     switch (parser->state) {
+        /* Group of states that begin the reading of a field. */
         case csv_car_return:
             if (symbol == '\n') {
                 parser->state = csv_crlf;
@@ -90,6 +99,7 @@ static void transition(
             }
             break;
 
+        /* State that is reading an unquoted field. */
         case csv_unquoted:
             switch (symbol) {
                 case '"':
@@ -113,6 +123,10 @@ static void transition(
             }
             break;
 
+        /*
+         * Group of states that is reading a quoted field while a quote does not
+         * happen inside the field.
+         */
         case csv_quoted_cr:
             parser->state = csv_quoted;
         case csv_quoted:
@@ -131,6 +145,10 @@ static void transition(
             }
             break;
 
+        /*
+         * Group of states that is reading a quoted field when a quote happens
+         * inside the field.
+         */
         case csv_prev_quote:
             switch (symbol) {
                 case '"':
@@ -155,6 +173,7 @@ static void transition(
             }
             break;
 
+        /* Group of states that won't change no matter what. */
         case csv_end_of_file:
         case csv_error:
             break;
