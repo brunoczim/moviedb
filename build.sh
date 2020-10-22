@@ -1,5 +1,7 @@
 #!/usr/bin/env sh
 
+set -e
+
 echoerr () {
     echo "$@" 1>&2
 }

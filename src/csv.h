@@ -13,6 +13,7 @@ enum csv_state {
     csv_crlf,
     csv_unquoted,
     csv_quoted,
+    csv_quoted_cr,
     csv_prev_quote,
     csv_end_of_file,
     csv_error
@@ -33,7 +34,12 @@ inline void csv_parser_init(struct csv_parser *parser, FILE *csv_file)
     parser->state = csv_initial;
 }
 
-inline bool csv_is_row_boundary(struct csv_parser *parser)
+inline bool csv_is_error(struct csv_parser const *parser)
+{
+    return parser->state == csv_error;
+}
+
+inline bool csv_is_row_boundary(struct csv_parser const *parser)
 {
     switch (parser->state) {
         case csv_initial:
@@ -46,7 +52,7 @@ inline bool csv_is_row_boundary(struct csv_parser *parser)
     }
 }
 
-inline bool csv_is_end_of_file(struct csv_parser *parser)
+inline bool csv_is_end_of_file(struct csv_parser const *parser)
 {
     return parser->state == csv_end_of_file;
 }

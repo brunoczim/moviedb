@@ -1,19 +1,21 @@
 #!/usr/bin/env sh
 
-print_header () {
-    echo $'\e''[94m'"== Building in "$@" mode =="$'\e''[0m'
+set -e
+
+print_sep() {
+    echo
+    echo $'\e''[94m'"===="$'\e''[0m'
+    echo
 }
 
 loop () {
     while read evt
     do
-        echo
-        print_header "$@"
-        ./build.sh "$@"
+        print_sep "$@"
+        "$@"
     done
 }
 
-print_header "$@"
-./build.sh "$@"
+"$@"
 
-inotifywait -q -m -e close_write src/* Makefile | loop "$@"
+inotifywait -q -m -e close_write Makefile $(find src -type f) | loop "$@"

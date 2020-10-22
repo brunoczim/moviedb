@@ -24,11 +24,19 @@ MOVBASE_OBJS = $(OBJ_DIR)/main.o \
 			   $(OBJ_DIR)/strbuf.o \
 			   $(OBJ_DIR)/csv.o
 
+TEST_CSV_OBJS = $(OBJ_DIR)/csv.o \
+			   	$(OBJ_DIR)/strbuf.o \
+			   	$(OBJ_DIR)/test/csv.o
+
 $(OBJ_DIR)/%.o: src/%.c $(HEADERS)
-	mkdir -p $(dir $(OBJ_DIR)/$@)
-	$(CC) -c $< $(CFLAGS) -o $(OBJ_DIR)/$@
+	mkdir -p $(dir $@)
+	$(CC) -c $< $(CFLAGS) -o $@
 
 movbase: $(MOVBASE_OBJS)
+	mkdir -p $(dir $(BUILD_DIR)/$@)
+	$(CC) $(LDFLAGS) $^ -o $(BUILD_DIR)/$@
+
+test/csv: $(TEST_CSV_OBJS)
 	mkdir -p $(dir $(BUILD_DIR)/$@)
 	$(CC) $(LDFLAGS) $^ -o $(BUILD_DIR)/$@
 
