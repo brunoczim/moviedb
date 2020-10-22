@@ -27,11 +27,6 @@ inline void strbuf_push(struct strbuf *buf, char ch)
     buf->length += 1;
 }
 
-inline void strbuf_push_nul(struct strbuf *buf)
-{
-    strbuf_push(buf, 0);
-}
-
 inline void strbuf_free(struct strbuf *buf)
 {
     free(buf->ptr);
