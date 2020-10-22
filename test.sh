@@ -10,6 +10,7 @@ help() {
     echoerr Usage:
     echoerr "    $0 debug <TEST>"
     echoerr "    $0 release <TEST>"
+    echoerr "    $0 sanitize <TEST>"
 }
 
 if [ $# -ne 2 ]
@@ -19,11 +20,14 @@ then
 fi
 
 case $1 in
+    debug)
+        make "test/$2" PROFILE=DEBUG
+        ;;
     release)
         make "test/$2" PROFILE=RELEASE
         ;;
-    debug)
-        make "test/$2" PROFILE=DEBUG
+    sanitize)
+        make "test/$2" PROFILE=SANITIZE
         ;;
     *)
         help
