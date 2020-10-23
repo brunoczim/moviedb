@@ -2,6 +2,7 @@
 #define MOVIEDB_STRBUF_H 1
 
 #include <stdlib.h>
+#include "error.h"
 
 /**
  * Defines string buffer. It handles memory allocations for a growable string.

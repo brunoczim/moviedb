@@ -20,7 +20,7 @@ inline void *moviedb_alloc(size_t size, struct error *error)
     void *mem = malloc(size);
     if (mem == NULL && size != 0) {
         error_set_code(error, error_alloc);
-        error->kind.alloc.size = size;
+        error->data.alloc.size = size;
     }
     return mem;
 }
@@ -38,7 +38,7 @@ inline void *moviedb_realloc(void *mem, size_t size, struct error *error)
     void *new_mem = realloc(mem, size);
     if (new_mem == NULL && size != 0) {
         error_set_code(error, error_alloc);
-        error->kind.alloc.size = size;
+        error->data.alloc.size = size;
     }
     return mem;
 }

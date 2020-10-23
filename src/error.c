@@ -1,7 +1,9 @@
 #include <stdio.h>
 #include <errno.h>
+#include <string.h>
 
 #include "error.h"
+#include "alloc.h"
 
 void error_init(struct error *error)
 {
@@ -21,7 +23,7 @@ void error_set_context(
         bool free_context)
 {
     if (error->free_context) {
-        free(error->context);
+        moviedb_free((void *) (void const *) error->context);
     }
     error->context = context;
     error->free_context = free_context;
@@ -46,19 +48,19 @@ void error_print(struct error const *error)
 
         case error_csv:
             fprintf(stderr,
-                    "CSV parser error, line %lu, column %lu\n"
-                    error->kind.csv.line,
-                    error->kind.csv.column);
+                    "CSV parser error, line %lu, column %lu\n",
+                    error->data.csv.line,
+                    error->data.csv.column);
             break;
 
         case error_alloc:
             fprintf(stderr,
                     "Out of memory, allocation size %zu\n",
-                    error->kind.alloc.bytes);
+                    error->data.alloc.size);
             break;
 
-        case error_alloc:
-            fprintf(stderr, "%s\n", strerror(error->kind.io.sys_errno));
+        case error_io:
+            fprintf(stderr, "%s\n", strerror(error->data.io.sys_errno));
             break;
     }
 }

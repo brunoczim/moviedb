@@ -2,6 +2,7 @@
 #define MOVIEDB_ERROR_H 1
 
 #include <stdbool.h>
+#include <stddef.h>
 
 /**
  * This file provides error related utilities.

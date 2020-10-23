@@ -3,12 +3,7 @@
 
 #include <stdbool.h>
 
-struct trie_node;
-
-struct trie_entry {
-    int ch;
-    struct trie_node child;
-};
+struct trie_entry;
 
 struct trie_table {
     struct trie_entry *entries;
@@ -21,6 +16,12 @@ struct trie_node {
     unsigned long movieid;
     struct trie_table table;
 };
+
+struct trie_entry {
+    int ch;
+    struct trie_node child;
+};
+
 
 void trie_root_init(struct trie_node *root);
 

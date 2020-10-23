@@ -40,15 +40,21 @@ LDFLAGS_RELEASE =  $(BASE_LDFLAGS) -O3
 LDFLAGS_SANITIZE = $(BASE_LDFLAGS) -g $(SANITIZERS)
 LDFLAGS = $(LDFLAGS_$(PROFILE))
 
-HEADERS = src/strbuf.h \
+HEADERS = src/error.h \
+		  src/alloc.h \
+		  src/strbuf.h \
 		  src/csv.h \
 		  src/trie.h
 
 MOVIEDB_OBJS = $(OBJ_DIR)/main.o \
+			   $(OBJ_DIR)/error.o \
+			   $(OBJ_DIR)/alloc.o \
 			   $(OBJ_DIR)/strbuf.o \
 			   $(OBJ_DIR)/csv.o
 
-TEST_CSV_OBJS = $(OBJ_DIR)/csv.o \
+TEST_CSV_OBJS = $(obj_dir)/error.o \
+				$(obj_dir)/alloc.o \
+				$(obj_dir)/csv.o \
 			   	$(OBJ_DIR)/strbuf.o \
 			   	$(OBJ_DIR)/test/csv.o
 
