@@ -40,7 +40,7 @@ inline void *moviedb_realloc(void *mem, size_t size, struct error *error)
         error_set_code(error, error_alloc);
         error->data.alloc.size = size;
     }
-    return mem;
+    return new_mem;
 }
 
 /**

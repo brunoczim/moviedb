@@ -22,19 +22,36 @@ static void update_line_column(struct csv_parser *parser, int symbol);
 static void transition(
         struct csv_parser *parser,
         int symbol,
-        struct strbuf *out);
+        struct strbuf *out,
+        struct error *error);
 
-void csv_parse_field(struct csv_parser *parser, struct strbuf *out)
+void csv_parse_field(
+        struct csv_parser *parser,
+        struct strbuf *out,
+        struct error *error)
 {
     int symbol;
+    bool done = false;
 
     out->length = 0;
 
-    do {
+    while (!done) {
         symbol = fgetc(parser->file);
         update_line_column(parser, symbol);
-        transition(parser, symbol, out);
-    } while (parser->state != csv_comma && !csv_is_row_boundary(parser));
+        transition(parser, symbol, out, error);
+        if (error->code != error_none) {
+            done = true;
+        } else if (parser->state == csv_error) {
+            error_set_code(error, error_csv);
+            error->data.csv.line = parser->line;
+            error->data.csv.column = parser->column;
+            done = true;
+        } else {
+            done = parser->state == csv_comma;
+            done = done || csv_is_row_boundary(parser);
+            done = done || error->code != error_none;
+        }
+    }
 }
 
 static void update_line_column(struct csv_parser *parser, int symbol)
@@ -66,7 +83,8 @@ static void update_line_column(struct csv_parser *parser, int symbol)
 static void transition(
         struct csv_parser *parser,
         int symbol,
-        struct strbuf *out)
+        struct strbuf *out,
+        struct error *error)
 {
     switch (parser->state) {
         /* Group of states that begin the reading of a field. */
@@ -94,7 +112,7 @@ static void transition(
                     break;
                 default:
                     parser->state = csv_unquoted;
-                    strbuf_push(out, symbol);
+                    strbuf_push(out, symbol, error);
                     break;
             }
             break;
@@ -118,7 +136,7 @@ static void transition(
                     parser->state = csv_end_of_file;
                     break;
                 default:
-                    strbuf_push(out, symbol);
+                    strbuf_push(out, symbol, error);
                     break;
             }
             break;
@@ -140,7 +158,7 @@ static void transition(
                 case '\r':
                     parser->state = csv_quoted_cr;
                 default:
-                    strbuf_push(out, symbol);
+                    strbuf_push(out, symbol, error);
                     break;
             }
             break;
@@ -153,7 +171,7 @@ static void transition(
             switch (symbol) {
                 case '"':
                     parser->state = csv_quoted;
-                    strbuf_push(out, symbol);
+                    strbuf_push(out, symbol, error);
                     break;
                 case '\r':
                     parser->state = csv_car_return;

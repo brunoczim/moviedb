@@ -8,7 +8,7 @@ void strbuf_reserve(struct strbuf *buf, size_t additional, struct error *error)
 {
     size_t new_capacity = buf->capacity + additional;
     char *new_alloc = moviedb_realloc(buf->ptr, new_capacity, error);
-    if (new_alloc != NULL) {
+    if (error->code == error_none) {
         buf->capacity = new_capacity;
         buf->ptr = new_alloc;
     }

@@ -55,8 +55,10 @@ inline void strbuf_push(struct strbuf *buf, char ch, struct error *error)
     if (buf->capacity == buf->length) {
         strbuf_reserve(buf, 1, error);
     }
-    buf->ptr[buf->length] = ch;
-    buf->length += 1;
+    if (error->code == error_none) {
+        buf->ptr[buf->length] = ch;
+        buf->length++;
+    }
 }
 
 /**

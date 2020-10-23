@@ -5,33 +5,34 @@
 #include <assert.h>
 #include "../csv.h"
 #include "../strbuf.h"
+#include "../error.h"
 
 /** 
  * Tests the parser using a set of similar files. Error is never expected.
  */
 
-void test_file(char const *path, struct strbuf *buf);
+void test_file(char const *path);
 
 int main(int argc, char const *argv[])
 {
-    struct strbuf buf;
-    strbuf_init(&buf);
-
-    test_file("src/test/csv-lf.csv", &buf);
-    test_file("src/test/csv-crlf.csv", &buf);
-    test_file("src/test/csv-cr.csv", &buf);
+    test_file("src/test/csv-lf.csv");
+    test_file("src/test/csv-crlf.csv");
+    test_file("src/test/csv-cr.csv");
 
     puts("Ok");
-    
-    strbuf_free(&buf);
 
     return 0;
 }
 
-void test_file(char const *path, struct strbuf *buf)
+void test_file(char const *path)
 {
     FILE *file;
+    struct strbuf buf;
+    struct error error;
     struct csv_parser parser;
+
+    error_init(&error);
+    strbuf_init(&buf);
 
     printf("Testing %s\n", path);
     file = fopen(path, "r");
@@ -48,9 +49,10 @@ void test_file(char const *path, struct strbuf *buf)
     assert(!csv_is_error(&parser));
     assert(csv_is_row_boundary(&parser));
     assert(!csv_is_end_of_file(&parser));
-    csv_parse_field(&parser, buf);
-    strbuf_push(buf, 0);
-    assert(strcmp(buf->ptr, "abc") == 0);
+    csv_parse_field(&parser, &buf, &error);
+    strbuf_push(&buf, 0, &error);
+    assert(strcmp(buf.ptr, "abc") == 0);
+    assert(error.code == error_none);
 
     assert(parser.line == 1);
     assert(parser.column == 5);
@@ -58,15 +60,17 @@ void test_file(char const *path, struct strbuf *buf)
     assert(!csv_is_error(&parser));
     assert(!csv_is_row_boundary(&parser));
     assert(!csv_is_end_of_file(&parser));
-    csv_parse_field(&parser, buf);
-    strbuf_push(buf, 0);
-    assert(strcmp(buf->ptr, "def") == 0);
+    csv_parse_field(&parser, &buf, &error);
+    strbuf_push(&buf, 0, &error);
+    assert(strcmp(buf.ptr, "def") == 0);
+    assert(error.code == error_none);
 
     assert(!csv_is_row_boundary(&parser));
     assert(!csv_is_end_of_file(&parser));
-    csv_parse_field(&parser, buf);
-    strbuf_push(buf, 0);
-    assert(strcmp(buf->ptr, " ghj") == 0);
+    csv_parse_field(&parser, &buf, &error);
+    strbuf_push(&buf, 0, &error);
+    assert(strcmp(buf.ptr, " ghj") == 0);
+    assert(error.code == error_none);
 
     assert(parser.line == 2);
     assert(parser.column == 1);
@@ -74,11 +78,11 @@ void test_file(char const *path, struct strbuf *buf)
     assert(!csv_is_error(&parser));
     assert(csv_is_row_boundary(&parser));
     assert(!csv_is_end_of_file(&parser));
-    csv_parse_field(&parser, buf);
-    strbuf_push(buf, 0);
-    assert(strcmp(buf->ptr, "test\nthis") == 0
-            || strcmp(buf->ptr, "test\r\nthis") == 0
-            || strcmp(buf->ptr, "test\rthis") == 0);
+    csv_parse_field(&parser, &buf, &error);
+    strbuf_push(&buf, 0, &error);
+    assert(strcmp(buf.ptr, "test\nthis") == 0
+            || strcmp(buf.ptr, "test\r\nthis") == 0
+            || strcmp(buf.ptr, "test\rthis") == 0);
 
     assert(parser.line == 3);
     assert(parser.column == 7);
@@ -86,24 +90,27 @@ void test_file(char const *path, struct strbuf *buf)
     assert(!csv_is_error(&parser));
     assert(!csv_is_row_boundary(&parser));
     assert(!csv_is_end_of_file(&parser));
-    csv_parse_field(&parser, buf);
-    strbuf_push(buf, 0);
-    assert(strcmp(buf->ptr, "and \"this\"") == 0);
+    csv_parse_field(&parser, &buf, &error);
+    strbuf_push(&buf, 0, &error);
+    assert(strcmp(buf.ptr, "and \"this\"") == 0);
+    assert(error.code == error_none);
 
     assert(!csv_is_error(&parser));
     assert(!csv_is_row_boundary(&parser));
     assert(!csv_is_end_of_file(&parser));
-    csv_parse_field(&parser, buf);
-    strbuf_push(buf, 0);
-    assert(strcmp(buf->ptr, "3") == 0);
+    csv_parse_field(&parser, &buf, &error);
+    strbuf_push(&buf, 0, &error);
+    assert(strcmp(buf.ptr, "3") == 0);
+    assert(error.code == error_none);
 
     assert(!csv_is_error(&parser));
     assert(!csv_is_error(&parser));
     assert(csv_is_row_boundary(&parser));
     assert(!csv_is_end_of_file(&parser));
-    csv_parse_field(&parser, buf);
-    strbuf_push(buf, 0);
-    assert(strcmp(buf->ptr, "") == 0);
+    csv_parse_field(&parser, &buf, &error);
+    strbuf_push(&buf, 0, &error);
+    assert(strcmp(buf.ptr, "") == 0);
+    assert(error.code == error_none);
 
     assert(!csv_is_error(&parser));
     assert(csv_is_row_boundary(&parser));
@@ -112,4 +119,6 @@ void test_file(char const *path, struct strbuf *buf)
     assert(parser.column == 1);
 
     fclose(file);
+
+    strbuf_free(&buf);
 }

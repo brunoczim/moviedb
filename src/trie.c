@@ -22,8 +22,4 @@ static inline void init_table(struct trie_table *table)
     capacity = capacities[table->capacity];
     table->size = 0;
     table->entries = malloc(capacity * sizeof(struct trie_entry));
-
-    if (table->entries == NULL) {
-        
-    }
 }

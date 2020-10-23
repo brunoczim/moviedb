@@ -3,6 +3,7 @@
 
 #include <stdio.h>
 #include <stdbool.h>
+#include "error.h"
 #include "strbuf.h"
 
 /**
@@ -144,6 +145,9 @@ inline bool csv_is_end_of_file(struct csv_parser const *parser)
  * This function **DOES NOT** appends a nul (\0) char to the string. You can use
  * the function strbuf(buf, 0) to append, though.
  */
-void csv_parse_field(struct csv_parser *parser, struct strbuf *out);
+void csv_parse_field(
+        struct csv_parser *parser,
+        struct strbuf *out,
+        struct error *error);
 
 #endif
