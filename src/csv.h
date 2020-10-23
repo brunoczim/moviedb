@@ -1,5 +1,5 @@
-#ifndef MOVBASE_CSV_H
-#define MOVBASE_CSV_H 1
+#ifndef MOVIEDB_CSV_H
+#define MOVIEDB_CSV_H 1
 
 #include <stdio.h>
 #include <stdbool.h>

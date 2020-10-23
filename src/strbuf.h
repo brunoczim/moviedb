@@ -1,5 +1,5 @@
-#ifndef MOVBASE_STRBUF_H
-#define MOVBASE_STRBUF_H 1
+#ifndef MOVIEDB_STRBUF_H
+#define MOVIEDB_STRBUF_H 1
 
 #include <stdlib.h>
 
@@ -8,7 +8,7 @@
  */
 
 /**
- * A stirng buffer. Handles allocation and allows the string to grow. The
+ * A string buffer. Handles allocation and allows the string to grow. The
  * string buffer tracks string length and the capacity of the buffer.
  */
 struct strbuf {
@@ -40,19 +40,19 @@ inline void strbuf_init(struct strbuf *buf)
 }
 
 /**
- * Reserves space for additional characters in the buffer. Aborts if allocation
- * fails.
+ * Reserves space for additional characters in the buffer. In case of error,
+ * the error parameter is set to allocation error, and no reserve is done.
  */
-void strbuf_reserve(struct strbuf *buf, size_t additional);
+void strbuf_reserve(struct strbuf *buf, size_t additional, struct error *error);
 
 /**
- * Pushes a character onto the buffer, reserving necessary space. Aborts if
- * allocation fails.
+ * Pushes a character onto the buffer, reserving necessary space. In case of
+ * error, the error parameter is set to allocation error, and no push is done.
  */
-inline void strbuf_push(struct strbuf *buf, char ch)
+inline void strbuf_push(struct strbuf *buf, char ch, struct error *error)
 {
     if (buf->capacity == buf->length) {
-        strbuf_reserve(buf, 1);
+        strbuf_reserve(buf, 1, error);
     }
     buf->ptr[buf->length] = ch;
     buf->length += 1;

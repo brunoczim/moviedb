@@ -8,26 +8,33 @@ echoerr () {
 
 help() {
     echoerr Usage:
-    echoerr "    $0 debug"
-    echoerr "    $0 release"
-    echoerr "    $0 sanitize"
+    echoerr "    $0 debug [TARGET]"
+    echoerr "    $0 release [TARGET]"
+    echoerr "    $0 sanitize [TARGET]"
+    echoerr
+    echoerr "TARGET is optonal (default moviedb)"
 }
 
-if [ $# -ne 1 ]
+if [ $# -eq 1 ]
 then
+    TARGET=moviedb
+elif [ $# -eq 2 ]
+then
+    TARGET="$2"
+else
     help
     exit 1
 fi
 
 case $1 in
     debug)
-        make PROFILE=DEBUG
+        make "$TARGET" PROFILE=DEBUG
         ;;
     release)
-        make PROFILE=RELEASE
+        make "$TARGET" PROFILE=RELEASE
         ;;
     sanitize)
-        make PROFILE=SANITIZE
+        make "$TARGET" PROFILE=SANITIZE
         ;;
     *)
         help

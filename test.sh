@@ -2,41 +2,18 @@
 
 set -e
 
-echoerr () {
-    echo "$@" 1>&2
+print_sep() {
+    echo
+    echo $'\e''[94m'"===="$'\e''[0m'
+    echo
 }
 
-help() {
-    echoerr Usage:
-    echoerr "    $0 debug <TEST>"
-    echoerr "    $0 release <TEST>"
-    echoerr "    $0 sanitize <TEST>"
-}
+./run.sh debug test/csv
 
-if [ $# -ne 2 ]
-then
-    help
-    exit 1
-fi
+print_sep
 
-case $1 in
-    debug)
-        make "test/$2" PROFILE=DEBUG
-        ;;
-    release)
-        make "test/$2" PROFILE=RELEASE
-        ;;
-    sanitize)
-        make "test/$2" PROFILE=SANITIZE
-        ;;
-    *)
-        help
-        exit 1
-        ;;
-esac
+./run.sh sanitize test/csv
 
+print_sep
 
-echo
-echo $'\e''[94m'"== TEST $2 =="$'\e''[0m'
-
-"./build/$1/test/$2"
+./run.sh release test/csv

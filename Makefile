@@ -40,9 +40,11 @@ LDFLAGS_RELEASE =  $(BASE_LDFLAGS) -O3
 LDFLAGS_SANITIZE = $(BASE_LDFLAGS) -g $(SANITIZERS)
 LDFLAGS = $(LDFLAGS_$(PROFILE))
 
-HEADERS = src/strbuf.h src/csv.h
+HEADERS = src/strbuf.h \
+		  src/csv.h \
+		  src/trie.h
 
-MOVBASE_OBJS = $(OBJ_DIR)/main.o \
+MOVIEDB_OBJS = $(OBJ_DIR)/main.o \
 			   $(OBJ_DIR)/strbuf.o \
 			   $(OBJ_DIR)/csv.o
 
@@ -54,9 +56,11 @@ $(OBJ_DIR)/%.o: src/%.c $(HEADERS)
 	mkdir -p $(dir $@)
 	$(CC) -c $< $(CFLAGS) -o $@
 
-movbase: $(MOVBASE_OBJS)
+moviedb: $(MOVIEDB_OBJS)
 	mkdir -p $(dir $(BUILD_DIR)/$@)
 	$(CC) $(LDFLAGS) $^ -o $(BUILD_DIR)/$@
+
+all: moviedb test/csv
 
 test/csv: $(TEST_CSV_OBJS)
 	mkdir -p $(dir $(BUILD_DIR)/$@)
