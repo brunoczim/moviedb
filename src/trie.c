@@ -1,21 +1,47 @@
 #include "trie.h"
 #include "alloc.h"
 
+/**
+ * A destroy queue's node.
+ */
 struct destroy_queue_node {
+    /**
+     * Branch to be destroyed.
+     */
     struct trie_branch_list branches;
+    /**
+     * The next node in the queue.
+     */
     struct destroy_queue_node *next;
 };
 
+/**
+ * A destroy queue.
+ */
 struct destroy_queue {
+    /**
+     * Front of the queue (i.e. the output side).
+     */
     struct destroy_queue_node *front;
+    /**
+     * Back of the queue (i.e. the input side).
+     */
     struct destroy_queue_node *back;
 };
 
+/**
+ * Searches for the given key in a branch list. Returns whether if the given key
+ * was found. Fills pos with the position of the key. If not found, pos is
+ * filled with the position where the key should be inserted.
+ */
 static bool branch_search(
         struct trie_branch_list const *restrict list,
         char key,
         size_t *pos);
 
+/**
+ * Inserts the given child into the given list of branches, using the given key.
+ */
 static void branch_insert(
         struct trie_branch_list *restrict branches,
         char key,
@@ -23,6 +49,12 @@ static void branch_insert(
         size_t branch_pos,
         struct error *error);
 
+/**
+ * Makes path for a node. Starts by creating a child in the given node, in the
+ * given branch_pos (branch position), advancing current_key to the end of the
+ * string. Returns a heap-allocated node where a movieid with the given name
+ * should be inserted as leaf. The only possible error is an allocation error.
+ */
 static struct trie_node *make_path(
         struct trie_node *node,
         size_t branch_pos,
@@ -30,35 +62,70 @@ static struct trie_node *make_path(
         size_t *current_key,
         struct error *error);
 
+/**
+ * Initializes the destroy queue.
+ */
 static void destroy_queue_init(struct destroy_queue *restrict queue);
 
+/**
+ * Enqueues a branch list on the destroy queue. The only possible error is an
+ * allocation error.
+ */
 static void destroy_enqueue(
         struct destroy_queue *restrict queue,
         struct trie_branch_list const *branches,
         struct error *error);
 
+/**
+ * Dequeues a branch list from the destroy queue. Returns whether the dequeue
+ * actually happened (i.e. the queue was not empty), and fills the branches_out
+ * parameter with the queue if successful.
+ */
 static bool destroy_dequeue(
         struct destroy_queue *restrict queue,
-        struct trie_branch_list *branches);
+        struct trie_branch_list *branches_out);
 
+/**
+ * Tests if the destroy queue is empty
+ */
 static inline bool destroy_queue_is_empty(struct destroy_queue *restrict queue);
 
+/**
+ * Destroys the given branches recursively (last resort, in case heap-allocation
+ * of the queue fails).
+ */
 static inline void destroy_branches_recursive(
         struct trie_branch_list *restrict branches);
 
+/**
+ * Enqueues all children of all branches in the curr_level into the next_level.
+ * The only possible error is an allocation error.
+ */
 static inline void destroy_enqueue_next_level(
         struct destroy_queue *restrict curr_level,
         struct destroy_queue *restrict next_level,
         struct error *error);
 
+/**
+ * Enqueues all children of of the given branch list into the given queue. The
+ * only possible error is an allocation error.
+ */
 static inline void destroy_enqueue_children(
         struct destroy_queue *restrict queue,
         struct trie_branch_list *restrict branches,
         struct error *error);
 
-static void destroy_recursive(struct trie_node *restrict root);
-
+/**
+ * Definitely frees memory of the given branch list. Destroys also pointers to
+ * children, **but not the children themselves**.
+ */
 static inline void destroy_branch_list(struct trie_branch_list *branches);
+
+/**
+ * Destroys a tree recursively. Should be a last resource, used only if
+ * heap-allocation of the queue fails.
+ */
+static void destroy_recursive(struct trie_node *restrict root);
 
 extern inline void trie_root_init(struct trie_node *root);
 
@@ -281,7 +348,7 @@ static void destroy_enqueue(
 
 static bool destroy_dequeue(
         struct destroy_queue *restrict queue,
-        struct trie_branch_list *branches)
+        struct trie_branch_list *branches_out)
 {
     struct destroy_queue_node *next;
 
@@ -289,7 +356,7 @@ static bool destroy_dequeue(
         return false;
     }
 
-    *branches = queue->front->branches;
+    *branches_out = queue->front->branches;
     next = queue->front->next;
     moviedb_free(queue->front);
     queue->front = next;
@@ -304,17 +371,6 @@ static bool destroy_dequeue(
 static inline bool destroy_queue_is_empty(struct destroy_queue *restrict queue)
 {
     return queue->front == NULL;
-}
-
-static void destroy_recursive(struct trie_node *restrict root)
-{
-    size_t i;
-
-    for (i = 0; i < root->branches.length; i++) {
-        destroy_recursive(root->branches.entries[i].child);
-        moviedb_free(root->branches.entries);
-        moviedb_free(root->branches.entries[i].child);
-    }
 }
 
 static inline void destroy_branches_recursive(
@@ -373,4 +429,16 @@ static inline void destroy_branch_list(struct trie_branch_list *branches)
         moviedb_free(branches->entries[i].child);
     }
     moviedb_free(branches->entries);
+}
+
+
+static void destroy_recursive(struct trie_node *restrict root)
+{
+    size_t i;
+
+    for (i = 0; i < root->branches.length; i++) {
+        destroy_recursive(root->branches.entries[i].child);
+        moviedb_free(root->branches.entries);
+        moviedb_free(root->branches.entries[i].child);
+    }
 }
