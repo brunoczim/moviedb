@@ -96,7 +96,7 @@ struct csv_parser {
  * Initializes a parser from the given FILE object. The given FILE must be
  * readable, and the caller should not use the FILE while using the parser.
  */
-inline void csv_parser_init(struct csv_parser *parser, FILE *csv_file)
+inline void csv_parser_init(struct csv_parser *restrict parser, FILE *csv_file)
 {
     parser->file = csv_file;
     parser->line = 1;
@@ -107,7 +107,7 @@ inline void csv_parser_init(struct csv_parser *parser, FILE *csv_file)
 /**
  * Returns whether an error occured. Line and column should be checked.
  */
-inline bool csv_is_error(struct csv_parser const *parser)
+inline bool csv_is_error(struct csv_parser const *restrict parser)
 {
     return parser->state == csv_error;
 }
@@ -116,7 +116,7 @@ inline bool csv_is_error(struct csv_parser const *parser)
  * Returns whether the parser is in a row boundary. Essentially, this means a
  * new row starts from now, or a row just ended.
  */
-inline bool csv_is_row_boundary(struct csv_parser const *parser)
+inline bool csv_is_row_boundary(struct csv_parser const *restrict parser)
 {
     switch (parser->state) {
         case csv_car_return:
@@ -132,7 +132,7 @@ inline bool csv_is_row_boundary(struct csv_parser const *parser)
 /**
  * Returns whether the end of file has been reached.
  */
-inline bool csv_is_end_of_file(struct csv_parser const *parser)
+inline bool csv_is_end_of_file(struct csv_parser const *restrict parser)
 {
     return parser->state == csv_end_of_file;
 }
@@ -146,8 +146,8 @@ inline bool csv_is_end_of_file(struct csv_parser const *parser)
  * the function strbuf(buf, 0) to append, though.
  */
 void csv_parse_field(
-        struct csv_parser *parser,
-        struct strbuf *out,
+        struct csv_parser *restrict parser,
+        struct strbuf *restrict out,
         struct error *error);
 
 #endif

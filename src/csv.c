@@ -1,33 +1,36 @@
 #include <stdbool.h>
 #include "csv.h"
 
-extern inline void csv_parser_init(struct csv_parser *parser, FILE *csv_file);
+extern inline void csv_parser_init(
+        struct csv_parser *restrict parser,
+        FILE *csv_file);
 
-extern inline bool csv_is_error(struct csv_parser const *parser);
+extern inline bool csv_is_error(struct csv_parser const *restrict parser);
 
-extern inline bool csv_is_row_boundary(struct csv_parser const *parser);
+extern inline bool csv_is_row_boundary(
+        struct csv_parser const *restrict parser);
 
-extern inline bool csv_is_end_of_file(struct csv_parser const *parser);
+extern inline bool csv_is_end_of_file(struct csv_parser const *restrict parser);
 
 /**
  * Given a character (symbol) read from a file, updates line and column
  * accordingly. Uses the internal state to handle LF, CRLF and CR line endings.
  */
-static void update_line_column(struct csv_parser *parser, int symbol);
+static void update_line_column(struct csv_parser *restrict parser, int symbol);
 
 /**
  * Performs the transtion of states, given a character (symbol) read from a
  * file. Also writes the correct characters to the output buffer.
  */
 static void transition(
-        struct csv_parser *parser,
+        struct csv_parser *restrict parser,
         int symbol,
-        struct strbuf *out,
+        struct strbuf *restrict out,
         struct error *error);
 
 void csv_parse_field(
-        struct csv_parser *parser,
-        struct strbuf *out,
+        struct csv_parser *restrict parser,
+        struct strbuf *restrict out,
         struct error *error)
 {
     int symbol;
@@ -54,7 +57,7 @@ void csv_parse_field(
     }
 }
 
-static void update_line_column(struct csv_parser *parser, int symbol)
+static void update_line_column(struct csv_parser *restrict parser, int symbol)
 {
     switch (symbol) {
         case '\n':
@@ -81,9 +84,9 @@ static void update_line_column(struct csv_parser *parser, int symbol)
 }
 
 static void transition(
-        struct csv_parser *parser,
+        struct csv_parser *restrict parser,
         int symbol,
-        struct strbuf *out,
+        struct strbuf *restrict out,
         struct error *error)
 {
     switch (parser->state) {

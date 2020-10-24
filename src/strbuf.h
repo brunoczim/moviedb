@@ -33,7 +33,7 @@ struct strbuf {
  * Initializes a string buffer with zeroed length and capacity. Beware, the
  * pointer is initialized to NULL.
  */
-inline void strbuf_init(struct strbuf *buf)
+inline void strbuf_init(struct strbuf *restrict buf)
 {
     buf->ptr = NULL;
     buf->length = 0;
@@ -44,13 +44,19 @@ inline void strbuf_init(struct strbuf *buf)
  * Reserves space for additional characters in the buffer. In case of error,
  * the error parameter is set to allocation error, and no reserve is done.
  */
-void strbuf_reserve(struct strbuf *buf, size_t additional, struct error *error);
+void strbuf_reserve(
+        struct strbuf *restrict buf,
+        size_t additional,
+        struct error *error);
 
 /**
  * Pushes a character onto the buffer, reserving necessary space. In case of
  * error, the error parameter is set to allocation error, and no push is done.
  */
-inline void strbuf_push(struct strbuf *buf, char ch, struct error *error)
+inline void strbuf_push(
+        struct strbuf *restrict buf,
+        char ch,
+        struct error *error)
 {
     if (buf->capacity == buf->length) {
         strbuf_reserve(buf, 1, error);
@@ -64,7 +70,7 @@ inline void strbuf_push(struct strbuf *buf, char ch, struct error *error)
 /**
  * Frees the pointer of the string buffer. Do not use the buffer after this.
  */
-inline void strbuf_free(struct strbuf *buf)
+inline void strbuf_free(struct strbuf *restrict buf)
 {
     free(buf->ptr);
 }

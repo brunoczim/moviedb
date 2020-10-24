@@ -2,12 +2,18 @@
 #include "alloc.h"
 #include <stdio.h>
 
-extern inline void strbuf_init(struct strbuf *buf);
+extern inline void strbuf_init(struct strbuf *restrict buf);
 
-void strbuf_reserve(struct strbuf *buf, size_t additional, struct error *error)
+void strbuf_reserve(
+        struct strbuf *restrict buf,
+        size_t additional,
+        struct error *error)
 {
-    size_t new_capacity = buf->capacity + additional;
-    char *new_alloc = moviedb_realloc(buf->ptr, new_capacity, error);
+    size_t new_capacity;
+    char *new_alloc;
+
+    new_capacity = buf->capacity + additional;
+    new_alloc = moviedb_realloc(buf->ptr, new_capacity, error);
     if (error->code == error_none) {
         buf->capacity = new_capacity;
         buf->ptr = new_alloc;
@@ -15,8 +21,8 @@ void strbuf_reserve(struct strbuf *buf, size_t additional, struct error *error)
 }
 
 extern inline void strbuf_push(
-        struct strbuf *buf,
+        struct strbuf *restrict buf,
         char ch,
         struct error *error);
 
-extern inline inline void strbuf_free(struct strbuf *buf);
+extern inline inline void strbuf_free(struct strbuf *restrict buf);
