@@ -58,6 +58,8 @@ static inline void destroy_enqueue_children(
 
 static void destroy_recursive(struct trie_node *restrict root);
 
+static inline void destroy_branch_list(struct trie_branch_list *branches);
+
 extern inline void trie_root_init(struct trie_node *root);
 
 void trie_insert(
@@ -136,7 +138,7 @@ void trie_destroy(struct trie_node *root)
     if (error.code == error_none) {
         while (!destroy_queue_is_empty(&curr_level)) {
             destroy_enqueue_next_level(&curr_level, &next_level, &error);
-            if (error.code != error_none) {
+            if (error.code == error_none) {
                 curr_level = next_level;
                 destroy_queue_init(&next_level);
             }
@@ -195,18 +197,24 @@ static void branch_insert(
             new_cap = 255;
         }
 
-        new_entries = moviedb_realloc(branches->entries, new_cap, error);
-        if (error->code != error_none) {
+        new_entries = moviedb_realloc(
+                branches->entries,
+                sizeof(struct trie_branch) * new_cap,
+                error);
+        if (error->code == error_none) {
             branches->entries = new_entries;
+            branches->capacity = new_cap;
         }
     }
 
     if (error->code == error_none) {
-        for (i = branches->length; i > branch_pos; i++) {
+        for (i = branches->length; i > branch_pos; i--) {
             branches->entries[i] = branches->entries[i - 1];
         }
+
         branches->entries[branch_pos].key = key;
         branches->entries[branch_pos].child = child;
+        branches->length++;
     }
 }
 
@@ -235,7 +243,8 @@ static struct trie_node *make_path(
                     error);
 
             node = child;
-            current_key++;
+            (*current_key)++;
+            branch_pos = 0;
         }
     }
 
@@ -262,9 +271,9 @@ static void destroy_enqueue(
         node->branches = *branches;
 
         if (queue->back == NULL) {
-            queue->back->next = node;
-        } else {
             queue->front = node;
+        } else {
+            queue->back->next = node;
         }
         queue->back = node;
     }
@@ -303,6 +312,7 @@ static void destroy_recursive(struct trie_node *restrict root)
 
     for (i = 0; i < root->branches.length; i++) {
         destroy_recursive(root->branches.entries[i].child);
+        moviedb_free(root->branches.entries);
         moviedb_free(root->branches.entries[i].child);
     }
 }
@@ -327,7 +337,9 @@ static inline void destroy_enqueue_next_level(
     
     while (destroy_dequeue(curr_level, &branches)) {
         destroy_enqueue_children(next_level, &branches, error);
-        if (error->code != error_none) {
+        if (error->code == error_none) {
+            destroy_branch_list(&branches);
+        } else {
             destroy_branches_recursive(&branches);
             while (destroy_dequeue(curr_level, &branches)) {
                 destroy_branches_recursive(&branches);
@@ -352,4 +364,13 @@ static inline void destroy_enqueue_children(
         
         i++;
     }
+}
+
+static inline void destroy_branch_list(struct trie_branch_list *branches)
+{
+    size_t i;
+    for (i = 0; i < branches->length; i++) {
+        moviedb_free(branches->entries[i].child);
+    }
+    moviedb_free(branches->entries);
 }

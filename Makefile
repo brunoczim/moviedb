@@ -59,6 +59,12 @@ TEST_CSV_OBJS = $(OBJ_DIR)/error.o \
 			   	$(OBJ_DIR)/strbuf.o \
 			   	$(OBJ_DIR)/test/csv.o
 
+TEST_TRIE_OBJS = $(OBJ_DIR)/error.o \
+				 $(OBJ_DIR)/alloc.o \
+			   	 $(OBJ_DIR)/strbuf.o \
+			   	 $(OBJ_DIR)/trie.o \
+			   	 $(OBJ_DIR)/test/trie.o
+
 $(OBJ_DIR)/%.o: src/%.c $(HEADERS)
 	mkdir -p $(dir $@)
 	$(CC) -c $< $(CFLAGS) -o $@
@@ -73,5 +79,9 @@ test/csv: $(TEST_CSV_OBJS)
 	mkdir -p $(dir $(BUILD_DIR)/$@)
 	$(CC) $(LDFLAGS) $^ -o $(BUILD_DIR)/$@
 
+test/trie: $(TEST_TRIE_OBJS)
+	mkdir -p $(dir $(BUILD_DIR)/$@)
+	$(CC) $(LDFLAGS) $^ -o $(BUILD_DIR)/$@
+
 clean:
-	$(RM) $(BASE_BUILD_DIR)
+	$(RM) -r $(BASE_BUILD_DIR)
