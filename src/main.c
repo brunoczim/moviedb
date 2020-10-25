@@ -2,14 +2,20 @@
 #include <stdbool.h>
 #include <time.h>
 #include "error.h"
-#include "io.h"
+#include "alloc.h"
 #include "strbuf.h"
+#include "io.h"
 #include "movie.h"
 #include "trie.h"
 
+#define IO_BUF_SIZE 0x10000
+
 void load_all(struct trie_node *restrict root, struct error *error);
 
-void load_movies(struct trie_node *restrict root, struct error *error);
+void load_movies(
+        struct trie_node *restrict root,
+        char *buffer,
+        struct error *error);
 
 int main(int argc, char const *argv[])
 {
@@ -35,18 +41,27 @@ void load_all(struct trie_node *restrict root, struct error *error)
 {
     clock_t then, now;
     double millis;
+    char *buffer;
 
     puts("Loading data...");
 
     then = clock();
-    load_movies(root, error);
+
+    buffer = moviedb_alloc(IO_BUF_SIZE, error);
+    if (error->code == error_none)  {
+        load_movies(root, buffer, error);
+        free(buffer);
+    }
     now = clock();
 
     millis = (now - then) / (CLOCKS_PER_SEC / 1000.0);
     printf("Data loaded in %.3lf milliseconds\n", millis);
 }
 
-void load_movies(struct trie_node *restrict root, struct error *error)
+void load_movies(
+        struct trie_node *restrict root,
+        char *buffer,
+        struct error *error)
 {
     char const *path = "movie.csv";
     FILE *file;
@@ -56,6 +71,10 @@ void load_movies(struct trie_node *restrict root, struct error *error)
     bool has_data = true;
 
     file = input_file_open(path, error);
+
+    if (error->code == error_none) {
+        input_file_setbuf(file, buffer, IO_BUF_SIZE, error);
+    }
 
     if (error->code == error_none) {
         strbuf_init(&buf);

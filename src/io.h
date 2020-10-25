@@ -12,10 +12,21 @@ inline FILE *input_file_open(char const *restrict path, struct error *error)
     if (file == NULL) {
         error_set_code(error, error_io);
         error->data.io.sys_errno = errno;
-    } else {
-    }
+    } 
 
     return file;
+}
+
+inline void input_file_setbuf(
+        FILE *file,
+        char *buffer,
+        size_t size,
+        struct error *error)
+{
+    if (setvbuf(file, buffer, _IOFBF, size) != 0) {
+        error_set_code(error, error_io);
+        error->data.io.sys_errno = errno;
+    }
 }
 
 inline int input_file_read(FILE *file, struct error *error)
