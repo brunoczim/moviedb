@@ -144,6 +144,8 @@ inline bool csv_is_end_of_file(struct csv_parser const *restrict parser)
  *
  * This function **DOES NOT** appends a nul (\0) char to the string. You can use
  * the function strbuf(buf, 0) to append, though.
+ *
+ * Possible errors are allocation error and IO errors.
  */
 void csv_parse_field(
         struct csv_parser *restrict parser,

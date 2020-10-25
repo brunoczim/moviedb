@@ -28,6 +28,18 @@ enum error_code {
      * IO error, such as writing or reading from file.
      */
     error_io,
+    /**
+     * An error happened parsing a movie in a CSV file.
+     */
+    error_movie,
+    /**
+     * An error happened parsing the header of a CSV file.
+     */
+    error_csv_header,
+    /**
+     * Error found when parsing an ID.
+     */
+    error_id,
 };
 
 /**
@@ -65,6 +77,38 @@ struct io_error {
 };
 
 /**
+ * Invalid movie error's data.
+ */
+struct movie_error {
+    /**
+     * Line in a file where the error happened. Starts from 1.
+     */
+    unsigned long line;
+};
+
+/**
+ * Invalid ID error's data.
+ */
+struct moviedb_id_error {
+    /**
+     * Whether there is a line in this error.
+     */
+    bool has_line;
+    /**
+     * Line in a file where the error happened. Starts from 1.
+     */
+    unsigned long line;
+    /**
+     * The string that was attempted to parse.
+     */
+    char const *string;
+    /**
+     * Whether to free the string.
+     */
+    bool free_string;
+};
+
+/**
  * Union that might be any error's data.
  */
 union error_data {
@@ -80,6 +124,14 @@ union error_data {
      * Data of an IO error.
      */
     struct io_error io;
+    /**
+     * Data of an invalid movie error.
+     */
+    struct movie_error movie;
+    /**
+     * Data of an invalid ID error.
+     */
+    struct moviedb_id_error id;
 };
 
 /**
@@ -134,11 +186,16 @@ void error_set_context(
 /**
  * Frees error data and context.
  */
-void error_free(struct error *error);
+void error_destroy(struct error *error);
 
 /**
  * Prints the error on the standard error output (stderr).
  */
 void error_print(struct error const *error);
+
+/**
+ * Prints a string quoting it and escaping non-printable characters.
+ */
+void error_print_quote(char const *string);
 
 #endif

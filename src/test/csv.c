@@ -3,6 +3,7 @@
 #include <string.h>
 #include <stdbool.h>
 #include <assert.h>
+#include "../io.h"
 #include "../csv.h"
 #include "../strbuf.h"
 #include "../error.h"
@@ -35,9 +36,11 @@ void test_file(char const *path)
     strbuf_init(&buf);
 
     printf("Testing %s\n", path);
-    file = fopen(path, "r");
-    if (file == NULL) {
-        perror(path);
+    file = input_file_open(path, &error);
+    if (error.code != error_none) {
+        error_set_context(&error, path, false);
+        error_print(&error);
+        error_destroy(&error);
         exit(1);
     }
 
@@ -118,7 +121,7 @@ void test_file(char const *path)
     assert(parser.line == 4);
     assert(parser.column == 1);
 
-    fclose(file);
+    input_file_close(file);
 
-    strbuf_free(&buf);
+    strbuf_destroy(&buf);
 }

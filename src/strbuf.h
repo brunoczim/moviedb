@@ -68,9 +68,31 @@ inline void strbuf_push(
 }
 
 /**
+ * Compares the buffer with a C string. Returns 1 if greater than the C string,
+ * returns -1 if less than the C string, and 0 if equal.
+ */
+int strbuf_cmp_cstr(
+        struct strbuf const *restrict buf,
+        char const *restrict cstr);
+
+/**
+ * Like strbuf_cmp_cstr, but case-insensitive.
+ */
+int strbuf_icmp_cstr(
+        struct strbuf const *restrict buf,
+        char const *restrict cstr);
+
+/**
+ * Makes a C string from the given string buffer, appending the nul byte (0)
+ * if necessary. It might or not use the buffer allocation, and then, in this
+ * case, the buffer will be reset.
+ */
+char *strbuf_make_cstr(struct strbuf *restrict buf, struct error *error);
+
+/**
  * Frees the pointer of the string buffer. Do not use the buffer after this.
  */
-inline void strbuf_free(struct strbuf *restrict buf)
+inline void strbuf_destroy(struct strbuf *restrict buf)
 {
     free(buf->ptr);
 }

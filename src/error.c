@@ -29,7 +29,7 @@ void error_set_context(
     error->free_context = free_context;
 }
 
-void error_free(struct error *error)
+void error_destroy(struct error *error)
 {
     error_set_code(error, error_none);
     error_set_context(error, NULL, false);
@@ -62,5 +62,58 @@ void error_print(struct error const *error)
         case error_io:
             fprintf(stderr, "%s\n", strerror(error->data.io.sys_errno));
             break;
+
+        case error_movie:
+            fprintf(stderr,
+                    "Invalid movie, line %lu\n",
+                    error->data.movie.line);
+            break;
+
+        case error_id:
+            fputs("Invalid ID ", stderr);
+            fputs("\"", stderr);
+            error_print_quote(error->data.id.string);
+            if (error->data.id.has_line) {
+                fprintf(stderr, ", line %lu", error->data.id.line);
+            }
+            fputc('\n', stderr);
+            break;
+
+        case error_csv_header:
+            fputs("invalid CSV header\n", stderr);
+            break;
     }
+}
+
+void error_print_quote(char const *string)
+{
+    char const *cursor;
+
+    fputc('"', stderr);
+
+    for (cursor = string; *cursor != 0; cursor++) {
+        switch (*cursor) {
+            case '\n':
+                fputs("\\n", stderr);
+                break;
+            case '\r':
+                fputs("\\r", stderr);
+                break;
+            case '"':
+                fputs("\\\"", stderr);
+                break;
+            case '\\':
+                fputs("\\\\", stderr);
+                break;
+            default:
+                if (*cursor >= 32 && *cursor <= 126) {
+                    fputc(*cursor, stderr);
+                } else {
+                    fprintf(stderr, "\\%hhu", *cursor);
+                }
+                break;
+        }
+    }
+
+    fputc('"', stderr);
 }

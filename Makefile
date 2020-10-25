@@ -42,19 +42,26 @@ LDFLAGS = $(LDFLAGS_$(PROFILE))
 
 HEADERS = src/error.h \
 		  src/alloc.h \
+		  src/io.h \
 		  src/strbuf.h \
 		  src/csv.h \
+		  src/id.h \
+		  src/movie.h \
 		  src/trie.h
 
 MOVIEDB_OBJS = $(OBJ_DIR)/main.o \
 			   $(OBJ_DIR)/error.o \
 			   $(OBJ_DIR)/alloc.o \
+			   $(OBJ_DIR)/io.o \
 			   $(OBJ_DIR)/strbuf.o \
 			   $(OBJ_DIR)/csv.o \
-			   $(OBJ_DIR)/trie.o
+			   $(OBJ_DIR)/trie.o \
+			   $(OBJ_DIR)/id.o \
+			   $(OBJ_DIR)/movie.o
 
 TEST_CSV_OBJS = $(OBJ_DIR)/error.o \
 				$(OBJ_DIR)/alloc.o \
+				$(OBJ_DIR)/io.o \
 				$(OBJ_DIR)/csv.o \
 			   	$(OBJ_DIR)/strbuf.o \
 			   	$(OBJ_DIR)/test/csv.o

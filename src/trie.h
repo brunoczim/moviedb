@@ -3,6 +3,7 @@
 
 #include <stdbool.h>
 #include "error.h"
+#include "movie.h"
 
 /**
  * This file provides an interface to a trie tree's implementation.
@@ -54,7 +55,7 @@ struct trie_node {
      * The leaf data, in this case, the ID of a movie. Only initialized if this
      * node contains a leaf. **DO NOT** touch this field.
      */
-    unsigned long movieid;
+    moviedb_id movie;
     /**
      * The branches of this node. **DO NOT** touch this field.
      */
@@ -79,19 +80,19 @@ inline void trie_root_init(struct trie_node *restrict root)
 void trie_insert(
         struct trie_node *root,
         char const *restrict name,
-        long unsigned movieid,
+        moviedb_id movie,
         struct error *error);
 
 /**
  * Searches for a movie in the trie tree with the given movie name.
  *
- * Returns whether the movie was found. If found, movieid_out is filled with the
+ * Returns whether the movie was found. If found, movie_out is filled with the
  * found movie's ID.
  */
 bool trie_search(
         struct trie_node const *root,
         char const *restrict name,
-        unsigned long *movieid_out);
+        moviedb_id *movie_out);
 
 /**
  * Destroys the given trie tree, freeing all the heap-allocated memory. Note

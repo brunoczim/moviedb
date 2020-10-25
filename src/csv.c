@@ -1,4 +1,5 @@
 #include <stdbool.h>
+#include "io.h"
 #include "csv.h"
 
 extern inline void csv_parser_init(
@@ -39,9 +40,12 @@ void csv_parse_field(
     out->length = 0;
 
     while (!done) {
-        symbol = fgetc(parser->file);
-        update_line_column(parser, symbol);
-        transition(parser, symbol, out, error);
+        symbol = input_file_read(parser->file, error);
+        if (error->code == error_none) {
+            update_line_column(parser, symbol);
+            transition(parser, symbol, out, error);
+        }
+
         if (error->code != error_none) {
             done = true;
         } else if (parser->state == csv_error) {

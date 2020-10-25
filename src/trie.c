@@ -52,7 +52,7 @@ static void branch_insert(
 /**
  * Makes path for a node. Starts by creating a child in the given node, in the
  * given branch_pos (branch position), advancing current_key to the end of the
- * string. Returns a heap-allocated node where a movieid with the given name
+ * string. Returns a heap-allocated node where a moviedb_id with the given name
  * should be inserted as leaf. The only possible error is an allocation error.
  */
 static struct trie_node *make_path(
@@ -132,7 +132,7 @@ extern inline void trie_root_init(struct trie_node *root);
 void trie_insert(
         struct trie_node *root,
         char const *restrict name,
-        long unsigned movieid,
+        moviedb_id movie,
         struct error *error)
 {
     struct trie_node *node;
@@ -156,14 +156,14 @@ void trie_insert(
 
     if (error->code == error_none) {
         node->has_leaf = true;
-        node->movieid = movieid;
+        node->movie = movie;
     }
 }
 
 bool trie_search(
         struct trie_node const *root,
         char const *restrict name,
-        unsigned long *movieid_out)
+        moviedb_id *movie_out)
 {
     size_t current_key = 0;
     size_t branch_pos;
@@ -182,8 +182,8 @@ bool trie_search(
         }
     }
 
-    if (branch_found && node->has_leaf && movieid_out != NULL) {
-        *movieid_out = node->movieid;
+    if (branch_found && node->has_leaf && movie_out != NULL) {
+        *movie_out = node->movie;
     }
 
     return branch_found && node->has_leaf;
