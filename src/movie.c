@@ -1,6 +1,8 @@
 #include "alloc.h"
 #include "movie.h"
 
+#define COLUMNS 3
+
 void movie_parser_init(
         struct movie_parser *restrict parser,
         FILE *file,
@@ -53,19 +55,19 @@ bool movie_parse_row(
         struct error *error)
 {
     size_t column = 0;
+    bool end_of_file = false;
+    bool row_boundary = false;
 
     row_out->id = 0;
     row_out->title = NULL;
     row_out->genres = NULL;
 
-    if (csv_is_end_of_file(&parser->csv_parser)) {
-        return false;
-    }
-
-    while (column < 3 && error->code == error_none) {
+    while (column < COLUMNS && error->code == error_none && !end_of_file) {
         csv_parse_field(&parser->csv_parser, buf, error);
-        if (error->code == error_none) {
-            if (column < 2 && csv_is_row_boundary(&parser->csv_parser)) {
+        end_of_file = csv_is_end_of_file(&parser->csv_parser) && column == 0;
+        if (!end_of_file && error->code == error_none) {
+            row_boundary = csv_is_row_boundary(&parser->csv_parser);
+            if (column < COLUMNS - 1 && row_boundary) {
                 error_set_code(error, error_movie);
                 error->data.movie.line = parser->csv_parser.line - 1;
             } else if (column == parser->id_column) {
@@ -75,8 +77,8 @@ bool movie_parse_row(
             } else if (column == parser->genres_column) {
                 row_out->genres= strbuf_make_cstr(buf, error);
             }
-            column++;
         }
+        column++;
     }
 
     if (error->code != error_none) {
@@ -95,7 +97,7 @@ bool movie_parse_row(
         error->data.movie.line = parser->csv_parser.line;
     }
 
-    return error->code == error_none;
+    return !end_of_file && error->code == error_none;
 }
 
 void movie_destroy_row(struct movie_csv_row *row)

@@ -1,12 +1,52 @@
 #include <stdio.h>
 #include <stdbool.h>
+#include <time.h>
 #include "error.h"
 #include "io.h"
 #include "strbuf.h"
 #include "movie.h"
 #include "trie.h"
 
-void read_movies(struct trie_node *restrict root, struct error *error)
+void load_all(struct trie_node *restrict root, struct error *error);
+
+void load_movies(struct trie_node *restrict root, struct error *error);
+
+int main(int argc, char const *argv[])
+{
+    int exit_code = 0;
+    struct error error;
+    struct trie_node root;
+
+    error_init(&error);
+    trie_root_init(&root);
+    load_all(&root, &error);
+
+    if (error.code != error_none) {
+        error_print(&error);
+    }
+
+    trie_destroy(&root);
+    error_destroy(&error);
+
+    return exit_code;
+}
+
+void load_all(struct trie_node *restrict root, struct error *error)
+{
+    clock_t then, now;
+    double millis;
+
+    puts("Loading data...");
+
+    then = clock();
+    load_movies(root, error);
+    now = clock();
+
+    millis = (now - then) / (CLOCKS_PER_SEC / 1000.0);
+    printf("Data loaded in %.3lf milliseconds\n", millis);
+}
+
+void load_movies(struct trie_node *restrict root, struct error *error)
 {
     char const *path = "movie.csv";
     FILE *file;
@@ -39,22 +79,3 @@ void read_movies(struct trie_node *restrict root, struct error *error)
     }
 }
 
-int main(int argc, char const *argv[])
-{
-    int exit_code = 0;
-    struct error error;
-    struct trie_node root;
-
-    error_init(&error);
-    trie_root_init(&root);
-    read_movies(&root, &error);
-
-    if (error.code != error_none) {
-        error_print(&error);
-    }
-
-    trie_destroy(&root);
-    error_destroy(&error);
-
-    return exit_code;
-}

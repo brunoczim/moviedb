@@ -38,7 +38,9 @@ enum csv_state {
      * outside of a field.
      */
     csv_crlf,
-    /** State when parsing an unquoted field. */
+    /**
+     * State when parsing an unquoted field.
+     */
     csv_unquoted,
     /**
      * State when parsing a quoted field, a quote has not been found inside the
@@ -51,6 +53,11 @@ enum csv_state {
      * the quoted field yet.
      */
     csv_quoted_cr,
+    /**
+     * State when parsing a quoted field, and a backslash has been found _inside_
+     * the field.
+     */
+    csv_prev_backslash,
     /**
      * State when parsing a quoted field, and a quote has been found _inside_
      * the field.
