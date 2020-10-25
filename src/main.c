@@ -5,7 +5,7 @@
 #include "alloc.h"
 #include "strbuf.h"
 #include "io.h"
-#include "movie.h"
+#include "csv/movie.h"
 #include "trie.h"
 
 #define IO_BUF_SIZE 0x10000

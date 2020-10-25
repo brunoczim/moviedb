@@ -1,4 +1,4 @@
-#include "alloc.h"
+#include "../alloc.h"
 #include "movie.h"
 
 #define COLUMNS 3
