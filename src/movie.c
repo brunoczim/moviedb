@@ -83,9 +83,9 @@ bool movie_parse_row(
         if (error->code == error_id) {
             error->data.id.has_line = true;
             if (csv_is_row_boundary(&parser->csv_parser)) {
-                error->data.id.has_line = parser->csv_parser.line - 1;
+                error->data.id.line = parser->csv_parser.line - 1;
             } else {
-                error->data.id.has_line = parser->csv_parser.line;
+                error->data.id.line = parser->csv_parser.line;
             }
         }
     } else if (!csv_is_row_boundary(&parser->csv_parser)) {
