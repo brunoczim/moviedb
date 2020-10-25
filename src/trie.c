@@ -52,13 +52,13 @@ static void branch_insert(
 /**
  * Makes path for a node. Starts by creating a child in the given node, in the
  * given branch_pos (branch position), advancing current_key to the end of the
- * string. Returns a heap-allocated node where a moviedb_id with the given name
+ * string. Returns a heap-allocated node where a moviedb_id with the given title 
  * should be inserted as leaf. The only possible error is an allocation error.
  */
 static struct trie_node *make_path(
         struct trie_node *node,
         size_t branch_pos,
-        char const *restrict name,
+        char const *restrict title,
         size_t *current_key,
         struct error *error);
 
@@ -131,7 +131,7 @@ extern inline void trie_root_init(struct trie_node *root);
 
 void trie_insert(
         struct trie_node *root,
-        char const *restrict name,
+        char const *restrict title,
         moviedb_id movie,
         struct error *error)
 {
@@ -143,13 +143,13 @@ void trie_insert(
     current_key = 0;
     node = root;
 
-    while (name[current_key] != 0 && error->code == error_none) {
-        found = branch_search(&node->branches, name[current_key], &branch_pos);
+    while (title[current_key] != 0 && error->code == error_none) {
+        found = branch_search(&node->branches, title[current_key], &branch_pos);
         if (found) {
             node = node->branches.entries[branch_pos].child;
             current_key++;
         } else {
-            node = make_path(node, branch_pos, name, &current_key, error);
+            node = make_path(node, branch_pos, title, &current_key, error);
         }
     }
 
@@ -162,7 +162,7 @@ void trie_insert(
 
 bool trie_search(
         struct trie_node const *root,
-        char const *restrict name,
+        char const *restrict title,
         moviedb_id *movie_out)
 {
     size_t current_key = 0;
@@ -170,10 +170,10 @@ bool trie_search(
     struct trie_node const *node = root;
     bool branch_found = true;
 
-    while (name[current_key] != 0 && branch_found) {
+    while (title[current_key] != 0 && branch_found) {
         branch_found = branch_search(
                 &node->branches,
-                name[current_key],
+                title[current_key],
                 &branch_pos);
 
         if (branch_found) {
@@ -288,13 +288,13 @@ static void branch_insert(
 static struct trie_node *make_path(
         struct trie_node *node,
         size_t branch_pos,
-        char const *restrict name,
+        char const *restrict title,
         size_t *current_key,
         struct error *error)
 {
     struct trie_node *child;
     
-    while (name[*current_key] != 0 && error->code == error_none) {
+    while (title[*current_key] != 0 && error->code == error_none) {
         child = moviedb_alloc(sizeof(struct trie_node), error);
         if (error->code == error_none) {
             child->has_leaf = false;
@@ -304,7 +304,7 @@ static struct trie_node *make_path(
 
             branch_insert(
                     &node->branches,
-                    name[*current_key],
+                    title[*current_key],
                     child,
                     branch_pos,
                     error);

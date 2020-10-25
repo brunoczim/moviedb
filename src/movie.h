@@ -31,4 +31,6 @@ bool movie_parse_row(
         struct movie_csv_row *row_out,
         struct error *error);
 
+void movie_destroy_row(struct movie_csv_row *row);
+
 #endif

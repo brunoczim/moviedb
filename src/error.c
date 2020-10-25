@@ -55,7 +55,7 @@ void error_print(struct error const *error)
 
         case error_alloc:
             fprintf(stderr,
-                    "Out of memory, allocation size %zu\n",
+                    "out of memory, allocation size %zu\n",
                     error->data.alloc.size);
             break;
 
@@ -65,13 +65,12 @@ void error_print(struct error const *error)
 
         case error_movie:
             fprintf(stderr,
-                    "Invalid movie, line %lu\n",
+                    "invalid movie, line %lu\n",
                     error->data.movie.line);
             break;
 
         case error_id:
-            fputs("Invalid ID ", stderr);
-            fputs("\"", stderr);
+            fputs("invalid ID ", stderr);
             error_print_quote(error->data.id.string);
             if (error->data.id.has_line) {
                 fprintf(stderr, ", line %lu", error->data.id.line);

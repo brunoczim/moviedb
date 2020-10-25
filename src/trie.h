@@ -74,24 +74,24 @@ inline void trie_root_init(struct trie_node *restrict root)
 }
 
 /**
- * Inserts a movie ID into the three, given the name of the movie. The only
+ * Inserts a movie ID into the three, given the title of the movie. The only
  * possible error is an allocation error.
  */
 void trie_insert(
         struct trie_node *root,
-        char const *restrict name,
+        char const *restrict title,
         moviedb_id movie,
         struct error *error);
 
 /**
- * Searches for a movie in the trie tree with the given movie name.
+ * Searches for a movie in the trie tree with the given movie title.
  *
  * Returns whether the movie was found. If found, movie_out is filled with the
  * found movie's ID.
  */
 bool trie_search(
         struct trie_node const *root,
-        char const *restrict name,
+        char const *restrict title,
         moviedb_id *movie_out);
 
 /**

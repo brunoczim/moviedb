@@ -10,6 +10,7 @@ moviedb_id moviedb_id_parse(struct strbuf *restrict buf, struct error *error)
         if (buf->ptr[i] >= '0' && buf->ptr[i] <= '9') {
             id *= 10;
             id += buf->ptr[i] - '0';
+            i++;
         } else {
             error_string = strbuf_make_cstr(buf, error);
             if (error->code == error_none) {

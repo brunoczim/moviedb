@@ -1,3 +1,4 @@
+#include "alloc.h"
 #include "movie.h"
 
 void movie_parser_init(
@@ -15,7 +16,7 @@ void movie_parser_init(
     do {
         csv_parse_field(&parser->csv_parser, buf, error);
         if (error->code == error_none) {
-            if (strbuf_icmp_cstr(buf, "moviedb_id") == 0) {
+            if (strbuf_icmp_cstr(buf, "movieid") == 0) {
                 if (found_id) {
                     error_set_code(error, error_csv_header);
                 } else {
@@ -64,7 +65,7 @@ bool movie_parse_row(
     while (column < 3 && error->code == error_none) {
         csv_parse_field(&parser->csv_parser, buf, error);
         if (error->code == error_none) {
-            if (csv_is_row_boundary(&parser->csv_parser)) {
+            if (column < 2 && csv_is_row_boundary(&parser->csv_parser)) {
                 error_set_code(error, error_movie);
                 error->data.movie.line = parser->csv_parser.line - 1;
             } else if (column == parser->id_column) {
@@ -74,6 +75,7 @@ bool movie_parse_row(
             } else if (column == parser->genres_column) {
                 row_out->genres= strbuf_make_cstr(buf, error);
             }
+            column++;
         }
     }
 
@@ -94,4 +96,10 @@ bool movie_parse_row(
     }
 
     return error->code == error_none;
+}
+
+void movie_destroy_row(struct movie_csv_row *row)
+{
+    moviedb_free((void *) (void const *) row->title);
+    moviedb_free((void *) (void const *) row->genres);
 }

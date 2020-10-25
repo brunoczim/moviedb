@@ -12,6 +12,7 @@ inline FILE *input_file_open(char const *restrict path, struct error *error)
     if (file == NULL) {
         error_set_code(error, error_io);
         error->data.io.sys_errno = errno;
+    } else {
     }
 
     return file;

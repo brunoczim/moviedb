@@ -3,25 +3,38 @@
 #include "error.h"
 #include "io.h"
 #include "strbuf.h"
-#include "csv.h"
+#include "movie.h"
 #include "trie.h"
 
-void read_rating(struct trie_node *restrict root, struct error *error)
+void read_movies(struct trie_node *restrict root, struct error *error)
 {
-    char const *path = "rating.csv";
+    char const *path = "movie.csv";
     FILE *file;
-    struct csv_parser parser;
-    struct strbuf field;
+    struct movie_parser parser;
+    struct strbuf buf;
+    struct movie_csv_row row;
+    bool has_data = true;
 
     file = input_file_open(path, error);
 
     if (error->code == error_none) {
-        csv_parser_init(&parser, file);
-        strbuf_init(&field);
+        strbuf_init(&buf);
+        movie_parser_init(&parser, file, &buf, error);
 
-        strbuf_destroy(&field);
+        while (has_data) {
+            has_data= movie_parse_row(&parser, &buf, &row, error);
+            if (has_data) {
+                trie_insert(root, row.title, row.id, error);
+                has_data = error->code == error_none;
+                movie_destroy_row(&row);
+            }
+        }
+
+        strbuf_destroy(&buf);
         input_file_close(file);
-    } else {
+    } 
+
+    if (error->code != error_none) {
         error_set_context(error, path, false);
     }
 }
@@ -34,7 +47,7 @@ int main(int argc, char const *argv[])
 
     error_init(&error);
     trie_root_init(&root);
-    read_rating(&root, &error);
+    read_movies(&root, &error);
 
     if (error.code != error_none) {
         error_print(&error);
