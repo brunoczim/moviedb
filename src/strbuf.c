@@ -27,58 +27,9 @@ extern inline void strbuf_push(
         char ch,
         struct error *error);
 
-int strbuf_cmp_cstr(
+extern inline void strbuf_as_ref(
         struct strbuf const *restrict buf,
-        char const *restrict cstr)
-{
-    size_t i = 0;
-    int cmp = 0;
-
-    while (cmp == 0 && (i < buf->length || cstr[i] != 0)) {
-        if (i >= buf->length) {
-            cmp = -1;
-        } else if (cstr[i] == 0) {
-            cmp = 1;
-        } else {
-            if (buf->ptr[i] < cstr[i]) {
-                cmp = -1;
-            } else if (buf->ptr[i] > cstr[i]) {
-                cmp = 1;
-            }
-            i++;
-        }
-    }
-
-    return cmp;
-}
-
-int strbuf_icmp_cstr(
-        struct strbuf const *restrict buf,
-        char const *restrict cstr)
-{
-    size_t i = 0;
-    int cmp = 0;
-    char this_ch, other_ch;
-
-    while (cmp == 0 && (i < buf->length || cstr[i] != 0)) {
-        if (i >= buf->length) {
-            cmp = -1;
-        } else if (cstr[i] == 0) {
-            cmp = 1;
-        } else {
-            this_ch = tolower(buf->ptr[i]);
-            other_ch = tolower(cstr[i]);
-            if (this_ch < other_ch) {
-                cmp = -1;
-            } else if (this_ch > other_ch) {
-                cmp = 1;
-            }
-            i++;
-        }
-    }
-
-    return cmp;
-}
+        struct strref *restrict ref_out);
 
 char *strbuf_make_cstr(struct strbuf *restrict buf, struct error *error)
 {

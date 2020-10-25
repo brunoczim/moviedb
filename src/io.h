@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <errno.h>
 #include "error.h"
+#include "strbuf.h"
 
 /**
  * This file provides some IO utilities for the application.ç
@@ -64,5 +65,10 @@ inline void input_file_close(FILE *file)
 {
     fclose(file);
 }
+
+/**
+ * Reads a line from the standard input and appends it to the given buffer.
+ */
+void stdin_read_line(struct strbuf *restrict buf, struct error *restrict error);
 
 #endif

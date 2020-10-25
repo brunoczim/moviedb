@@ -3,6 +3,7 @@
 
 #include <stdlib.h>
 #include "error.h"
+#include "strref.h"
 
 /**
  * Defines string buffer. It handles memory allocations for a growable string.
@@ -68,24 +69,22 @@ inline void strbuf_push(
 }
 
 /**
- * Compares the buffer with a C string. Returns 1 if greater than the C string,
- * returns -1 if less than the C string, and 0 if equal.
+ * Makes a string reference using the buffer pointer, thus no extra-allocation
+ * is done. However, pushing or reserving space in the string buffer might make
+ * the strref's pointer invalid, so beware!
  */
-int strbuf_cmp_cstr(
+inline void strbuf_as_ref(
         struct strbuf const *restrict buf,
-        char const *restrict cstr);
+        struct strref *restrict ref_out)
+{
+    ref_out->ptr = buf->ptr;
+    ref_out->length = buf->length;
+}
 
 /**
- * Like strbuf_cmp_cstr, but case-insensitive.
- */
-int strbuf_icmp_cstr(
-        struct strbuf const *restrict buf,
-        char const *restrict cstr);
-
-/**
- * Makes a C string from the given string buffer, appending the nul byte (0)
- * if necessary. It might or not use the buffer allocation, and then, in this
- * case, the buffer will be reset.
+ * Makes a C string from the whole given string buffer, appending the nul byte
+ * (0) if necessary. It might or not use the buffer allocation, and then, in
+ * this case, the buffer will be reset.
  */
 char *strbuf_make_cstr(struct strbuf *restrict buf, struct error *error);
 

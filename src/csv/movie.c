@@ -1,4 +1,5 @@
 #include "../alloc.h"
+#include "../strref.h"
 #include "movie.h"
 
 #define COLUMNS 3
@@ -11,6 +12,7 @@ void movie_parser_init(
 {
     bool found_id = false, found_title = false, found_genres = false;
     bool row_boundary;
+    struct strref ref;
     size_t column = 0;
 
     csv_parser_init(&parser->csv_parser, file);
@@ -18,21 +20,22 @@ void movie_parser_init(
     do {
         csv_parse_field(&parser->csv_parser, buf, error);
         if (error->code == error_none) {
-            if (strbuf_icmp_cstr(buf, "movieid") == 0) {
+            strbuf_as_ref(buf, &ref);
+            if (strref_icmp_cstr(&ref, "movieid") == 0) {
                 if (found_id) {
                     error_set_code(error, error_csv_header);
                 } else {
                     found_id = true;
                     parser->id_column = column;
                 }
-            } else if (strbuf_icmp_cstr(buf, "title") == 0) {
+            } else if (strref_icmp_cstr(&ref, "title") == 0) {
                 if (found_title) {
                     error_set_code(error, error_csv_header);
                 } else {
                     found_title = true;
                     parser->title_column = column;
                 }
-            } else if (strbuf_icmp_cstr(buf, "genres") == 0) {
+            } else if (strref_icmp_cstr(&ref, "genres") == 0) {
                 if (found_genres) {
                     error_set_code(error, error_csv_header);
                 } else {
