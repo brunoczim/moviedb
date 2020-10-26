@@ -60,6 +60,7 @@ MOVIEDB_OBJS = $(OBJ_DIR)/main.o \
 			   $(OBJ_DIR)/csv.o \
 			   $(OBJ_DIR)/trie.o \
 			   $(OBJ_DIR)/id.o \
+			   $(OBJ_DIR)/shell.o \
 			   $(OBJ_DIR)/csv/movie.o
 
 TEST_CSV_OBJS = $(OBJ_DIR)/error.o \

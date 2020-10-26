@@ -4,8 +4,8 @@
 #include "error.h"
 #include "trie.h"
 
-void moviedb_shell(
-        struct trie_node const *trie_root,
-        struct error *fatal_error);
+void shell_run(struct trie_node const *trie_root,
+        struct strbuf *buf,
+        struct error *error);
 
 #endif
