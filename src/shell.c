@@ -26,11 +26,11 @@ void shell_run(struct trie_node const *trie_root,
     struct shell shell;
     shell.trie_root = trie_root;
     shell.buf = buf;
-    shell.curr_ch = input_file_read(stdin, error);
 
     while (read && error->code == error_none) {
         printf("$ ");
         fflush(stdout);
+        shell.curr_ch = input_file_read(stdin, error);
         read = run_cmd(&shell, error);
     }
 }
@@ -56,6 +56,7 @@ static bool run_cmd(struct shell *restrict shell, struct error *error)
     struct strref buf_ref;
     skip_whitespace(shell, error);
     if (!read_op(shell, error)) {
+        puts("");
         return false;
     }
     strbuf_as_ref(shell->buf, &buf_ref);
@@ -79,9 +80,12 @@ static bool run_movie(struct shell *restrict shell, struct error *error)
     char *title;
     moviedb_id movieid;
 
-    shell->buf->length = 0;
+    skip_whitespace(shell, error);
 
-    do {
+    shell->buf->length = 0;
+    delimiter = false;
+
+    while (!delimiter && error->code == error_none) {
         switch (shell->curr_ch) {
             case '\n':
             case EOF:
@@ -94,7 +98,7 @@ static bool run_movie(struct shell *restrict shell, struct error *error)
                 }
                 break;
         }
-    } while (!delimiter && error->code == error_none);
+    }
 
     if (error->code == error_none) {
         title = strbuf_make_cstr(shell->buf, error);
@@ -115,6 +119,7 @@ static bool read_op(struct shell *restrict shell, struct error *error)
 {
     bool delimiter;
 
+    delimiter = false;
     shell->buf->length = 0;
 
     do {
@@ -133,7 +138,10 @@ static bool read_op(struct shell *restrict shell, struct error *error)
         }
     } while (!delimiter && error->code == error_none);
 
-    return shell->buf->length > 0 && error->code == error_none;
+    if (error->code != error_none) {
+        return false;
+    }
+    return shell->buf->length > 0 || shell->curr_ch != EOF;
 }
 
 static void print_help(void)
