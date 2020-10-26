@@ -63,6 +63,52 @@ struct trie_node {
 };
 
 /**
+ * An iterator queue's node.
+ */
+struct trie_iter_node {
+    /**
+     * Branch to be destroyed.
+     */
+    struct trie_branch_list branches;
+    /**
+     * The next node in the queue.
+     */
+    struct trie_iter_node *next;
+};
+
+/**
+ * An iterator queue.
+ */
+struct trie_iter_queue {
+    /**
+     * Front of the queue (i.e. the output side).
+     */
+    struct trie_iter_node *front;
+    /**
+     * Back of the queue (i.e. the input side).
+     */
+    struct trie_iter_node *back;
+};
+
+/**
+ * Iterator over a trie's node and the children.
+ */
+struct trie_iter {
+    /**
+     * The queue used to store the children of iterated nodes.
+     */
+    struct trie_iter_queue queue;
+    /**
+     * Index of the current branch.
+     */
+    size_t branch;
+    /**
+     * The current value produced by the iterator.
+     */
+    struct trie_node const *current;
+};
+
+/**
  * Initializes the root of the trie tree.
  */
 inline void trie_root_init(struct trie_node *restrict root)
@@ -95,10 +141,34 @@ bool trie_search(
         moviedb_id *movie_out);
 
 /**
+ * Searches for the movies in the trie tree with the given title prefix.
+ *
+ * Initializes the output iterator parameter iter_out so it is iterable.
+ */
+void trie_search_prefix(
+        struct trie_node const *root,
+        char const *restrict prefix,
+        struct trie_iter *iter_out);
+
+/**
  * Destroys the given trie tree, freeing all the heap-allocated memory. Note
  * that the given pointer to the root node is not assumed to be heap-allocated.
  * One can (and should) allocate the root node in the stack.
  */
 void trie_destroy(struct trie_node *root);
+
+/**
+ * Advances the iterator and puts the current movie ID in the out paramter
+ * movie_out.
+ */
+bool trie_next_movie(
+    struct trie_iter *restrict iter,
+    moviedb_id *movie_out,
+    struct error *error);
+
+/**
+ * Destroy resources used by the trie iterator.
+ */
+void trie_iter_destroy(struct trie_iter *restrict iter);
 
 #endif

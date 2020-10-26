@@ -2,34 +2,6 @@
 #include "alloc.h"
 
 /**
- * A destroy queue's node.
- */
-struct destroy_queue_node {
-    /**
-     * Branch to be destroyed.
-     */
-    struct trie_branch_list branches;
-    /**
-     * The next node in the queue.
-     */
-    struct destroy_queue_node *next;
-};
-
-/**
- * A destroy queue.
- */
-struct destroy_queue {
-    /**
-     * Front of the queue (i.e. the output side).
-     */
-    struct destroy_queue_node *front;
-    /**
-     * Back of the queue (i.e. the input side).
-     */
-    struct destroy_queue_node *back;
-};
-
-/**
  * Searches for the given key in a branch list. Returns whether if the given key
  * was found. Fills pos with the position of the key. If not found, pos is
  * filled with the position where the key should be inserted.
@@ -65,14 +37,14 @@ static struct trie_node *make_path(
 /**
  * Initializes the destroy queue.
  */
-static void destroy_queue_init(struct destroy_queue *restrict queue);
+static void trie_iter_queue_init(struct trie_iter_queue *restrict queue);
 
 /**
  * Enqueues a branch list on the destroy queue. The only possible error is an
  * allocation error.
  */
-static void destroy_enqueue(
-        struct destroy_queue *restrict queue,
+static void trie_iter_enqueue(
+        struct trie_iter_queue *restrict queue,
         struct trie_branch_list const *branches,
         struct error *error);
 
@@ -81,14 +53,20 @@ static void destroy_enqueue(
  * actually happened (i.e. the queue was not empty), and fills the branches_out
  * parameter with the queue if successful.
  */
-static bool destroy_dequeue(
-        struct destroy_queue *restrict queue,
+static bool trie_iter_dequeue(
+        struct trie_iter_queue *restrict queue,
         struct trie_branch_list *branches_out);
 
 /**
  * Tests if the destroy queue is empty
  */
-static inline bool destroy_queue_is_empty(struct destroy_queue *restrict queue);
+static inline bool trie_iter_queue_is_empty(
+        struct trie_iter_queue const *restrict queue);
+
+/**
+ * Advances the iterator.
+ */
+static void trie_next(struct trie_iter *restrict iter, struct error *error);
 
 /**
  * Destroys the given branches recursively (last resort, in case heap-allocation
@@ -102,17 +80,17 @@ static inline void destroy_branches_recursive(
  * The only possible error is an allocation error.
  */
 static inline void destroy_enqueue_next_level(
-        struct destroy_queue *restrict curr_level,
-        struct destroy_queue *restrict next_level,
+        struct trie_iter_queue *restrict curr_level,
+        struct trie_iter_queue *restrict next_level,
         struct error *error);
 
 /**
  * Enqueues all children of of the given branch list into the given queue. The
  * only possible error is an allocation error.
  */
-static inline void destroy_enqueue_children(
-        struct destroy_queue *restrict queue,
-        struct trie_branch_list *restrict branches,
+static inline void trie_iter_enqueue_children(
+        struct trie_iter_queue *restrict queue,
+        struct trie_branch_list const *restrict branches,
         struct error *error);
 
 /**
@@ -189,30 +167,85 @@ bool trie_search(
     return branch_found && node->has_leaf;
 }
 
+void trie_search_prefix(
+        struct trie_node const *root,
+        char const *restrict prefix,
+        struct trie_iter *iter_out)
+{
+    size_t current_key = 0;
+    size_t branch_pos;
+    struct trie_node const *node = root;
+    bool branch_found = true;
+
+    while (prefix[current_key] != 0 && branch_found) {
+        branch_found = branch_search(
+                &node->branches,
+                prefix[current_key],
+                &branch_pos);
+
+        if (branch_found) {
+            node = node->branches.entries[branch_pos].child;
+            current_key++;
+        }
+    }
+
+    trie_iter_queue_init(&iter_out->queue);
+    iter_out->branch = 0;
+    if (branch_found) {
+        iter_out->current = node;
+    } else {
+        iter_out->current = NULL;
+    }
+}
+
 void trie_destroy(struct trie_node *root)
 {
     struct error error;
-    struct destroy_queue curr_level;
-    struct destroy_queue next_level;
+    struct trie_iter_queue curr_level;
+    struct trie_iter_queue next_level;
 
     error_init(&error);
 
-    destroy_queue_init(&curr_level);
-    destroy_queue_init(&next_level);
+    trie_iter_queue_init(&curr_level);
+    trie_iter_queue_init(&next_level);
 
-    destroy_enqueue(&curr_level, &root->branches, &error);
+    trie_iter_enqueue(&curr_level, &root->branches, &error);
 
     if (error.code == error_none) {
-        while (!destroy_queue_is_empty(&curr_level)) {
+        while (!trie_iter_queue_is_empty(&curr_level)) {
             destroy_enqueue_next_level(&curr_level, &next_level, &error);
             if (error.code == error_none) {
                 curr_level = next_level;
-                destroy_queue_init(&next_level);
+                trie_iter_queue_init(&next_level);
             }
         }
     } else {
         destroy_recursive(root);
     }
+}
+
+bool trie_next_movie(
+    struct trie_iter *restrict iter,
+    moviedb_id *movie_out,
+    struct error *error)
+{
+    bool leaf = false;
+
+    while (!leaf && iter->current != NULL && error->code == error_none) {
+        if (iter->current->has_leaf) {
+            *movie_out = iter->current->movie;
+            leaf = true;
+        }
+
+        trie_next(iter, error);
+    }
+
+    return leaf;
+}
+
+void trie_iter_destroy(struct trie_iter *restrict iter)
+{
+    while (trie_iter_dequeue(&iter->queue, NULL)) {}
 }
 
 static bool branch_search(
@@ -318,20 +351,20 @@ static struct trie_node *make_path(
     return node;
 }
 
-static void destroy_queue_init(struct destroy_queue *restrict queue)
+static void trie_iter_queue_init(struct trie_iter_queue *restrict queue)
 {
     queue->front = NULL;
     queue->back = NULL;
 }
 
-static void destroy_enqueue(
-        struct destroy_queue *restrict queue,
+static void trie_iter_enqueue(
+        struct trie_iter_queue *restrict queue,
         struct trie_branch_list const *branches,
         struct error *error)
 {
-    struct destroy_queue_node *node;
+    struct trie_iter_node *node;
 
-    node = moviedb_alloc(sizeof(struct destroy_queue_node), error);
+    node = moviedb_alloc(sizeof(struct trie_iter_node), error);
 
     if (error->code == error_none) {
         node->next = NULL;
@@ -346,17 +379,19 @@ static void destroy_enqueue(
     }
 }
 
-static bool destroy_dequeue(
-        struct destroy_queue *restrict queue,
+static bool trie_iter_dequeue(
+        struct trie_iter_queue *restrict queue,
         struct trie_branch_list *branches_out)
 {
-    struct destroy_queue_node *next;
+    struct trie_iter_node *next;
 
     if (queue->front == NULL) {
         return false;
     }
 
-    *branches_out = queue->front->branches;
+    if (branches_out != NULL) {
+        *branches_out = queue->front->branches;
+    }
     next = queue->front->next;
     moviedb_free(queue->front);
     queue->front = next;
@@ -368,7 +403,8 @@ static bool destroy_dequeue(
     return true;
 }
 
-static inline bool destroy_queue_is_empty(struct destroy_queue *restrict queue)
+static inline bool trie_iter_queue_is_empty(
+        struct trie_iter_queue const *restrict queue)
 {
     return queue->front == NULL;
 }
@@ -385,40 +421,71 @@ static inline void destroy_branches_recursive(
 }
 
 static inline void destroy_enqueue_next_level(
-        struct destroy_queue *restrict curr_level,
-        struct destroy_queue *restrict next_level,
+        struct trie_iter_queue *restrict curr_level,
+        struct trie_iter_queue *restrict next_level,
         struct error *error)
 {
     struct trie_branch_list branches;
     
-    while (destroy_dequeue(curr_level, &branches)) {
-        destroy_enqueue_children(next_level, &branches, error);
+    while (trie_iter_dequeue(curr_level, &branches)) {
+        trie_iter_enqueue_children(next_level, &branches, error);
         if (error->code == error_none) {
             destroy_branch_list(&branches);
         } else {
             destroy_branches_recursive(&branches);
-            while (destroy_dequeue(curr_level, &branches)) {
+            while (trie_iter_dequeue(curr_level, &branches)) {
                 destroy_branches_recursive(&branches);
             }
-            while (destroy_dequeue(next_level, &branches)) {}
+            while (trie_iter_dequeue(next_level, &branches)) {}
         }
     }
 }
 
-static inline void destroy_enqueue_children(
-        struct destroy_queue *restrict queue,
-        struct trie_branch_list *restrict branches,
+static inline void trie_iter_enqueue_children(
+        struct trie_iter_queue *restrict queue,
+        struct trie_branch_list const *restrict branches,
         struct error *error)
 {
 
     size_t i = 0;
     while (i < branches->length && error->code == error_none) {
-        destroy_enqueue(
+        trie_iter_enqueue(
                 queue,
                 &branches->entries[i].child->branches,
                 error);
         
         i++;
+    }
+}
+
+static void trie_next(struct trie_iter *restrict iter, struct error *error)
+{
+    bool out_of_bounds;
+
+    if (iter->current != NULL) {
+        trie_iter_enqueue_children(
+                &iter->queue,
+                &iter->current->branches,
+                error);
+    }
+
+    do {
+        out_of_bounds = false;
+
+        if (!trie_iter_queue_is_empty(&iter->queue)) {
+            if (iter->branch >= iter->queue.front->branches.length) {
+                out_of_bounds = true;
+                trie_iter_dequeue(&iter->queue, NULL);
+                iter->branch = 0;
+            }
+        }
+    } while (out_of_bounds);
+
+    if (trie_iter_queue_is_empty(&iter->queue)) {
+        iter->current = NULL;
+    } else {
+        iter->current = iter->queue.front->branches.entries[iter->branch].child;
+        iter->branch++;
     }
 }
 

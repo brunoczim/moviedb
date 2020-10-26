@@ -2,20 +2,56 @@
 #include "alloc.h"
 #include "shell.h"
 
+/**
+ * Data shared by shell functions.
+ */
 struct shell {
+    /**
+     * The trie mapping title -> movieid.
+     */
     struct trie_node const *trie_root;
+    /**
+     * Buffer used by the shell to read lines.
+     */
     struct strbuf *buf;
+    /**
+     * Last read character.
+     */
     int curr_ch;
 };
 
+/**
+ * Skips whitespace in the user input.
+ */
 static void skip_whitespace(struct shell *restrict shell, struct error *error);
 
+/**
+ * Reads and runs a command entered by the user. Returns whether the shell
+ * should still execute.
+ */
 static bool run_cmd(struct shell *restrict shell, struct error *error);
 
+/**
+ * Reads a movie title prefix entered by the user and runs a search for movies
+ * with that prefix in their names. Returns whether the shell should still
+ * execute.
+ */
 static bool run_movie(struct shell *restrict shell, struct error *error);
 
+/**
+ * Reads the operation name entered by the user such as "movie" or "exit.
+ * Returns whether the shell should still execute.
+ */
 static bool read_op(struct shell *restrict shell, struct error *error);
 
+/**
+ * Reads the single argument of an operation.
+ */
+static void read_single_arg(struct shell *restrict shell, struct error *error);
+
+/**
+ * Prints a help message to the user, showing all operations.
+ */
 static void print_help(void);
 
 void shell_run(struct trie_node const *trie_root,
@@ -56,7 +92,7 @@ static bool run_cmd(struct shell *restrict shell, struct error *error)
     struct strref buf_ref;
     skip_whitespace(shell, error);
     if (!read_op(shell, error)) {
-        puts("");
+        puts("exit");
         return false;
     }
     strbuf_as_ref(shell->buf, &buf_ref);
@@ -75,41 +111,23 @@ static bool run_cmd(struct shell *restrict shell, struct error *error)
 
 static bool run_movie(struct shell *restrict shell, struct error *error)
 {
-    bool delimiter;
-    bool found;
-    char *title;
+    char *prefix;
+    struct trie_iter iter;
     moviedb_id movieid;
 
-    skip_whitespace(shell, error);
+    read_single_arg(shell, error);
 
-    shell->buf->length = 0;
-    delimiter = false;
-
-    while (!delimiter && error->code == error_none) {
-        switch (shell->curr_ch) {
-            case '\n':
-            case EOF:
-                delimiter = true;
-                break;
-            default:
-                strbuf_push(shell->buf, shell->curr_ch, error);
-                if (error->code == error_none) {
-                    shell->curr_ch = input_file_read(stdin, error);
-                }
-                break;
-        }
+    if (error->code == error_none) {
+        prefix = strbuf_make_cstr(shell->buf, error);
     }
 
     if (error->code == error_none) {
-        title = strbuf_make_cstr(shell->buf, error);
-    }
-
-    if (error->code == error_none) {
-        found = trie_search(shell->trie_root, title, &movieid);
-        moviedb_free(title);
-        if (found) {
+        trie_search_prefix(shell->trie_root, prefix, &iter);
+        moviedb_free(prefix);
+        while (trie_next_movie(&iter, &movieid, error)) {
             printf("%lu\n", movieid);
         }
+        trie_iter_destroy(&iter);
     }
 
     return error->code == error_none;
@@ -142,6 +160,31 @@ static bool read_op(struct shell *restrict shell, struct error *error)
         return false;
     }
     return shell->buf->length > 0 || shell->curr_ch != EOF;
+}
+
+static void read_single_arg(struct shell *restrict shell, struct error *error)
+{
+    bool delimiter;
+    
+    skip_whitespace(shell, error);
+
+    shell->buf->length = 0;
+    delimiter = false;
+
+    while (!delimiter && error->code == error_none) {
+        switch (shell->curr_ch) {
+            case '\n':
+            case EOF:
+                delimiter = true;
+                break;
+            default:
+                strbuf_push(shell->buf, shell->curr_ch, error);
+                if (error->code == error_none) {
+                    shell->curr_ch = input_file_read(stdin, error);
+                }
+                break;
+        }
+    }
 }
 
 static void print_help(void)
