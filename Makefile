@@ -48,6 +48,8 @@ HEADERS = src/error.h \
 		  src/csv.h \
 		  src/id.h \
 		  src/csv/movie.h \
+		  src/trie/branch.h \
+		  src/trie/iter.h \
 		  src/trie.h \
 		  src/shell.h
 
@@ -58,6 +60,8 @@ MOVIEDB_OBJS = $(OBJ_DIR)/main.o \
 			   $(OBJ_DIR)/strbuf.o \
 			   $(OBJ_DIR)/io.o \
 			   $(OBJ_DIR)/csv.o \
+			   $(OBJ_DIR)/trie/branch.o \
+			   $(OBJ_DIR)/trie/iter.o \
 			   $(OBJ_DIR)/trie.o \
 			   $(OBJ_DIR)/id.o \
 			   $(OBJ_DIR)/shell.o \
@@ -73,6 +77,8 @@ TEST_CSV_OBJS = $(OBJ_DIR)/error.o \
 TEST_TRIE_OBJS = $(OBJ_DIR)/error.o \
 				 $(OBJ_DIR)/alloc.o \
 			   	 $(OBJ_DIR)/strbuf.o \
+				 $(OBJ_DIR)/trie/branch.o \
+				 $(OBJ_DIR)/trie/iter.o \
 			   	 $(OBJ_DIR)/trie.o \
 			   	 $(OBJ_DIR)/test/trie.o
 

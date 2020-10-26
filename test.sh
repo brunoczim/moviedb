@@ -1,6 +1,6 @@
 #!/usr/bin/env sh
 
-set -e
+SUCCESS=true
 
 print_sep() {
     echo
@@ -8,12 +8,26 @@ print_sep() {
     echo
 }
 
-./run.sh debug test/csv
+run_test() {
+    ./run.sh debug "test/$@" \
+        && print_sep \
+        && ./run.sh sanitize "test/$@" \
+        && print_sep \
+        && ./run.sh release "test/$@"
+}
 
-print_sep
+for TEST in csv trie
+do
+    if ! run_test "$TEST"
+    then
+        SUCCESS=false
+    fi
+    print_sep
+done
 
-./run.sh sanitize test/csv
-
-print_sep
-
-./run.sh release test/csv
+if $SUCCESS
+then
+    echo $'\e''[92m'"==== ALL TESTS PASSED ===="$'\e''[0m'
+else
+    echo $'\e''[91m'"==== FAILURE ===="$'\e''[0m'
+fi

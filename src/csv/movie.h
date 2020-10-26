@@ -33,19 +33,23 @@ struct movie_csv_row {
  */
 struct movie_parser {
     /**
-     * The internal CSV parser. Do not touch this!!
+     * The internal CSV parser. Only movie parser internal code is allowed to
+     * touch this.
      */
     struct csv_parser csv_parser;
     /**
-     * Column where the ID will appear. Do not write to this!!
+     * Column where the ID will appear. Only movie parser internal code is
+     * allowed to touch this.
      */
     unsigned char id_column;
     /**
-     * Column where the title will appear. Do not write to this!!
+     * Column where the title will appear. Only movie parser internal code is
+     * allowed to touch this.
      */
     unsigned char title_column;
     /**
-     * Column where the genres will appear. Do not write to this!!
+     * Column where the genres will appear. Only movie parser internal code is
+     * allowed to touch this.
      */
     unsigned char genres_column;
 };

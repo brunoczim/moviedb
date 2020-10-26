@@ -140,8 +140,8 @@ union error_data {
  */
 struct error {
     /**
-     * Code of this error. DO NOT set this directly. Set it through
-     * error_set_code. Reading is fine.
+     * Code of this error. You can read this, only error internal code is
+     * allowed to write to this directly. Set it through  error_set_code.
      */
     enum error_code code;
     /**

@@ -11,7 +11,7 @@
  */
 
 /**
- * The internal state of a CSV parser. Should not be manipulated directly. Some
+ * The internal state of a CSV parser. Only internal CSV code uses this. Some
  * states are equivalent, but need to be kept either for documentation purposes
  * or for getting metadata, such as line and columns.
  */
@@ -80,21 +80,23 @@ enum csv_state {
 struct csv_parser { 
     /**
      * The file from which the parser is reading. While the parser is being
-     * used, this field should **NOT** be touched.
+     * used, only CSV parser internal code is allowed to touch this, * including
+     * reading from this file pointer.
      */
     FILE *file;
     /**
-     * Current line of the file, starting from 1. This should be only read,
-     * never written to.
+     * Current line of the file, starting from 1. This can be read, but only
+     * CSV parser internal code is allowed to update this.
      */
     unsigned long line;
     /**
-     * Current column of the file, starting from 1. This should be only read,
-     * never written to.
+     * Current column of the file, starting from 1. This can be read, but only
+     * CSV parser internal code is allowed to update this.
      */
     unsigned long column;
     /**
-     * Internal state of the parser. NEVER touch this!
+     * Internal state of the parser. Only CSV parser internal code is allowed to
+     * touch this.
      */
     enum csv_state state;
 };

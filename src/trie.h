@@ -3,109 +3,33 @@
 
 #include <stdbool.h>
 #include "error.h"
+#include "trie/branch.h"
+#include "trie/iter.h"
 #include "id.h"
 
 /**
  * This file provides an interface to a trie tree's implementation.
  */
 
-struct trie_node;
-
-/**
- * A branch of a trie tree.
- */
-struct trie_branch {
-    /**
-     * The key of the branch (i.e. the character that leads to this path).
-     */
-    char key;
-    /**
-     * A child of this branch's node, associated with the key above.
-     */
-    struct trie_node *child;
-};
-
-/**
- * A list of branches with their keys.
- */
-struct trie_branch_list {
-    /**
-     * The array of branches.
-     */
-    struct trie_branch *restrict entries;
-    /**
-     * Number of branches in this list.
-     */
-    unsigned short length;
-    /**
-     * How many branches this list is currently able to store.
-     */
-    unsigned short capacity;
-};
-
 /**
  * A node of a trie tree.
  */
 struct trie_node {
     /**
-     * Whether this node contains a leaf. **DO NOT** touch this field.
+     * Whether this node contains a leaf. Only trie internal code is allowed to
+     * touch this.
      */
     bool has_leaf;
     /**
      * The leaf data, in this case, the ID of a movie. Only initialized if this
-     * node contains a leaf. **DO NOT** touch this field.
+     * node contains a leaf. Only trie internal code is allowed to touch this.
      */
     moviedb_id movie;
     /**
-     * The branches of this node. **DO NOT** touch this field.
+     * The branches of this node. Only trie internal code is allowed to touch
+     * this.
      */
     struct trie_branch_list branches;
-};
-
-/**
- * An iterator queue's node.
- */
-struct trie_iter_node {
-    /**
-     * Branch to be destroyed.
-     */
-    struct trie_branch_list branches;
-    /**
-     * The next node in the queue.
-     */
-    struct trie_iter_node *next;
-};
-
-/**
- * An iterator queue.
- */
-struct trie_iter_queue {
-    /**
-     * Front of the queue (i.e. the output side).
-     */
-    struct trie_iter_node *front;
-    /**
-     * Back of the queue (i.e. the input side).
-     */
-    struct trie_iter_node *back;
-};
-
-/**
- * Iterator over a trie's node and the children.
- */
-struct trie_iter {
-    /**
-     * The queue used to store the children of iterated nodes.
-     */
-    struct trie_iter_queue queue;
-    /**
-     * Index of the current branch.
-     */
-    size_t branch;
-    /**
-     * The current value produced by the iterator.
-     */
-    struct trie_node const *current;
 };
 
 /**
@@ -114,9 +38,7 @@ struct trie_iter {
 inline void trie_root_init(struct trie_node *restrict root)
 {
     root->has_leaf = false;
-    root->branches.entries = NULL;
-    root->branches.length = 0;
-    root->branches.capacity = 0;
+    trie_branches_init(&root->branches);
 }
 
 /**
@@ -157,18 +79,5 @@ void trie_search_prefix(
  */
 void trie_destroy(struct trie_node *root);
 
-/**
- * Advances the iterator and puts the current movie ID in the out paramter
- * movie_out.
- */
-bool trie_next_movie(
-    struct trie_iter *restrict iter,
-    moviedb_id *movie_out,
-    struct error *error);
-
-/**
- * Destroy resources used by the trie iterator.
- */
-void trie_iter_destroy(struct trie_iter *restrict iter);
 
 #endif

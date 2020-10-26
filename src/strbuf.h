@@ -16,16 +16,18 @@
 struct strbuf {
     /**
      * The pointer to the allocation. You can freely read from the pointer and
-     * write into the memory this pointer refers to, but **DO NOT** change the
-     * pointer's * addresss manually.
+     * write into the memory this pointer refers to, but only strbuf internal
+     * code is allowed to update the pointer itself.
      */
     char *ptr;
     /**
-     * Length of the string.
+     * Length of the string. Can be freely updated if you guarantee that:
+     *      length <= capacity
      */
     size_t length;
     /**
-     * Capacity of the buffer.
+     * Capacity of the buffer. You can read this, but only strbuf internal code
+     * is allowed to update this.
      */
     size_t capacity;
 };

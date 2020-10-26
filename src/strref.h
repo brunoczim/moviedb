@@ -14,13 +14,11 @@
  */
 struct strref {
     /**
-     * The pointer to the data. Do not update this pointer directly unless you
-     * know what you're doing!
+     * The pointer to the data. Be careful updating this pointer.
      */
     char const *ptr;
     /**
-     * Length of the data. Do not update this pointer directly unless you know
-     * what you're doing!
+     * Length of the data. Be careful updating this.
      */
     size_t length;
 };
