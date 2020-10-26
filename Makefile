@@ -45,12 +45,13 @@ HEADERS = src/error.h \
 		  src/strref.h \
 		  src/strbuf.h \
 		  src/io.h \
-		  src/csv.h \
 		  src/id.h \
+		  src/csv.h \
 		  src/csv/movie.h \
 		  src/trie/branch.h \
 		  src/trie/iter.h \
 		  src/trie.h \
+		  src/movies.h \
 		  src/shell.h
 
 MOVIEDB_OBJS = $(OBJ_DIR)/main.o \
@@ -60,12 +61,13 @@ MOVIEDB_OBJS = $(OBJ_DIR)/main.o \
 			   $(OBJ_DIR)/strbuf.o \
 			   $(OBJ_DIR)/io.o \
 			   $(OBJ_DIR)/csv.o \
+			   $(OBJ_DIR)/csv/movie.o \
 			   $(OBJ_DIR)/trie/branch.o \
 			   $(OBJ_DIR)/trie/iter.o \
 			   $(OBJ_DIR)/trie.o \
 			   $(OBJ_DIR)/id.o \
-			   $(OBJ_DIR)/shell.o \
-			   $(OBJ_DIR)/csv/movie.o
+			   $(OBJ_DIR)/movies.o \
+			   $(OBJ_DIR)/shell.o
 
 TEST_CSV_OBJS = $(OBJ_DIR)/error.o \
 				$(OBJ_DIR)/alloc.o \

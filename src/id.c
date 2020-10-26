@@ -31,3 +31,26 @@ moviedb_id moviedb_id_parse(struct strbuf *restrict buf, struct error *error)
 
     return id;
 }
+
+uint_fast64_t moviedb_id_hash(moviedb_id id)
+{
+    uint_fast64_t hash = id;
+
+    /* xorshift algorithm */
+    hash ^= hash << 13;
+    hash ^= hash >> 7;
+    hash ^= hash << 17;
+
+    /* large integer prime multiplication. */
+    hash *= 0x3F1F06B16A65D581ULL;
+
+    /* xorshift again */
+    hash ^= hash << 13;
+    hash ^= hash >> 7;
+    hash ^= hash << 17;
+
+    /* multiplication by prime again. */
+    hash *= 0x452537355C0164DDULL;
+
+    return hash;
+}
