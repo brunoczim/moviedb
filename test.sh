@@ -16,7 +16,7 @@ run_test() {
         && ./run.sh release "test/$@"
 }
 
-for TEST in csv trie
+for TEST in csv trie movies_table
 do
     if ! run_test "$TEST"
     then

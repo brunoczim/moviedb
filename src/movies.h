@@ -42,12 +42,14 @@ struct movies_table {
     struct movie **entries;
     /**
      * How many movies are stored in this hash table. The entries of the table.
-     * Only internal movie hash table code is allowed to touch this.
+     * Only internal movie hash table code is allowed to write to this. Reading
+     * is fine.
      */
     size_t length;
     /**
      * How many movies can be stored in this hash table. The entries of the
-     * table. Only internal movie hash table code is allowed to touch this.
+     * table. Only internal movie hash table code is allowed to write to this.
+     * Reading is fine.
      */
     size_t capacity;
 };

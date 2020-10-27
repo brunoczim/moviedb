@@ -10,7 +10,7 @@ bool is_prime(size_t number)
 
     if (number == 2) {
         is_prime = true;
-    } else if (number % 2 != 0 && number < 2) {
+    } else if (number > 2) {
         div = 3;
         square = div * div;
         square_inc = 16;
@@ -19,6 +19,7 @@ bool is_prime(size_t number)
         while (testing) {
             if (square >= number) {
                 testing = false;
+                is_prime = true;
             } if (number % div == 0) {
                 testing = false;
             } else if (SIZE_MAX - square_inc < square) {
@@ -43,7 +44,9 @@ bool is_prime(size_t number)
 
 size_t next_prime(size_t number)
 {
-    if (number > 2 && number % 2 == 0) {
+    if (number <= 2) {
+        number = 2;
+    } else if (number % 2 == 0) {
         number++;
     }
 

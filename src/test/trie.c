@@ -55,6 +55,7 @@ int main(int argc, char const *argv[])
     assert(movieid == 123);
 
     trie_destroy(&root);
+    error_destroy(&error);
 
     puts("Ok");
 

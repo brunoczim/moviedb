@@ -87,6 +87,14 @@ TEST_TRIE_OBJS = $(OBJ_DIR)/error.o \
 			   	 $(OBJ_DIR)/trie.o \
 			   	 $(OBJ_DIR)/test/trie.o
 
+TEST_MOVIES_TABLE_OBJS = $(OBJ_DIR)/error.o \
+						 $(OBJ_DIR)/alloc.o \
+						 $(OBJ_DIR)/strbuf.o \
+						 $(OBJ_DIR)/id.o \
+						 $(OBJ_DIR)/prime.o \
+						 $(OBJ_DIR)/movies.o \
+						 $(OBJ_DIR)/test/movies_table.o
+
 $(OBJ_DIR)/%.o: src/%.c $(HEADERS)
 	mkdir -p $(dir $@)
 	$(CC) -c $< $(CFLAGS) -o $@
@@ -102,6 +110,10 @@ test/csv: $(TEST_CSV_OBJS)
 	$(CC) $(LDFLAGS) $^ -o $(BUILD_DIR)/$@
 
 test/trie: $(TEST_TRIE_OBJS)
+	mkdir -p $(dir $(BUILD_DIR)/$@)
+	$(CC) $(LDFLAGS) $^ -o $(BUILD_DIR)/$@
+
+test/movies_table: $(TEST_MOVIES_TABLE_OBJS)
 	mkdir -p $(dir $(BUILD_DIR)/$@)
 	$(CC) $(LDFLAGS) $^ -o $(BUILD_DIR)/$@
 
