@@ -11,6 +11,10 @@ struct shell {
      */
     struct trie_node const *trie_root;
     /**
+     * The hash table mapping movieid -> movie.
+     */
+    struct movies_table const *movies;
+    /**
      * Buffer used by the shell to read lines.
      */
     struct strbuf *buf;
@@ -55,12 +59,14 @@ static void read_single_arg(struct shell *restrict shell, struct error *error);
 static void print_help(void);
 
 void shell_run(struct trie_node const *trie_root,
+        struct movies_table const *movies,
         struct strbuf *buf,
         struct error *error)
 {
     bool read = true;
     struct shell shell;
     shell.trie_root = trie_root;
+    shell.movies = movies;
     shell.buf = buf;
 
     while (read && error->code == error_none) {
@@ -113,6 +119,7 @@ static bool run_movie(struct shell *restrict shell, struct error *error)
 {
     char *prefix;
     struct trie_iter iter;
+    struct movie const *movie;
     moviedb_id movieid;
 
     read_single_arg(shell, error);
@@ -125,7 +132,10 @@ static bool run_movie(struct shell *restrict shell, struct error *error)
         trie_search_prefix(shell->trie_root, prefix, &iter);
         moviedb_free(prefix);
         while (trie_next_movie(&iter, &movieid, error)) {
-            printf("%lu\n", movieid);
+            movie = movies_search(shell->movies, movieid);
+            if (movie != NULL) {
+                movie_print(movie);
+            }
         }
         trie_iter_destroy(&iter);
     }

@@ -54,6 +54,8 @@ struct movies_table {
     size_t capacity;
 };
 
+void movie_print(struct movie const *restrict movie);
+
 /**
  * Initializes the hash table. Initial capacity is rounded to the smallest prime
  * such that actual_initial_capacity >= initial_capacity.

@@ -4,6 +4,13 @@
 
 #define MAX_LOAD 0.5
 
+#define GREEN "\e[92m"
+#define YELLOW "\e[93m"
+#define BLUE "\e[93m"
+#define RED "\e[91m"
+#define MAGENTA "\e[95m"
+#define CLEAR "\e[0m"
+
 /**
  * Converts a hash to an index in the table.
  */
@@ -16,6 +23,19 @@ static size_t hash_to_index(
  * Resizes the table to have at least double capacity.
  */
 static void resize(struct movies_table *restrict table, struct error *error);
+
+void movie_print(struct movie const *restrict movie)
+{
+    printf(MAGENTA "%llu"
+            CLEAR ", "
+            GREEN "%s"
+            CLEAR ", "
+            YELLOW "%s"
+            CLEAR "\n",
+            (long long unsigned) movie->id,
+            movie->title,
+            movie->genres);
+}
 
 void movies_init(
         struct movies_table *restrict table,

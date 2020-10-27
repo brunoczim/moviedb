@@ -9,6 +9,13 @@
  */
 
 /**
+ * Number of bits in an ID.
+ */
+#define MOVIEDB_ID_BITS 64
+
+#define MOVIEDB_ID_DIGITS 20
+
+/**
  * Parses an ID from a given string buffer.
  */
 moviedb_id moviedb_id_parse(struct strbuf *restrict buf, struct error *error);

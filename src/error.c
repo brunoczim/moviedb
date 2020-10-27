@@ -99,7 +99,7 @@ void error_print(struct error const *error)
 
         case error_dup_movie_title:
             fputs("duplicated movie title ", stderr);
-            error_print_quote(error->data.id.string);
+            error_print_quote(error->data.dup_movie_title.title);
             fputc('\n', stderr);
             break;
 
