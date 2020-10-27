@@ -87,6 +87,9 @@ TEST_TRIE_OBJS = $(OBJ_DIR)/error.o \
 			   	 $(OBJ_DIR)/trie.o \
 			   	 $(OBJ_DIR)/test/trie.o
 
+TEST_PRIME_OBJS = $(OBJ_DIR)/prime.o \
+				  $(OBJ_DIR)/test/prime.o
+
 TEST_MOVIES_TABLE_OBJS = $(OBJ_DIR)/error.o \
 						 $(OBJ_DIR)/alloc.o \
 						 $(OBJ_DIR)/strbuf.o \
@@ -104,6 +107,10 @@ moviedb: $(MOVIEDB_OBJS)
 	$(CC) $(LDFLAGS) $^ -o $(BUILD_DIR)/$@
 
 all: moviedb test/csv
+
+test/prime: $(TEST_PRIME_OBJS)
+	mkdir -p $(dir $(BUILD_DIR)/$@)
+	$(CC) $(LDFLAGS) $^ -o $(BUILD_DIR)/$@
 
 test/csv: $(TEST_CSV_OBJS)
 	mkdir -p $(dir $(BUILD_DIR)/$@)

@@ -145,7 +145,7 @@ static void resize(
     new_entries = moviedb_alloc(sizeof(struct movie **) * new_capacity, error);
 
     if (error->code == error_none) {
-        for (i = 0; i < table->capacity; i++) {
+        for (i = 0; i < new_capacity; i++) {
             new_entries[i] = NULL;
         }
 
@@ -155,7 +155,7 @@ static void resize(
                 attempt = 0;
                 index = hash_to_index(new_capacity, hash, attempt);
 
-                while (table->entries[index] != NULL) {
+                while (new_entries[index] != NULL) {
                     attempt++;
                     index = hash_to_index(new_capacity, hash, attempt);
                 }

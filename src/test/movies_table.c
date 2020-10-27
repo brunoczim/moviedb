@@ -36,6 +36,11 @@ void insert(
     row.genres = heap_genres;
 
     movies_insert(table, &row, error);
+
+    if (error->code != error_none) {
+        moviedb_free(heap_title);
+        moviedb_free(heap_genres);
+    }
 }
 
 int main(int argc, char const *argv[])

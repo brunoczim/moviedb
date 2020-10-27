@@ -16,7 +16,7 @@ run_test() {
         && ./run.sh release "test/$@"
 }
 
-for TEST in csv trie movies_table
+for TEST in csv trie movies_table prime
 do
     if ! run_test "$TEST"
     then
