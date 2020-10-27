@@ -1,17 +1,12 @@
 #ifndef MOVIEDB_ID_H
 #define MOVIEDB_ID_H 1
 
-#include <stdint.h>
+#include "id/def.h"
 #include "strbuf.h"
 
 /**
  * This file provides items related to IDs in the application.
  */
-
-/**
- * The type of any ID of this application.
- */
-typedef uint_least64_t moviedb_id;
 
 /**
  * Parses an ID from a given string buffer.

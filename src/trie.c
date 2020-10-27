@@ -75,8 +75,14 @@ void trie_insert(
 
 
     if (error->code == error_none) {
-        node->has_leaf = true;
-        node->movie = movie;
+        if (node->has_leaf) {
+            error_set_code(error, error_dup_movie_title);
+            error->data.dup_movie_title.free_title = false;
+            error->data.dup_movie_title.title = title;
+        } else {
+            node->has_leaf = true;
+            node->movie = movie;
+        }
     }
 }
 

@@ -45,12 +45,14 @@ HEADERS = src/error.h \
 		  src/strref.h \
 		  src/strbuf.h \
 		  src/io.h \
+		  src/id/def.h \
 		  src/id.h \
 		  src/csv.h \
 		  src/csv/movie.h \
 		  src/trie/branch.h \
 		  src/trie/iter.h \
 		  src/trie.h \
+		  src/prime.h \
 		  src/movies.h \
 		  src/shell.h
 
@@ -66,6 +68,7 @@ MOVIEDB_OBJS = $(OBJ_DIR)/main.o \
 			   $(OBJ_DIR)/trie/iter.o \
 			   $(OBJ_DIR)/trie.o \
 			   $(OBJ_DIR)/id.o \
+			   $(OBJ_DIR)/prime.o \
 			   $(OBJ_DIR)/movies.o \
 			   $(OBJ_DIR)/shell.o
 

@@ -14,6 +14,19 @@ void error_init(struct error *error)
 
 void error_set_code(struct error *error, enum error_code code)
 {
+    char const *ptr;
+
+    switch (error->code) {
+        case error_dup_movie_title:
+            if (error->data.dup_movie_title.free_title) {
+                ptr = error->data.dup_movie_title.title;
+                moviedb_free((void *) (void const *) ptr);
+            }
+            break;
+        default:
+            break;
+    }
+
     error->code = code;
 }
 
@@ -66,7 +79,7 @@ void error_print(struct error const *error)
         case error_movie:
             fprintf(stderr,
                     "invalid movie, line %lu\n",
-                    error->data.movie.line);
+                    error->data.csv_movie.line);
             break;
 
         case error_id:
@@ -75,6 +88,18 @@ void error_print(struct error const *error)
             if (error->data.id.has_line) {
                 fprintf(stderr, ", line %lu", error->data.id.line);
             }
+            fputc('\n', stderr);
+            break;
+
+        case error_dup_movie_id:
+            fprintf(stderr,
+                    "duplicated movie ID %llu\n",
+                    (long long unsigned) error->data.dup_movie_id.id);
+            break;
+
+        case error_dup_movie_title:
+            fputs("duplicated movie title ", stderr);
+            error_print_quote(error->data.id.string);
             fputc('\n', stderr);
             break;
 

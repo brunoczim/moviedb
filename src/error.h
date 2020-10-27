@@ -3,6 +3,7 @@
 
 #include <stdbool.h>
 #include <stddef.h>
+#include "id/def.h"
 
 /**
  * This file provides error related utilities.
@@ -40,6 +41,14 @@ enum error_code {
      * Error found when parsing an ID.
      */
     error_id,
+    /**
+     * Error found if there are two movies with the same ID.
+     */
+    error_dup_movie_id,
+    /**
+     * Error found if there are two movies with the same title.
+     */
+    error_dup_movie_title,
 };
 
 /**
@@ -79,11 +88,35 @@ struct io_error {
 /**
  * Invalid movie error's data.
  */
-struct movie_error {
+struct csv_movie_error {
     /**
      * Line in a file where the error happened. Starts from 1.
      */
     unsigned long line;
+};
+
+/**
+ * Duplicated movie ID error's data.
+ */
+struct dup_movie_id_error {
+    /**
+     * The duplicated ID.
+     */
+    moviedb_id id;
+};
+
+/**
+ * Duplicated movie title error's data.
+ */
+struct dup_movie_title_error {
+    /**
+     * The duplicated title.
+     */
+    char const *title;
+    /**
+     * Whether to free the title.
+     */
+    bool free_title;
 };
 
 /**
@@ -127,11 +160,19 @@ union error_data {
     /**
      * Data of an invalid movie error.
      */
-    struct movie_error movie;
+    struct csv_movie_error csv_movie;
     /**
      * Data of an invalid ID error.
      */
     struct moviedb_id_error id;
+    /**
+     * Data of a duplicated movie ID error.
+     */
+    struct dup_movie_id_error dup_movie_id;
+    /**
+     * Data of a duplicated movie title error.
+     */
+    struct dup_movie_title_error dup_movie_title;
 };
 
 /**

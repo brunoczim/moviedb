@@ -42,7 +42,7 @@ uint_fast64_t moviedb_id_hash(moviedb_id id)
     hash ^= hash << 17;
 
     /* large integer prime multiplication. */
-    hash *= 0x3F1F06B16A65D581ULL;
+    hash *= 0x3F1F06B16A65D581ull;
 
     /* xorshift again */
     hash ^= hash << 13;
@@ -50,7 +50,7 @@ uint_fast64_t moviedb_id_hash(moviedb_id id)
     hash ^= hash << 17;
 
     /* multiplication by prime again. */
-    hash *= 0x452537355C0164DDULL;
+    hash *= 0x452537355C0164DDull;
 
     return hash;
 }

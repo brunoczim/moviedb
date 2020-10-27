@@ -95,10 +95,14 @@ void load_movies(
         movie_parser_init(&parser, file, buf, error);
 
         while (has_data) {
-            has_data= movie_parse_row(&parser, buf, &row, error);
+            has_data = movie_parse_row(&parser, buf, &row, error);
             if (has_data) {
                 trie_insert(root, row.title, row.id, error);
                 has_data = error->code == error_none;
+                if (error->code == error_dup_movie_title) {
+                    error->data.dup_movie_title.free_title = true;
+                    row.title = NULL;
+                }
                 movie_destroy_row(&row);
             }
         }

@@ -72,7 +72,7 @@ bool movie_parse_row(
             row_boundary = csv_is_row_boundary(&parser->csv_parser);
             if (column < COLUMNS - 1 && row_boundary) {
                 error_set_code(error, error_movie);
-                error->data.movie.line = parser->csv_parser.line - 1;
+                error->data.csv_movie.line = parser->csv_parser.line - 1;
             } else if (column == parser->id_column) {
                 row_out->id = moviedb_id_parse(buf, error);
             } else if (column == parser->title_column) {
@@ -97,7 +97,7 @@ bool movie_parse_row(
         }
     } else if (!csv_is_row_boundary(&parser->csv_parser)) {
         error_set_code(error, error_movie);
-        error->data.movie.line = parser->csv_parser.line;
+        error->data.csv_movie.line = parser->csv_parser.line;
     }
 
     return !end_of_file && error->code == error_none;
