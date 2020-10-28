@@ -19,13 +19,13 @@ struct movie_csv_row {
      */
     moviedb_id id;
     /**
-     * Title of the movie. Should be heap allocated.
+     * Title of the movie.
      */
-    char const *title;
+    struct strbox title;
     /**
-     * Genres of the movie. Should be heap allocated.
+     * Genres of the movie.
      */
-    char const *genres;
+    struct strbox title;
 };
 
 /**
@@ -77,6 +77,6 @@ bool movie_parse_row(
 /**
  * Destroy the contents of a movie row.
  */
-void movie_destroy_row(struct movie_csv_row *row);
+void movie_destroy_row(struct movie_csv_row row);
 
 #endif

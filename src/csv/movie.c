@@ -21,21 +21,21 @@ void movie_parser_init(
         csv_parse_field(&parser->csv_parser, buf, error);
         if (error->code == error_none) {
             strbuf_as_ref(buf, &buf_ref);
-            if (strref_icmp_cstr(&buf_ref, "movieid") == 0) {
+            if (strref_icmp(buf_ref, strref_literal("movieid")) == 0) {
                 if (found_id) {
                     error_set_code(error, error_csv_header);
                 } else {
                     found_id = true;
                     parser->id_column = column;
                 }
-            } else if (strref_icmp_cstr(&buf_ref, "title") == 0) {
+            } else if (strref_icmp(buf_ref, strref_literal("title")) == 0) {
                 if (found_title) {
                     error_set_code(error, error_csv_header);
                 } else {
                     found_title = true;
                     parser->title_column = column;
                 }
-            } else if (strref_icmp_cstr(&buf_ref, "genres") == 0) {
+            } else if (strref_icmp(buf_ref, strref_literal("genres")) == 0) {
                 if (found_genres) {
                     error_set_code(error, error_csv_header);
                 } else {

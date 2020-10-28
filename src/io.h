@@ -7,14 +7,31 @@
 #include "strbuf.h"
 
 /**
- * This file provides some IO utilities for the application.ç
+ * This file provides some IO utilities for the application.
  */
+
+inline size_t io_write(
+        FILE *file,
+        struct strref data,
+        struct error *restrict error)
+{
+    size_t count;
+    clearerr(file);
+    count = fwrite(data.chars, 1, data.length, file);
+
+    if (ferror(file)) {
+        error_set_code(error, error_io);
+        error->data.io.sys_errno = errno;
+    }
+
+    return count;
+}
 
 /**
  * Opens an input file from the given path, handling any error into the error
  * out parameter.
  */
-inline FILE *input_file_open(char const *restrict path, struct error *error)
+inline FILE *io_open(char const *restrict cstr_path, struct error *error)
 {
     FILE *file = fopen(path, "r");
 
@@ -30,7 +47,7 @@ inline FILE *input_file_open(char const *restrict path, struct error *error)
  * Sets the buffer of an input file to the given buffer, of given size. If an
  * error happens, the buffer is not used.
  */
-inline void input_file_setbuf(
+inline void io_setbuf(
         FILE *file,
         char *buffer,
         size_t size,
@@ -46,7 +63,7 @@ inline void input_file_setbuf(
  * Reads a byte from the file. Returns EOF in case of end of file. Writes an
  * error into the error out paramteter.
  */
-inline int input_file_read(FILE *file, struct error *error)
+inline int io_read(FILE *file, struct error *error)
 {
     int ch = fgetc(file);
 
@@ -61,14 +78,9 @@ inline int input_file_read(FILE *file, struct error *error)
 /**
  * Closes the given input file.
  */
-inline void input_file_close(FILE *file)
+inline void io_close(FILE *file)
 {
     fclose(file);
 }
-
-/**
- * Reads a line from the standard input and appends it to the given buffer.
- */
-void stdin_read_line(struct strbuf *restrict buf, struct error *restrict error);
 
 #endif
