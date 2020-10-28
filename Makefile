@@ -42,9 +42,13 @@ LDFLAGS = $(LDFLAGS_$(PROFILE))
 
 HEADERS = src/error.h \
 		  src/alloc.h \
-		  src/strref.h \
-		  src/strbuf.h \
+		  src/str.h \
+		  src/str/ref.h \
+		  src/str/box.h \
+		  src/str/buf.h \
+		  src/str/string.h \
 		  src/io.h \
+		  src/fmt.h \
 		  src/id/def.h \
 		  src/id.h \
 		  src/csv.h \
@@ -56,12 +60,16 @@ HEADERS = src/error.h \
 		  src/movies.h \
 		  src/shell.h
 
-MOVIEDB_OBJS = $(OBJ_DIR)/main.o \
-			   $(OBJ_DIR)/error.o \
+BASE_OBJS = $(OBJ_DIR)/error.o \
 			   $(OBJ_DIR)/alloc.o \
-			   $(OBJ_DIR)/strref.o \
-			   $(OBJ_DIR)/strbuf.o \
+			   $(OBJ_DIR)/str/ref.o \
+			   $(OBJ_DIR)/str/box.o \
+			   $(OBJ_DIR)/str/buf.o \
+			   $(OBJ_DIR)/str/string.o \
 			   $(OBJ_DIR)/io.o \
+			   $(OBJ_DIR)/fmt.o
+
+MOVIEDB_OBJS = $(BASE_OBJS) \
 			   $(OBJ_DIR)/csv.o \
 			   $(OBJ_DIR)/csv/movie.o \
 			   $(OBJ_DIR)/trie/branch.o \
@@ -70,18 +78,14 @@ MOVIEDB_OBJS = $(OBJ_DIR)/main.o \
 			   $(OBJ_DIR)/id.o \
 			   $(OBJ_DIR)/prime.o \
 			   $(OBJ_DIR)/movies.o \
-			   $(OBJ_DIR)/shell.o
+			   $(OBJ_DIR)/shell.o \
+			   $(OBJ_DIR)/main.o
 
-TEST_CSV_OBJS = $(OBJ_DIR)/error.o \
-				$(OBJ_DIR)/alloc.o \
-				$(OBJ_DIR)/io.o \
+TEST_CSV_OBJS = $(BASE_OBJS) \
 				$(OBJ_DIR)/csv.o \
-			   	$(OBJ_DIR)/strbuf.o \
 			   	$(OBJ_DIR)/test/csv.o
 
-TEST_TRIE_OBJS = $(OBJ_DIR)/error.o \
-				 $(OBJ_DIR)/alloc.o \
-			   	 $(OBJ_DIR)/strbuf.o \
+TEST_TRIE_OBJS = $(BASE_OBJS) \
 				 $(OBJ_DIR)/trie/branch.o \
 				 $(OBJ_DIR)/trie/iter.o \
 			   	 $(OBJ_DIR)/trie.o \
@@ -90,9 +94,7 @@ TEST_TRIE_OBJS = $(OBJ_DIR)/error.o \
 TEST_PRIME_OBJS = $(OBJ_DIR)/prime.o \
 				  $(OBJ_DIR)/test/prime.o
 
-TEST_MOVIES_TABLE_OBJS = $(OBJ_DIR)/error.o \
-						 $(OBJ_DIR)/alloc.o \
-						 $(OBJ_DIR)/strbuf.o \
+TEST_MOVIES_TABLE_OBJS = $(BASE_OBJS) \
 						 $(OBJ_DIR)/id.o \
 						 $(OBJ_DIR)/prime.o \
 						 $(OBJ_DIR)/movies.o \
