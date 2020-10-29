@@ -69,6 +69,10 @@ inline void strbuf_push(
     }
 }
 
+/**
+ * Ensures this buffer ends in a nul byte, appending it to the end if
+ * necessary.
+ */
 inline void strbuf_make_cstr(
         struct strbuf *restrict buf,
         struct error *restrict error)
