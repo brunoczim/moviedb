@@ -4,8 +4,8 @@
 
 bool trie_next_movie(
     struct trie_iter *restrict iter,
-    moviedb_id *movie_out,
-    struct error *error)
+    moviedb_id *restrict movie_out,
+    struct error *restrict error)
 {
     bool leaf = false;
 
@@ -30,8 +30,8 @@ extern inline void trie_iter_queue_init(struct trie_iter_queue *restrict queue);
 
 void trie_iter_enqueue(
         struct trie_iter_queue *restrict queue,
-        struct trie_branch_list const *branches,
-        struct error *error)
+        struct trie_branch_list const *restrict branches,
+        struct error *restrict error)
 {
     struct trie_iter_node *node;
 
@@ -52,7 +52,7 @@ void trie_iter_enqueue(
 
 bool trie_iter_dequeue(
         struct trie_iter_queue *restrict queue,
-        struct trie_branch_list *branches_out)
+        struct trie_branch_list *restrict branches_out)
 {
     struct trie_iter_node *next;
 
@@ -77,7 +77,7 @@ bool trie_iter_dequeue(
 extern inline bool trie_iter_queue_is_empty(
         struct trie_iter_queue const *restrict queue);
 
-void trie_next(struct trie_iter *restrict iter, struct error *error)
+void trie_next(struct trie_iter *restrict iter, struct error *restrict error)
 {
     bool out_of_bounds;
 
@@ -111,7 +111,7 @@ void trie_next(struct trie_iter *restrict iter, struct error *error)
 void trie_iter_enqueue_children(
         struct trie_iter_queue *restrict queue,
         struct trie_branch_list const *restrict branches,
-        struct error *error)
+        struct error *restrict error)
 {
 
     size_t i = 0;

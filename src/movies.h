@@ -63,7 +63,7 @@ void movie_print(struct movie const *restrict movie);
 void movies_init(
         struct movies_table *restrict table,
         size_t initial_capacity,
-        struct error *error);
+        struct error *restrict error);
 
 /**
  * Inserts a movie CSV row in the table. Title and genres of the CSV row should
@@ -73,7 +73,7 @@ void movies_init(
 void movies_insert(
         struct movies_table *restrict table,
         struct movie_csv_row *restrict movie_row,
-        struct error *error);
+        struct error *restrict error);
 
 /**
  * Search for the movie with the given ID. Returns NULL if not found.

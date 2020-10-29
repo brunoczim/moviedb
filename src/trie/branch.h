@@ -66,7 +66,7 @@ inline void trie_branches_init(struct trie_branch_list *restrict branches)
 bool trie_branches_search(
         struct trie_branch_list const *restrict list,
         char key,
-        size_t *pos);
+        size_t *restrict pos);
 
 /**
  * Inserts the given child into the given list of branches, using the given key.
@@ -77,7 +77,7 @@ void trie_branches_insert(
         char key,
         struct trie_node *child,
         size_t branch_pos,
-        struct error *error);
+        struct error *restrict error);
 /**
  * Destroys a given branch list. Only trie internal code is allowed to touch
  * this.

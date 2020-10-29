@@ -49,7 +49,7 @@ void trie_insert(
         struct trie_node *root,
         char const *restrict title,
         moviedb_id movie,
-        struct error *error);
+        struct error *restrict error);
 
 /**
  * Searches for a movie in the trie tree with the given movie title.

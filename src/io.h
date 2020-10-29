@@ -14,7 +14,9 @@
  * Opens an input file from the given path, handling any error into the error
  * out parameter.
  */
-inline FILE *input_file_open(char const *restrict path, struct error *error)
+inline FILE *input_file_open(
+        char const *restrict path,
+        struct error *restrict error)
 {
     FILE *file = fopen(path, "r");
 
@@ -34,7 +36,7 @@ inline void input_file_setbuf(
         FILE *file,
         char *buffer,
         size_t size,
-        struct error *error)
+        struct error *restrict error)
 {
     if (setvbuf(file, buffer, _IOFBF, size) != 0) {
         error_set_code(error, error_io);
@@ -46,7 +48,7 @@ inline void input_file_setbuf(
  * Reads a byte from the file. Returns EOF in case of end of file. Writes an
  * error into the error out paramteter.
  */
-inline int input_file_read(FILE *file, struct error *error)
+inline int input_file_read(FILE *file, struct error *restrict error)
 {
     int ch = fgetc(file);
 
@@ -65,10 +67,5 @@ inline void input_file_close(FILE *file)
 {
     fclose(file);
 }
-
-/**
- * Reads a line from the standard input and appends it to the given buffer.
- */
-void stdin_read_line(struct strbuf *restrict buf, struct error *restrict error);
 
 #endif

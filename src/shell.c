@@ -9,15 +9,15 @@ struct shell {
     /**
      * The trie mapping title -> movieid.
      */
-    struct trie_node const *trie_root;
+    struct trie_node const *restrict trie_root;
     /**
      * The hash table mapping movieid -> movie.
      */
-    struct movies_table const *movies;
+    struct movies_table const *restrict movies;
     /**
      * Buffer used by the shell to read lines.
      */
-    struct strbuf *buf;
+    struct strbuf *restrict buf;
     /**
      * Last read character.
      */
@@ -27,41 +27,51 @@ struct shell {
 /**
  * Skips whitespace in the user input.
  */
-static void skip_whitespace(struct shell *restrict shell, struct error *error);
+static void skip_whitespace(
+        struct shell *restrict shell,
+        struct error *restrict error);
 
 /**
  * Reads and runs a command entered by the user. Returns whether the shell
  * should still execute.
  */
-static bool run_cmd(struct shell *restrict shell, struct error *error);
+static bool run_cmd(
+        struct shell *restrict shell,
+        struct error *restrict error);
 
 /**
  * Reads a movie title prefix entered by the user and runs a search for movies
  * with that prefix in their names. Returns whether the shell should still
  * execute.
  */
-static bool run_movie(struct shell *restrict shell, struct error *error);
+static bool run_movie(
+        struct shell *restrict shell,
+        struct error *restrict error);
 
 /**
  * Reads the operation name entered by the user such as "movie" or "exit.
  * Returns whether the shell should still execute.
  */
-static bool read_op(struct shell *restrict shell, struct error *error);
+static bool read_op(
+        struct shell *restrict shell,
+        struct error *restrict error);
 
 /**
  * Reads the single argument of an operation.
  */
-static void read_single_arg(struct shell *restrict shell, struct error *error);
+static void read_single_arg(
+        struct shell *restrict shell,
+        struct error *restrict error);
 
 /**
  * Prints a help message to the user, showing all operations.
  */
 static void print_help(void);
 
-void shell_run(struct trie_node const *trie_root,
-        struct movies_table const *movies,
-        struct strbuf *buf,
-        struct error *error)
+void shell_run(struct trie_node const *restrict trie_root,
+        struct movies_table const *restrict movies,
+        struct strbuf *restrict buf,
+        struct error *restrict error)
 {
     bool read = true;
     struct shell shell;
@@ -77,7 +87,9 @@ void shell_run(struct trie_node const *trie_root,
     }
 }
 
-static void skip_whitespace(struct shell *restrict shell, struct error *error)
+static void skip_whitespace(
+        struct shell *restrict shell,
+        struct error *restrict error)
 {
     bool delimiter = false;
 
@@ -93,20 +105,23 @@ static void skip_whitespace(struct shell *restrict shell, struct error *error)
     } while (!delimiter && error->code == error_none);
 }
 
-static bool run_cmd(struct shell *restrict shell, struct error *error)
+static bool run_cmd(
+        struct shell *restrict shell,
+        struct error *restrict error)
 {
-    struct strref buf_ref;
     skip_whitespace(shell, error);
     if (!read_op(shell, error)) {
         puts("exit");
         return false;
     }
-    strbuf_as_ref(shell->buf, &buf_ref);
-    if (strref_icmp_cstr(&buf_ref, "exit") == 0) {
+
+    strbuf_make_cstr(shell->buf, error);
+
+    if (error->code != error_none || strcmp(shell->buf->ptr, "exit") == 0) {
         return false;
     }
 
-    if (strref_icmp_cstr(&buf_ref, "movie") == 0) {
+    if (strcmp(shell->buf->ptr, "movie") == 0) {
         run_movie(shell, error);
     } else {
         print_help();
@@ -115,7 +130,9 @@ static bool run_cmd(struct shell *restrict shell, struct error *error)
     return true;
 }
 
-static bool run_movie(struct shell *restrict shell, struct error *error)
+static bool run_movie(
+        struct shell *restrict shell,
+        struct error *restrict error)
 {
     char *prefix;
     struct trie_iter iter;
@@ -125,7 +142,7 @@ static bool run_movie(struct shell *restrict shell, struct error *error)
     read_single_arg(shell, error);
 
     if (error->code == error_none) {
-        prefix = strbuf_make_cstr(shell->buf, error);
+        prefix = strbuf_copy_cstr(shell->buf, error);
     }
 
     if (error->code == error_none) {
@@ -143,7 +160,9 @@ static bool run_movie(struct shell *restrict shell, struct error *error)
     return error->code == error_none;
 }
 
-static bool read_op(struct shell *restrict shell, struct error *error)
+static bool read_op(
+        struct shell *restrict shell,
+        struct error *restrict error)
 {
     bool delimiter;
 
@@ -172,7 +191,9 @@ static bool read_op(struct shell *restrict shell, struct error *error)
     return shell->buf->length > 0 || shell->curr_ch != EOF;
 }
 
-static void read_single_arg(struct shell *restrict shell, struct error *error)
+static void read_single_arg(
+        struct shell *restrict shell,
+        struct error *restrict error)
 {
     bool delimiter;
     

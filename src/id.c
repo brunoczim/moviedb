@@ -1,28 +1,35 @@
 #include "id.h"
+#include "alloc.h"
+#include <string.h>
 
-moviedb_id moviedb_id_parse(struct strbuf *restrict buf, struct error *error)
+moviedb_id moviedb_id_parse(
+        char const *restrict string,
+        struct error *restrict error)
 {
     size_t i = 0;
     moviedb_id id = 0;
-    char const *error_string;
+    char *error_string;
 
-    while (i < buf->length && error->code == error_none) {
-        if (buf->ptr[i] >= '0' && buf->ptr[i] <= '9') {
+    while (string[i] != 0 && error->code == error_none) {
+        if (string[i] >= '0' && string[i] <= '9') {
             id *= 10;
-            id += buf->ptr[i] - '0';
+            id += string[i] - '0';
             i++;
         } else {
-            error_string = strbuf_make_cstr(buf, error);
             if (error->code == error_none) {
-                error_set_code(error, error_id);
-                error->data.id.has_line = false;
-                error->data.id.string = error_string;
-                error->data.id.free_string = true;
+                error_string = moviedb_alloc(strlen(string) + 1, error);
+                if (error->code == error_none) {
+                    strcpy(error_string, string);
+                    error_set_code(error, error_id);
+                    error->data.id.has_line = false;
+                    error->data.id.string = error_string;
+                    error->data.id.free_string = true;
+                }
             }
         }
     }
 
-    if (buf->length == 0) {
+    if (i == 0 && error->code == error_none) {
         error_set_code(error, error_id);
         error->data.id.has_line = false;
         error->data.id.string = "";

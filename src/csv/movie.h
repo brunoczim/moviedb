@@ -62,7 +62,7 @@ void movie_parser_init(
         struct movie_parser *restrict parser,
         FILE *file,
         struct strbuf *buf,
-        struct error *error);
+        struct error *restrict error);
 
 /**
  * Attempts to parse a movie row. Returns whether the row was parsed. Returning
@@ -72,7 +72,7 @@ bool movie_parse_row(
         struct movie_parser *restrict parser,
         struct strbuf *buf,
         struct movie_csv_row *row_out,
-        struct error *error);
+        struct error *restrict error);
 
 /**
  * Destroy the contents of a movie row.

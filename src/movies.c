@@ -22,7 +22,7 @@ static size_t hash_to_index(
 /**
  * Resizes the table to have at least double capacity.
  */
-static void resize(struct movies_table *restrict table, struct error *error);
+static void resize(struct movies_table *restrict table, struct error *restrict error);
 
 void movie_print(struct movie const *restrict movie)
 {
@@ -40,7 +40,7 @@ void movie_print(struct movie const *restrict movie)
 void movies_init(
         struct movies_table *restrict table,
         size_t initial_capacity,
-        struct error *error)
+        struct error *restrict error)
 {
     size_t i;
 
@@ -60,7 +60,7 @@ void movies_init(
 void movies_insert(
         struct movies_table *restrict table,
         struct movie_csv_row *restrict movie_row,
-        struct error *error)
+        struct error *restrict error)
 {
     double load;
     uint_fast64_t hash;
@@ -147,7 +147,7 @@ static size_t hash_to_index(
 
 static void resize(
         struct movies_table *restrict table,
-        struct error *error)
+        struct error *restrict error)
 {
     size_t new_capacity;
     size_t i;

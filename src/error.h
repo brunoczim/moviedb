@@ -205,14 +205,14 @@ struct error {
 /**
  * Initializes this error to a code of error_none, and to no context (NULL).
  */
-void error_init(struct error *error);
+void error_init(struct error *restrict error);
 
 /**
  * Sets the code of this error and destroys any data that needs to be destroyed.
  * After calling this function, you should not use the data anymore. In fact,
  * that is the right moment to edit error data.
  */
-void error_set_code(struct error *error, enum error_code code);
+void error_set_code(struct error *restrict error, enum error_code code);
 
 /**
  * Sets the context of the error and destroys the old context, if necessary.
@@ -220,19 +220,19 @@ void error_set_code(struct error *error, enum error_code code);
  * when the context is replaced or the error is destroyed.
  */
 void error_set_context(
-        struct error *error,
+        struct error *restrict error,
         char const *context,
         bool free_context);
 
 /**
  * Frees error data and context.
  */
-void error_destroy(struct error *error);
+void error_destroy(struct error *restrict error);
 
 /**
  * Prints the error on the standard error output (stderr).
  */
-void error_print(struct error const *error);
+void error_print(struct error const *restrict error);
 
 /**
  * Prints a string quoting it and escaping non-printable characters.

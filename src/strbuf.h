@@ -3,7 +3,6 @@
 
 #include <stdlib.h>
 #include "error.h"
-#include "strref.h"
 
 /**
  * Defines string buffer. It handles memory allocations for a growable string.
@@ -50,7 +49,7 @@ inline void strbuf_init(struct strbuf *restrict buf)
 void strbuf_reserve(
         struct strbuf *restrict buf,
         size_t additional,
-        struct error *error);
+        struct error *restrict error);
 
 /**
  * Pushes a character onto the buffer, reserving necessary space. In case of
@@ -59,7 +58,7 @@ void strbuf_reserve(
 inline void strbuf_push(
         struct strbuf *restrict buf,
         char ch,
-        struct error *error)
+        struct error *restrict error)
 {
     if (buf->capacity == buf->length) {
         strbuf_reserve(buf, 1, error);
@@ -70,25 +69,23 @@ inline void strbuf_push(
     }
 }
 
-/**
- * Makes a string reference using the buffer pointer, thus no extra-allocation
- * is done. However, pushing or reserving space in the string buffer might make
- * the strref's pointer invalid, so beware!
- */
-inline void strbuf_as_ref(
-        struct strbuf const *restrict buf,
-        struct strref *restrict ref_out)
+inline void strbuf_make_cstr(
+        struct strbuf *restrict buf,
+        struct error *restrict error)
 {
-    ref_out->ptr = buf->ptr;
-    ref_out->length = buf->length;
+    if (buf->length == 0 || buf->ptr[buf->length] != 0) {
+        strbuf_push(buf, 0, error);
+    }
 }
 
 /**
- * Makes a C string from the whole given string buffer, appending the nul byte
+ * Copies the whole given string buffer to a C string, appending the nul byte
  * (0) if necessary. It might or not use the buffer allocation, and then, in
  * this case, the buffer will be reset.
  */
-char *strbuf_make_cstr(struct strbuf *restrict buf, struct error *error);
+char *strbuf_copy_cstr(
+        struct strbuf *restrict buf,
+        struct error *restrict error);
 
 /**
  * Frees the pointer of the string buffer. Do not use the buffer after this.

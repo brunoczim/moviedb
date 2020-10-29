@@ -18,7 +18,9 @@
 /**
  * Parses an ID from a given string buffer.
  */
-moviedb_id moviedb_id_parse(struct strbuf *restrict buf, struct error *error);
+moviedb_id moviedb_id_parse(
+        char const *restrict string,
+        struct error *restrict error);
 
 /**
  * Processes the given id into a hash, so that the bits get scrambled.

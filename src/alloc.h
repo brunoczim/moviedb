@@ -15,7 +15,7 @@
  *
  * NULL might still be returned in case of a zero-sized allocation.
  */
-inline void *moviedb_alloc(size_t size, struct error *error)
+inline void *moviedb_alloc(size_t size, struct error *restrict error)
 {
     void *mem = malloc(size);
     if (mem == NULL && size != 0) {
@@ -33,7 +33,10 @@ inline void *moviedb_alloc(size_t size, struct error *error)
  *
  * NULL might still be returned in case of a zero-sized allocation.
  */
-inline void *moviedb_realloc(void *mem, size_t size, struct error *error)
+inline void *moviedb_realloc(
+        void *mem,
+        size_t size,
+        struct error *restrict error)
 {
     void *new_mem = realloc(mem, size);
     if (new_mem == NULL && size != 0) {

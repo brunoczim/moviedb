@@ -1,6 +1,6 @@
 #include "../alloc.h"
-#include "../strref.h"
 #include "movie.h"
+#include <string.h>
 
 #define COLUMNS 3
 
@@ -8,34 +8,37 @@ void movie_parser_init(
         struct movie_parser *restrict parser,
         FILE *file,
         struct strbuf *buf,
-        struct error *error)
+        struct error *restrict error)
 {
     bool found_id = false, found_title = false, found_genres = false;
     bool row_boundary;
-    struct strref buf_ref;
     size_t column = 0;
 
     csv_parser_init(&parser->csv_parser, file);
 
     do {
         csv_parse_field(&parser->csv_parser, buf, error);
+
         if (error->code == error_none) {
-            strbuf_as_ref(buf, &buf_ref);
-            if (strref_icmp_cstr(&buf_ref, "movieid") == 0) {
+            strbuf_make_cstr(buf, error);
+        }
+
+        if (error->code == error_none) {
+            if (strcmp(buf->ptr, "movieId") == 0) {
                 if (found_id) {
                     error_set_code(error, error_csv_header);
                 } else {
                     found_id = true;
                     parser->id_column = column;
                 }
-            } else if (strref_icmp_cstr(&buf_ref, "title") == 0) {
+            } else if (strcmp(buf->ptr, "title") == 0) {
                 if (found_title) {
                     error_set_code(error, error_csv_header);
                 } else {
                     found_title = true;
                     parser->title_column = column;
                 }
-            } else if (strref_icmp_cstr(&buf_ref, "genres") == 0) {
+            } else if (strcmp(buf->ptr, "genres") == 0) {
                 if (found_genres) {
                     error_set_code(error, error_csv_header);
                 } else {
@@ -55,7 +58,7 @@ bool movie_parse_row(
         struct movie_parser *restrict parser,
         struct strbuf *buf,
         struct movie_csv_row *row_out,
-        struct error *error)
+        struct error *restrict error)
 {
     size_t column = 0;
     bool end_of_file = false;
@@ -74,11 +77,14 @@ bool movie_parse_row(
                 error_set_code(error, error_movie);
                 error->data.csv_movie.line = parser->csv_parser.line - 1;
             } else if (column == parser->id_column) {
-                row_out->id = moviedb_id_parse(buf, error);
+                strbuf_make_cstr(buf, error);
+                if (error->code == error_none) {
+                    row_out->id = moviedb_id_parse(buf->ptr, error);
+                }
             } else if (column == parser->title_column) {
-                row_out->title = strbuf_make_cstr(buf, error);
+                row_out->title = strbuf_copy_cstr(buf, error);
             } else if (column == parser->genres_column) {
-                row_out->genres= strbuf_make_cstr(buf, error);
+                row_out->genres= strbuf_copy_cstr(buf, error);
             }
         }
         column++;

@@ -27,12 +27,12 @@ static void transition(
         struct csv_parser *restrict parser,
         int symbol,
         struct strbuf *restrict out,
-        struct error *error);
+        struct error *restrict error);
 
 void csv_parse_field(
         struct csv_parser *restrict parser,
         struct strbuf *restrict out,
-        struct error *error)
+        struct error *restrict error)
 {
     int symbol;
     bool done = false;
@@ -91,7 +91,7 @@ static void transition(
         struct csv_parser *restrict parser,
         int symbol,
         struct strbuf *restrict out,
-        struct error *error)
+        struct error *restrict error)
 {
     switch (parser->state) {
         /* Group of states that begin the reading of a field. */

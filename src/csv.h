@@ -159,6 +159,6 @@ inline bool csv_is_end_of_file(struct csv_parser const *restrict parser)
 void csv_parse_field(
         struct csv_parser *restrict parser,
         struct strbuf *restrict out,
-        struct error *error);
+        struct error *restrict error);
 
 #endif

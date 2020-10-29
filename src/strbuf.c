@@ -9,7 +9,7 @@ extern inline void strbuf_init(struct strbuf *restrict buf);
 void strbuf_reserve(
         struct strbuf *restrict buf,
         size_t additional,
-        struct error *error)
+        struct error *restrict error)
 {
     size_t new_capacity;
     char *new_alloc;
@@ -25,13 +25,15 @@ void strbuf_reserve(
 extern inline void strbuf_push(
         struct strbuf *restrict buf,
         char ch,
-        struct error *error);
+        struct error *restrict error);
 
-extern inline void strbuf_as_ref(
-        struct strbuf const *restrict buf,
-        struct strref *restrict ref_out);
+extern inline void strbuf_make_cstr(
+        struct strbuf *restrict buf,
+        struct error *restrict error);
 
-char *strbuf_make_cstr(struct strbuf *restrict buf, struct error *error)
+char *strbuf_copy_cstr(
+        struct strbuf *restrict buf,
+        struct error *restrict error)
 {
     char *cstr = NULL;
 

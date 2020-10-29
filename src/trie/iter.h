@@ -68,8 +68,8 @@ struct trie_iter {
  */
 bool trie_next_movie(
     struct trie_iter *restrict iter,
-    moviedb_id *movie_out,
-    struct error *error);
+    moviedb_id *restrict movie_out,
+    struct error *restrict error);
 
 /**
  * Destroy resources used by the trie iterator.
@@ -91,8 +91,8 @@ inline void trie_iter_queue_init(struct trie_iter_queue *restrict queue)
  */
 void trie_iter_enqueue(
         struct trie_iter_queue *restrict queue,
-        struct trie_branch_list const *branches,
-        struct error *error);
+        struct trie_branch_list const *restrict branches,
+        struct error *restrict error);
 
 /**
  * Dequeues a branch list from the iteration queue. Returns whether the dequeue
@@ -102,7 +102,7 @@ void trie_iter_enqueue(
  */
 bool trie_iter_dequeue(
         struct trie_iter_queue *restrict queue,
-        struct trie_branch_list *branches_out);
+        struct trie_branch_list *restrict branches_out);
 
 /**
  * Tests if the iteration queue is empty. Only trie internal code is allowed
@@ -118,7 +118,7 @@ inline bool trie_iter_queue_is_empty(
  * Advances the iterator. Only allocation errors are possible. Only trie
  * internal code is allowed to touch this.
  */
-void trie_next(struct trie_iter *restrict iter, struct error *error);
+void trie_next(struct trie_iter *restrict iter, struct error *restrict error);
 
 /**
  * Enqueues all children of of the given branch list into the given queue. The
@@ -128,6 +128,6 @@ void trie_next(struct trie_iter *restrict iter, struct error *error);
 void trie_iter_enqueue_children(
         struct trie_iter_queue *restrict queue,
         struct trie_branch_list const *restrict branches,
-        struct error *error);
+        struct error *restrict error);
 
 #endif

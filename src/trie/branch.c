@@ -7,7 +7,7 @@ extern inline void trie_branches_init(
 bool trie_branches_search(
         struct trie_branch_list const *restrict list,
         char key,
-        size_t *pos)
+        size_t *restrict pos)
 {
     size_t low, mid, high;
     bool found;
@@ -39,7 +39,7 @@ void trie_branches_insert(
         char key,
         struct trie_node *child,
         size_t branch_pos,
-        struct error *error)
+        struct error *restrict error)
 {
     size_t i;
     size_t new_cap;

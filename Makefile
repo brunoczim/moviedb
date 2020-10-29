@@ -42,7 +42,6 @@ LDFLAGS = $(LDFLAGS_$(PROFILE))
 
 HEADERS = src/error.h \
 		  src/alloc.h \
-		  src/strref.h \
 		  src/strbuf.h \
 		  src/io.h \
 		  src/id/def.h \
@@ -59,7 +58,6 @@ HEADERS = src/error.h \
 MOVIEDB_OBJS = $(OBJ_DIR)/main.o \
 			   $(OBJ_DIR)/error.o \
 			   $(OBJ_DIR)/alloc.o \
-			   $(OBJ_DIR)/strref.o \
 			   $(OBJ_DIR)/strbuf.o \
 			   $(OBJ_DIR)/io.o \
 			   $(OBJ_DIR)/csv.o \

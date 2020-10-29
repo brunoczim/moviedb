@@ -5,14 +5,14 @@
 #include "error.h"
 #include "alloc.h"
 
-void error_init(struct error *error)
+void error_init(struct error *restrict error)
 {
     error->code = error_none;
     error->context = NULL;
     error->free_context = false;
 }
 
-void error_set_code(struct error *error, enum error_code code)
+void error_set_code(struct error *restrict error, enum error_code code)
 {
     char const *ptr;
 
@@ -31,7 +31,7 @@ void error_set_code(struct error *error, enum error_code code)
 }
 
 void error_set_context(
-        struct error *error,
+        struct error *restrict error,
         char const *context,
         bool free_context)
 {
@@ -42,13 +42,13 @@ void error_set_context(
     error->free_context = free_context;
 }
 
-void error_destroy(struct error *error)
+void error_destroy(struct error *restrict error)
 {
     error_set_code(error, error_none);
     error_set_context(error, NULL, false);
 }
 
-void error_print(struct error const *error)
+void error_print(struct error const *restrict error)
 {
     if (error->context != NULL) {
         fprintf(stderr, "%s: ", error->context);

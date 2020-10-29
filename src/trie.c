@@ -12,7 +12,7 @@ static struct trie_node *make_path(
         size_t branch_pos,
         char const *restrict title,
         size_t *current_key,
-        struct error *error);
+        struct error *restrict error);
 
 
 /**
@@ -29,7 +29,7 @@ static inline void destroy_branches_recursive(
 static inline void destroy_enqueue_next_level(
         struct trie_iter_queue *restrict curr_level,
         struct trie_iter_queue *restrict next_level,
-        struct error *error);
+        struct error *restrict error);
 
 /**
  * Definitely frees memory of the given branch list. Destroys also pointers to
@@ -49,7 +49,7 @@ void trie_insert(
         struct trie_node *root,
         char const *restrict title,
         moviedb_id movie,
-        struct error *error)
+        struct error *restrict error)
 {
     struct trie_node *node;
     size_t branch_pos;
@@ -177,7 +177,7 @@ static struct trie_node *make_path(
         size_t branch_pos,
         char const *restrict title,
         size_t *current_key,
-        struct error *error)
+        struct error *restrict error)
 {
     struct trie_node *child;
     
@@ -219,7 +219,7 @@ static inline void destroy_branches_recursive(
 static inline void destroy_enqueue_next_level(
         struct trie_iter_queue *restrict curr_level,
         struct trie_iter_queue *restrict next_level,
-        struct error *error)
+        struct error *restrict error)
 {
     struct trie_branch_list branches;
     
