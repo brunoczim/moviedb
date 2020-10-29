@@ -2,7 +2,7 @@
 #define MOVIEDB_CSV_MOVIE_H 1
 
 #include "../csv.h"
-#include "../strbuf.h"
+#include "../str.h"
 #include "../io.h"
 #include "../id.h"
 
@@ -25,7 +25,7 @@ struct movie_csv_row {
     /**
      * Genres of the movie.
      */
-    struct strbox title;
+    struct strbox genres;
 };
 
 /**

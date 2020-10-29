@@ -1,9 +1,7 @@
 #ifndef MOVIEDB_STR_TYPES_H
 #define MOVIEDB_STR_TYPES_H 1
 
-#ifndef MOVIEDB_STR_H
-#   error "Please, do not include this file directly, include str.h instead"
-#endif
+#include <stddef.h>
 
 struct strref {
     char const *restrict chars;

@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <errno.h>
 #include "error.h"
-#include "strbuf.h"
+#include "str.h"
 
 /**
  * This file provides some IO utilities for the application.
@@ -33,7 +33,7 @@ inline size_t io_write(
  */
 inline FILE *io_open(char const *restrict cstr_path, struct error *error)
 {
-    FILE *file = fopen(path, "r");
+    FILE *file = fopen(cstr_path, "r");
 
     if (file == NULL) {
         error_set_code(error, error_io);

@@ -22,9 +22,9 @@ int strref_cmp(struct strref ref_a, struct strref ref_b)
             cmp = -1;
         } else if (i >= ref_b.length) {
             cmp = 1;
-        } else if (ref_a->chars[i] < ref_b->chars[i]) {
+        } else if (ref_a.chars[i] < ref_b.chars[i]) {
             cmp = 1;
-        } else if (ref_a->chars[i] > ref_b->chars[i]) {
+        } else if (ref_a.chars[i] > ref_b.chars[i]) {
             cmp = -1;
         } else {
             i++;
@@ -46,8 +46,8 @@ int strref_icmp(struct strref ref_a, struct strref ref_b)
         } else if (i >= ref_b.length) {
             cmp = 1;
         } else {
-            ch_a = tolower(ref_a->chars[i]);
-            ch_b = tolower(ref_b->chars[i]);
+            ch_a = tolower(ref_a.chars[i]);
+            ch_b = tolower(ref_b.chars[i]);
             if (ch_a < ch_b) {
                 cmp = 1;
             } else if (ch_a > ch_b) {

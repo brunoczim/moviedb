@@ -2,7 +2,7 @@
 #define MOVIEDB_ERROR_H 1
 
 #include <stdbool.h>
-#include <stddef.h>
+#include "str/types.h"
 #include "id/def.h"
 
 /**
@@ -112,11 +112,7 @@ struct dup_movie_title_error {
     /**
      * The duplicated title.
      */
-    char const *title;
-    /**
-     * Whether to free the title.
-     */
-    bool free_title;
+    struct string title;
 };
 
 /**
@@ -134,11 +130,7 @@ struct moviedb_id_error {
     /**
      * The string that was attempted to parse.
      */
-    char const *string;
-    /**
-     * Whether to free the string.
-     */
-    bool free_string;
+    struct string string;
 };
 
 /**
@@ -195,48 +187,46 @@ struct error {
      * The context of the error, for the user. Might be NULL. Might be
      * heap-allocated, might be a string literal. Set free_context accordingly.
      */
-    char const *context;
-    /**
-     * Whether the context should be freed when destroying the error.
-     */
-    bool free_context;
+    struct string context;
 };
 
 /**
  * Initializes this error to a code of error_none, and to no context (NULL).
  */
-void error_init(struct error *error);
+inline struct error error_init_none();
 
 /**
  * Sets the code of this error and destroys any data that needs to be destroyed.
  * After calling this function, you should not use the data anymore. In fact,
  * that is the right moment to edit error data.
  */
-void error_set_code(struct error *error, enum error_code code);
+void error_set_code(struct error *restrict error, enum error_code code);
 
 /**
  * Sets the context of the error and destroys the old context, if necessary.
  * The free_context paramter specifies if the new context should be destroyed
  * when the context is replaced or the error is destroyed.
  */
-void error_set_context(
-        struct error *error,
-        char const *context,
-        bool free_context);
+void error_set_context(struct error *restrict error, struct string context);
 
 /**
  * Frees error data and context.
  */
-void error_destroy(struct error *error);
+void error_destroy(struct error *restrict error);
 
 /**
  * Prints the error on the standard error output (stderr).
  */
-void error_print(struct error const *error);
+void error_print(struct error const *restrict error);
 
-/**
- * Prints a string quoting it and escaping non-printable characters.
- */
-void error_print_quote(char const *string);
+inline struct error error_init_none()
+{
+    struct error error;
+    error.code = error_none;
+    error.context.kind = string_ref;
+    error.context.data.ref.length = 0;
+    error.context.data.ref.chars = NULL;
+    return error;
+}
 
 #endif

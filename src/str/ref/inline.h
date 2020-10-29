@@ -8,8 +8,8 @@
 inline struct strref strref_init(char const *restrict chars, size_t length)
 {
     struct strref ref;
-    ref->chars = chars;
-    ref->length = length;
+    ref.chars = chars;
+    ref.length = length;
     return ref;
 }
 
@@ -32,7 +32,7 @@ inline struct strref strref_range(struct strref ref, size_t start, size_t end)
         end = start; 
     }
 
-    ref.ptr += start;
+    ref.chars += start;
     ref.length = end - start;
 
     return ref;

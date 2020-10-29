@@ -2,7 +2,7 @@
 #define MOVIEDB_ID_H 1
 
 #include "id/def.h"
-#include "strbuf.h"
+#include "str.h"
 
 /**
  * This file provides items related to IDs in the application.

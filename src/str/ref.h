@@ -5,7 +5,7 @@
 #   error "Please, do not include this file directly, include str.h instead"
 #endif
 
-#define strref_literal(literal) (strref_init((literal), sizeof(literal) - 1))
+#define strref_lit(literal) (strref_init((literal), sizeof(literal) - 1))
 
 inline struct strref strref_init(char const *restrict chars, size_t length);
 

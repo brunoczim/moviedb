@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include "error.h"
-#include "strbuf.h"
+#include "str.h"
 
 /**
  * Defines CSV parsing utilities.

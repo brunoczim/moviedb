@@ -13,10 +13,12 @@ inline struct strref strbox_as_ref(struct strbox box)
     return strref_init(box.chars, box.length);
 }
 
-inline struct strbox strbox_from_ref(struct strref ref, struct error *error)
+inline struct strbox strbox_from_ref(
+        struct strref ref,
+        struct error *restrict error)
 {
     struct strbox box;
-    box.chars = moviedb_alloc(ref->length, error);
+    box.chars = moviedb_alloc(ref.length, error);
     if (error->code == error_none) {
         box.length = ref.length;
         memcpy(box.chars, ref.chars, ref.length);

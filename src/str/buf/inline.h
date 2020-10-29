@@ -9,8 +9,8 @@ inline struct strbuf strbuf_init()
 {
     struct strbuf buf;
     buf.box.length = 0;
-    buf.box.capacity = 0;
     buf.box.chars = NULL;
+    buf.capacity = 0;
     return buf;
 }
 
@@ -56,38 +56,46 @@ inline struct strbuf strbuf_from_ref(
 
 inline void strbuf_reserve(
         struct strbuf *restrict buf,
-        size_t additional,
+        size_t count,
         struct error *restrict error)
 {
-    size_t new_cap = buf->capacity + additional;
-    char const *restrict new_chars = moviedb_realloc(
-            buf->chars,
+    size_t new_cap = buf->capacity + count;
+    char *new_chars = moviedb_realloc(
+            buf->box.chars,
             new_cap,
             error);
 
     if (error->code == error_none) {
-        buf->chars = new_chars;
+        buf->box.chars = new_chars;
         buf->capacity = new_cap;
     }
 }
 
 inline void strbuf_shrink(
         struct strbuf *restrict buf,
-        size_t amount,
+        size_t count,
         struct error *restrict error)
 {
-    size_t new_cap = buf->capacity + additional;
-    char const *new_chars = moviedb_realloc(
-            buf->chars,
+    size_t new_cap;
+    char *new_chars;
+
+    if (buf->capacity < count) {
+        new_cap = 0;
+    } else {
+       new_cap = buf->capacity - count;
+    }
+
+    new_chars = moviedb_realloc(
+            buf->box.chars,
             new_cap,
             error);
 
     if (error->code == error_none) {
-        buf->chars = new_chars;
+        buf->box.chars = new_chars;
         buf->capacity = new_cap;
         
-        if (buf->capacity < buf->length) {
-            buf->length = buf->capacity;
+        if (buf->capacity < buf->box.length) {
+            buf->box.length = buf->capacity;
         }
     }
 }
@@ -110,13 +118,13 @@ inline void strbuf_push(
         char ch,
         struct error *restrict error)
 {
-    if (buf->length == buf->capacity) {
+    if (buf->box.length == buf->capacity) {
         strbuf_reserve(buf, 1, error);
     }
 
     if (error->code == error_none) {
-        buf->chars[buf->length] = ch;
-        buf->length += 1;
+        buf->box.chars[buf->box.length] = ch;
+        buf->box.length += 1;
     }
 }
 
@@ -124,24 +132,24 @@ inline void strbuf_append(struct strbuf *restrict buf,
         struct strref suffix,
         struct error *restrict error)
 {
-    size_t new_length = buf->length + suffix.length;
+    size_t new_length = buf->box.length + suffix.length;
 
     if (new_length > buf->capacity) {
         strbuf_reserve(buf, new_length - buf->capacity, error);
     }
 
     if (error->code == error_none) {
-        memcpy(buf->chars + buf->length, suffix.chars, suffix.length);
-        buf->length = new_length;
+        memcpy(buf->box.chars + buf->box.length, suffix.chars, suffix.length);
+        buf->box.length = new_length;
     }
 }
 
 inline struct strref strbuf_as_ref(struct strbuf buf)
 {
-    if (buf.chars == NULL) {
+    if (buf.box.chars == NULL) {
         return strref_init("", 0);
     }
-    return strref_init(buf.chars, buf.length);
+    return strref_init(buf.box.chars, buf.box.length);
 }
 
 inline struct strbox strbuf_reuse_as_box(
@@ -149,12 +157,12 @@ inline struct strbox strbuf_reuse_as_box(
         struct error *restrict error)
 {
     struct strbox box;
-    if (buf.box.length == buf.capacity) {
-        box = buf.box;
-        buf.box.chars = NULL;
-        buf.box.length = 0;
+    if (buf->box.length == buf->capacity) {
+        box = buf->box;
+        buf->box.chars = NULL;
+        buf->box.length = 0;
     } else {
-        box = strbox_from_ref(strbuf_as_ref(buf), error);
+        box = strbox_from_ref(strbuf_as_ref(*buf), error);
     }
     return box;
 }
@@ -166,7 +174,7 @@ inline struct strbox strbuf_move_to_box(struct strbuf buf)
 
 inline void strbuf_destroy(struct strbuf buf)
 {
-    moviedb_free(buf.chars);
+    moviedb_free(buf.box.chars);
 }
 
 #endif

@@ -7,7 +7,9 @@
 
 inline struct strref strbox_as_ref(struct strbox box);
 
-inline struct strbox strbox_from_ref(struct strref ref, struct error *error);
+inline struct strbox strbox_from_ref(
+        struct strref ref,
+        struct error *restrict error);
 
 inline void strbox_destroy(struct strbox box);
 

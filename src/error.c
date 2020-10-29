@@ -3,60 +3,44 @@
 #include <string.h>
 
 #include "error.h"
+#include "str.h"
+#include "io.h"
 #include "alloc.h"
 
-void error_init(struct error *error)
+static inline void destroy_data(struct error *restrict error);
+
+extern inline struct error error_init();
+
+void error_set_code(struct error *restrict error, enum error_code code)
 {
-    error->code = error_none;
-    error->context = NULL;
-    error->free_context = false;
-}
-
-void error_set_code(struct error *error, enum error_code code)
-{
-    char const *ptr;
-
-    switch (error->code) {
-        case error_dup_movie_title:
-            if (error->data.dup_movie_title.free_title) {
-                ptr = error->data.dup_movie_title.title;
-                moviedb_free((void *) (void const *) ptr);
-            }
-            break;
-        default:
-            break;
-    }
-
+    destroy_data(error);
     error->code = code;
 }
 
-void error_set_context(
-        struct error *error,
-        char const *context,
-        bool free_context)
+void error_set_context(struct error *restrict error, struct string context)
 {
-    if (error->free_context) {
-        moviedb_free((void *) (void const *) error->context);
-    }
+    string_destroy(error->context);
     error->context = context;
-    error->free_context = free_context;
 }
 
-void error_destroy(struct error *error)
+void error_destroy(struct error *restrict error)
 {
-    error_set_code(error, error_none);
-    error_set_context(error, NULL, false);
+    destroy_data(error);
+    string_destroy(error->context);
 }
 
-void error_print(struct error const *error)
+void error_print(struct error const *restrict error)
 {
-    if (error->context != NULL) {
-        fprintf(stderr, "%s: ", error->context);
+    struct error ignore = error_init();
+    struct strref context = string_as_ref(error->context);
+
+    if (context.chars != NULL) {
+        io_write(stdout, context, &ignore);
     }
 
     switch (error->code) {
         case error_none:
-            fputs("ok\n", stderr);
+            io_write(stdout, strref_lit("ok\n"), &ignore);
             break;
 
         case error_csv:
@@ -109,35 +93,13 @@ void error_print(struct error const *error)
     }
 }
 
-void error_print_quote(char const *string)
+static void destroy_data(struct error *restrict error)
 {
-    char const *cursor;
-
-    fputc('"', stderr);
-
-    for (cursor = string; *cursor != 0; cursor++) {
-        switch (*cursor) {
-            case '\n':
-                fputs("\\n", stderr);
-                break;
-            case '\r':
-                fputs("\\r", stderr);
-                break;
-            case '"':
-                fputs("\\\"", stderr);
-                break;
-            case '\\':
-                fputs("\\\\", stderr);
-                break;
-            default:
-                if (*cursor >= 32 && *cursor <= 126) {
-                    fputc(*cursor, stderr);
-                } else {
-                    fprintf(stderr, "\\%hhu", *cursor);
-                }
-                break;
-        }
+    switch (error->code) {
+        case error_dup_movie_title:
+            string_destroy(error->data.dup_movie_title.title);
+            break;
+        default:
+            break;
     }
-
-    fputc('"', stderr);
 }

@@ -28,6 +28,8 @@ inline struct strref string_as_ref(struct string string)
             return string.data.ref;
         case string_box:
             return strbox_as_ref(string.data.box);
+        default:
+            return strref_init("", 0);
     }
 }
 

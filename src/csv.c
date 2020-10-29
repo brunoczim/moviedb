@@ -37,7 +37,7 @@ void csv_parse_field(
     int symbol;
     bool done = false;
 
-    out->length = 0;
+    out->box.length = 0;
 
     while (!done) {
         symbol = input_file_read(parser->file, error);

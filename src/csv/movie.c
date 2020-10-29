@@ -1,5 +1,6 @@
 #include "../alloc.h"
-#include "../strref.h"
+#include "../io.h"
+#include "../str.h"
 #include "movie.h"
 
 #define COLUMNS 3
