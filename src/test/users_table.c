@@ -34,6 +34,10 @@ int main(int argc, char const *argv[])
     assert(table.length == 1);
     assert(table.capacity == 5);
 
+    user = users_search(&table, 123);
+    assert(user != NULL);
+    assert(user->id == 123);
+
     rating.userid = 456;
     rating.value = 4.0;
     rating.movieid = 201;
@@ -49,6 +53,14 @@ int main(int argc, char const *argv[])
     assert(error.code == error_none);
     assert(table.length == 3);
     assert(table.capacity == 11);
+
+    user = users_search(&table, 123);
+    assert(user != NULL);
+    assert(user->id == 123);
+
+    user = users_search(&table, 456);
+    assert(user != NULL);
+    assert(user->id == 456);
 
     rating.userid = 123;
     rating.value = 4.0;
@@ -70,18 +82,18 @@ int main(int argc, char const *argv[])
     assert(user != NULL);
     assert(user->id == 456);
     assert(user->ratings.length == 1);
-    assert(user->ratings.entries[0].value == 201);
+    assert(user->ratings.entries[0].movie == 201);
     assert(fabs(user->ratings.entries[0].value - 4.0) < 0.000001);
 
     user = users_search(&table, 123);
     assert(user != NULL);
     assert(user->id == 123);
     assert(user->ratings.length == 3);
-    assert(user->ratings.entries[0].value == 101);
+    assert(user->ratings.entries[0].movie == 101);
     assert(fabs(user->ratings.entries[0].value - 3.5) < 0.000001);
-    assert(user->ratings.entries[1].value == 201);
+    assert(user->ratings.entries[1].movie == 201);
     assert(fabs(user->ratings.entries[1].value - 4.0) < 0.000001);
-    assert(user->ratings.entries[2].value == 301);
+    assert(user->ratings.entries[2].movie == 301);
     assert(fabs(user->ratings.entries[2].value - 2.5) < 0.000001);
 
     users_destroy(&table);

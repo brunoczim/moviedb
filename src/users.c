@@ -77,20 +77,21 @@ void users_insert_rating(
     if (load >= MAX_LOAD) {
         resize(table, error);
     }
-        
 
-    hash = moviedb_id_hash(rating_row->userid);
-    index = probe_index(table, hash, rating_row->userid);
+    if (error->code == error_none) {
+        hash = moviedb_id_hash(rating_row->userid);
+        index = probe_index(table, rating_row->userid, hash);
 
-    if (table->entries[index] == NULL) {
-        if (error->code == error_none) {
+        if (table->entries[index] == NULL) {
             table->entries[index] = user_init(rating_row, error);
-            table->length++;
+            if (error->code == error_none) {
+                table->length++;
+            }
+        } else {
+            rating.movie = rating_row->movieid;
+            rating.value = rating_row->value;
+            ratings_insert(&table->entries[index]->ratings, &rating, error);
         }
-    } else {
-        rating.movie = rating_row->movieid;
-        rating.value = rating_row->value;
-        ratings_insert(&table->entries[index]->ratings, &rating, error);
     }
 }
 
