@@ -1,6 +1,9 @@
 #ifndef MOVIEDB_USERS_H
 #define MOVIEDB_USERS_H 1
 
+#include "id.h"
+#include "csv/rating.h"
+
 /**
  * This file exports items related to users.
  */

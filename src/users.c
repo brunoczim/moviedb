@@ -1,5 +1,6 @@
-#include "user.h"
+#include "users.h"
 #include "prime.h"
+#include "alloc.h"
 
 #define MAX_LOAD 0.5
 
@@ -72,22 +73,24 @@ void users_insert_rating(
     uint_fast64_t hash;
     size_t index;
 
+    load = (table->length + 1) / (double) table->capacity;
+    if (load >= MAX_LOAD) {
+        resize(table, error);
+    }
+        
+
     hash = moviedb_id_hash(rating_row->userid);
-    index = probe_index(table, hash, rating->userid);
+    index = probe_index(table, hash, rating_row->userid);
 
     if (table->entries[index] == NULL) {
-        load = (table->length + 1) / (double) table->capacity;
-        if (load >= MAX_LOAD) {
-            resize(table, error);
-        }
-        
         if (error->code == error_none) {
             table->entries[index] = user_init(rating_row, error);
+            table->length++;
         }
     } else {
-        rating.movieid = rating_row->movieid;
+        rating.movie = rating_row->movieid;
         rating.value = rating_row->value;
-        ratings_insert(&table->entries[index].ratings, &rating, error);
+        ratings_insert(&table->entries[index]->ratings, &rating, error);
     }
 }
 
@@ -118,7 +121,7 @@ static struct user *user_init(
         struct rating_csv_row *restrict rating,
         struct error *restrict error)
 {
-    struct user *user = moviedb_alloc(sizeof(struct user *), error);
+    struct user *user = moviedb_alloc(sizeof(struct user), error);
 
     if (error->code == error_none) {
         user->id = rating->userid;
@@ -189,12 +192,12 @@ static size_t probe_index(
     struct user *user;
 
     attempt = 0;
-    index = hash_to_index(table->capacity, hash, attempt);
+    index = hash_to_index(table, hash, attempt);
     user = table->entries[index];
 
     while (user != NULL && user->id != userid) {
         attempt++;
-        index = hash_to_index(table->capacity, hash, attempt);
+        index = hash_to_index(table, hash, attempt);
         user = table->entries[index];
     }
 
@@ -207,7 +210,6 @@ static void resize(
 {
     size_t i;
     uint_fast64_t hash;
-    uint_fast64_t attempt;
     size_t index;
     struct users_table new_table;
 

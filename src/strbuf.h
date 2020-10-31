@@ -77,7 +77,7 @@ inline void strbuf_make_cstr(
         struct strbuf *restrict buf,
         struct error *restrict error)
 {
-    if (buf->length == 0 || buf->ptr[buf->length] != 0) {
+    if (buf->length == 0 || buf->ptr[buf->length - 1] != 0) {
         strbuf_push(buf, 0, error);
     }
 }

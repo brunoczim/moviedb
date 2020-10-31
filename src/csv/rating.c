@@ -1,5 +1,5 @@
 #include "../alloc.h"
-#include "movie.h"
+#include "rating.h"
 #include <string.h>
 
 #define COLUMNS 4
@@ -78,7 +78,7 @@ bool rating_parse_row(
     row_out->userid = 0;
     row_out->value = 0.0;
 
-    while (column < COLMNS && error->code == error_none && !end_of_file) {
+    while (column < COLUMNS && error->code == error_none && !end_of_file) {
         csv_parse_field(&parser->csv_parser, buf, error);
         end_of_file = csv_is_end_of_file(&parser->csv_parser) && column == 0;
         if (!end_of_file && error->code == error_none) {
@@ -96,7 +96,7 @@ bool rating_parse_row(
                     row_out->userid = moviedb_id_parse(buf->ptr, error);
                 } else if (column == parser->movieid_column) {
                     row_out->movieid = moviedb_id_parse(buf->ptr, error);
-                } else if (column == parser->genres_column) {
+                } else if (column == parser->value_column) {
                     row_out->value = csv_parse_double(buf->ptr, error);
                 }
             }

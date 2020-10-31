@@ -29,6 +29,14 @@ struct movie {
      * code is allowed to update this, reading is fine.
      */
     char const *genres;
+    /**
+     * How many ratings were done on this movie.
+     */
+    unsigned long ratings;
+    /**
+     * Mean of the ratings.
+     */
+    double mean_rating;
 };
 
 /**
@@ -74,6 +82,14 @@ void movies_insert(
         struct movies_table *restrict table,
         struct movie_csv_row *restrict movie_row,
         struct error *restrict error);
+
+/**
+ * Adds a rating for a movie. If not found, rating is not added.
+ */
+void movies_add_rating(
+        struct movies_table *restrict table,
+        moviedb_id movieid,
+        double rating);
 
 /**
  * Search for the movie with the given ID. Returns NULL if not found.

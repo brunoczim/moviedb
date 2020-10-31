@@ -43,31 +43,35 @@ LDFLAGS = $(LDFLAGS_$(PROFILE))
 HEADERS = src/error.h \
 		  src/alloc.h \
 		  src/strbuf.h \
+		  src/prime.h \
 		  src/io.h \
 		  src/id/def.h \
 		  src/id.h \
 		  src/csv.h \
 		  src/csv/movie.h \
+		  src/csv/rating.h \
 		  src/trie/branch.h \
 		  src/trie/iter.h \
 		  src/trie.h \
-		  src/prime.h \
 		  src/movies.h \
+		  src/users.h \
 		  src/shell.h
 
 MOVIEDB_OBJS = $(OBJ_DIR)/main.o \
 			   $(OBJ_DIR)/error.o \
 			   $(OBJ_DIR)/alloc.o \
 			   $(OBJ_DIR)/strbuf.o \
+			   $(OBJ_DIR)/prime.o \
 			   $(OBJ_DIR)/io.o \
 			   $(OBJ_DIR)/csv.o \
 			   $(OBJ_DIR)/csv/movie.o \
+			   $(OBJ_DIR)/csv/rating.o \
 			   $(OBJ_DIR)/trie/branch.o \
 			   $(OBJ_DIR)/trie/iter.o \
 			   $(OBJ_DIR)/trie.o \
 			   $(OBJ_DIR)/id.o \
-			   $(OBJ_DIR)/prime.o \
 			   $(OBJ_DIR)/movies.o \
+			   $(OBJ_DIR)/users.o \
 			   $(OBJ_DIR)/shell.o
 
 TEST_CSV_OBJS = $(OBJ_DIR)/error.o \
@@ -96,6 +100,14 @@ TEST_MOVIES_TABLE_OBJS = $(OBJ_DIR)/error.o \
 						 $(OBJ_DIR)/movies.o \
 						 $(OBJ_DIR)/test/movies_table.o
 
+TEST_USERS_TABLE_OBJS = $(OBJ_DIR)/error.o \
+						$(OBJ_DIR)/alloc.o \
+						$(OBJ_DIR)/strbuf.o \
+						$(OBJ_DIR)/id.o \
+						$(OBJ_DIR)/prime.o \
+						$(OBJ_DIR)/users.o \
+						$(OBJ_DIR)/test/users_table.o
+
 $(OBJ_DIR)/%.o: src/%.c $(HEADERS)
 	mkdir -p $(dir $@)
 	$(CC) -c $< $(CFLAGS) -o $@
@@ -104,7 +116,7 @@ moviedb: $(MOVIEDB_OBJS)
 	mkdir -p $(dir $(BUILD_DIR)/$@)
 	$(CC) $(LDFLAGS) $^ -o $(BUILD_DIR)/$@
 
-all: moviedb test/csv
+all: moviedb test/csv test/trie test/movies_table test/users_table
 
 test/prime: $(TEST_PRIME_OBJS)
 	mkdir -p $(dir $(BUILD_DIR)/$@)
@@ -119,6 +131,10 @@ test/trie: $(TEST_TRIE_OBJS)
 	$(CC) $(LDFLAGS) $^ -o $(BUILD_DIR)/$@
 
 test/movies_table: $(TEST_MOVIES_TABLE_OBJS)
+	mkdir -p $(dir $(BUILD_DIR)/$@)
+	$(CC) $(LDFLAGS) $^ -o $(BUILD_DIR)/$@
+
+test/users_table: $(TEST_USERS_TABLE_OBJS)
 	mkdir -p $(dir $(BUILD_DIR)/$@)
 	$(CC) $(LDFLAGS) $^ -o $(BUILD_DIR)/$@
 

@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include <math.h>
 #include <assert.h>
 #include "../alloc.h"
 #include "../movies.h"
@@ -46,6 +47,7 @@ void insert(
 int main(int argc, char const *argv[])
 {
     struct error error;
+    struct movie const *movie;
     struct movies_table table;
 
     error_init(&error);
@@ -73,6 +75,25 @@ int main(int argc, char const *argv[])
     assert(error.code == error_dup_movie_id);
     assert(table.length == 3);
     assert(table.capacity == 11);
+
+    movies_add_rating(&table, 456, 2.0);
+    movies_add_rating(&table, 456, 3.0);
+
+    movie = movies_search(&table, 456);
+    assert(movie != NULL);
+    assert(movie->id == 456);
+    assert(strcmp(movie->title, "Apple Film") == 0);
+    assert(strcmp(movie->genres, "comedy|drama") == 0);
+    assert(fabs(movie->mean_rating - 2.5) < 0.000001);
+    assert(movie->ratings == 2);
+
+    movie = movies_search(&table, 123);
+    assert(movie != NULL);
+    assert(movie->id == 123);
+    assert(strcmp(movie->title, "Banana Movie") == 0);
+    assert(strcmp(movie->genres, "action|comedy") == 0);
+    assert(fabs(movie->mean_rating) < 0.000001);
+    assert(movie->ratings == 0);
 
     movies_destroy(&table);
     error_destroy(&error);

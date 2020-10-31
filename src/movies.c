@@ -98,9 +98,30 @@ void movies_insert(
             movie->id = movie_row->id;
             movie->title = movie_row->title;
             movie->genres = movie_row->genres;
+            movie->ratings = 0;
+            movie->mean_rating = 0.0;
             table->entries[index] = movie;
             table->length++;
         }
+    }
+}
+
+void movies_add_rating(
+        struct movies_table *restrict table,
+        moviedb_id movieid,
+        double rating)
+{
+    unsigned long ratings;
+    double sum;
+    uint_fast64_t hash = moviedb_id_hash(movieid);
+    size_t index = probe_index(table, movieid, hash);
+
+    if (table->entries[index] != NULL) {
+        ratings = table->entries[index]->ratings;
+        sum = table->entries[index]->mean_rating * ratings + rating;
+        ratings++;
+        table->entries[index]->mean_rating = sum / ratings;
+        table->entries[index]->ratings = ratings;
     }
 }
 
