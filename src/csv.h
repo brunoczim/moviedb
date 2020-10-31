@@ -161,4 +161,12 @@ void csv_parse_field(
         struct strbuf *restrict out,
         struct error *restrict error);
 
+/**
+ * Parses a double precision floating point number. Intended to be used when
+ * parsing CSV, but can be used with anything.
+ */
+double csv_parse_double(
+        char const *restrict string,
+        struct error *restrict error);
+
 #endif

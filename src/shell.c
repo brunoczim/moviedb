@@ -1,6 +1,7 @@
 #include "io.h"
 #include "alloc.h"
 #include "shell.h"
+#include <string.h>
 
 /**
  * Data shared by shell functions.

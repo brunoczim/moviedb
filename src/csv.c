@@ -1,6 +1,14 @@
 #include <stdbool.h>
+#include <string.h>
 #include "io.h"
 #include "csv.h"
+#include "alloc.h"
+
+/**
+ * Given a character (symbol) read from a file, updates line and column
+ * accordingly. Uses the internal state to handle LF, CRLF and CR line endings.
+ */
+static void update_line_column(struct csv_parser *restrict parser, int symbol);
 
 extern inline void csv_parser_init(
         struct csv_parser *restrict parser,
@@ -13,11 +21,40 @@ extern inline bool csv_is_row_boundary(
 
 extern inline bool csv_is_end_of_file(struct csv_parser const *restrict parser);
 
-/**
- * Given a character (symbol) read from a file, updates line and column
- * accordingly. Uses the internal state to handle LF, CRLF and CR line endings.
- */
-static void update_line_column(struct csv_parser *restrict parser, int symbol);
+double csv_parse_double(
+        char const *restrict string,
+        struct error *restrict error)
+{
+    size_t i;
+    char *error_string;
+    char *end;
+    double value;
+    
+    i = 0;
+
+    while (string[i] == ' ') {
+        i++;
+    }
+   
+    value = strtod(string + i, &end);
+
+    while (*end == ' ') {
+        end++;
+    }
+
+    if (*end != 0) {
+        error_string = moviedb_alloc(strlen(string) + 1, error);
+        if (error->code == error_none) {
+            strcpy(error_string, string);
+            error_set_code(error, error_double);
+            error->data.double_f.has_line = false;
+            error->data.double_f.string = error_string;
+            error->data.double_f.free_string = true;
+        }
+    }
+
+    return value;
+}
 
 /**
  * Performs the transtion of states, given a character (symbol) read from a

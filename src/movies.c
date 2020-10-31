@@ -15,14 +15,25 @@
  * Converts a hash to an index in the table.
  */
 static size_t hash_to_index(
-        size_t capacity,
+        struct movies_table const *restrict table,
         uint_fast64_t hash,
         uint_fast64_t attempt);
 
 /**
+ * Probes the given table until the place where the given movie ID should be
+ * stored, given its hash. Returns the index of this place.
+ */
+static size_t probe_index(
+        struct movies_table const *restrict table,
+        moviedb_id movieid,
+        uint_fast64_t hash);
+
+/**
  * Resizes the table to have at least double capacity.
  */
-static void resize(struct movies_table *restrict table, struct error *restrict error);
+static void resize(
+        struct movies_table *restrict table,
+        struct error *restrict error);
 
 void movie_print(struct movie const *restrict movie)
 {
@@ -64,7 +75,6 @@ void movies_insert(
 {
     double load;
     uint_fast64_t hash;
-    uint_fast64_t attempt;
     size_t index;
     struct movie *movie;
 
@@ -74,22 +84,16 @@ void movies_insert(
         resize(table, error);
     }
 
-    hash = moviedb_id_hash(movie_row->id);
-    attempt = 0;
-    index = hash_to_index(table->capacity, hash, attempt);
-
-    while (table->entries[index] != NULL && error->code == error_none) {
-        if (table->entries[index]->id == movie_row->id) {
+    if (error->code == error_none) {
+        hash = moviedb_id_hash(movie_row->id);
+        index = probe_index(table, movie_row->id, hash);
+        if (table->entries[index] == NULL) {
+            movie = moviedb_alloc(sizeof(struct movie), error);
+        } else {
             error_set_code(error, error_dup_movie_id);
             error->data.dup_movie_id.id = movie_row->id;
-        } else {
-            attempt++;
-            index = hash_to_index(table->capacity, hash, attempt);
         }
-    }
 
-    if (error->code == error_none) {
-        movie = moviedb_alloc(sizeof(struct movie), error);
         if (error->code == error_none) {
             movie->id = movie_row->id;
             movie->title = movie_row->title;
@@ -105,17 +109,8 @@ struct movie const *movies_search(
         moviedb_id movieid)
 {
     uint_fast64_t hash = moviedb_id_hash(movieid);
-    uint_fast64_t attempt = 0;
-    size_t index = hash_to_index(table->capacity, hash, attempt);
-    struct movie *movie = table->entries[index];
-
-    while (movie != NULL && movie->id != movieid) {
-        attempt++;
-        index = hash_to_index(table->capacity, hash, attempt);
-        movie = table->entries[index];
-    }
-
-    return movie;
+    size_t index = probe_index(table, movieid, hash);
+    return table->entries[index];
 }
 
 void movies_destroy(struct movies_table *restrict table)
@@ -134,58 +129,74 @@ void movies_destroy(struct movies_table *restrict table)
 }
 
 static size_t hash_to_index(
-        size_t capacity,
+        struct movies_table const *restrict table,
         uint_fast64_t hash,
         uint_fast64_t attempt)
 {
-    uint_fast64_t term0 = hash % capacity;
-    uint_fast64_t term1 = attempt % capacity;
-    uint_fast64_t term2 = (term1 * term1) % capacity;
+    uint_fast64_t term0 = hash % table->capacity;
+    uint_fast64_t term1 = attempt % table->capacity;
+    uint_fast64_t term2 = (term1 * term1) % table->capacity;
+    uint_fast64_t sum0 = (term0 + term1) % table->capacity;
     
-    return ((term0 + term1) % capacity + term2) % capacity;
+    return (sum0 + term2) % table->capacity;
+}
+
+static size_t probe_index(
+        struct movies_table const *restrict table,
+        moviedb_id movieid,
+        uint_fast64_t hash)
+{
+    uint_fast64_t attempt;
+    size_t index;
+    struct movie *movie;
+
+    attempt = 0;
+    index = hash_to_index(table, hash, attempt);
+    movie = table->entries[index];
+
+    while (movie != NULL && movie->id != movieid) {
+        attempt++;
+        index = hash_to_index(table, hash, attempt);
+        movie = table->entries[index];
+    }
+
+    return index;
 }
 
 static void resize(
         struct movies_table *restrict table,
         struct error *restrict error)
 {
-    size_t new_capacity;
     size_t i;
     uint_fast64_t hash;
-    uint_fast64_t attempt;
     size_t index;
-    struct movie **new_entries;
+    struct movies_table new_table;
 
     if (SIZE_MAX / 2 >= table->capacity) {
-        new_capacity = next_prime(table->capacity * 2);
+        new_table.capacity = next_prime(table->capacity * 2);
     } else {
-        new_capacity = SIZE_MAX;
+        new_table.capacity = SIZE_MAX;
     }
 
-    new_entries = moviedb_alloc(sizeof(struct movie **) * new_capacity, error);
+    new_table.entries = moviedb_alloc(
+            sizeof(struct movie **) * new_table.capacity,
+            error);
 
     if (error->code == error_none) {
-        for (i = 0; i < new_capacity; i++) {
-            new_entries[i] = NULL;
+        for (i = 0; i < new_table.capacity; i++) {
+            new_table.entries[i] = NULL;
         }
 
         for (i = 0; i < table->capacity; i++) {
             if (table->entries[i] != NULL) {
                 hash = moviedb_id_hash(table->entries[i]->id);
-                attempt = 0;
-                index = hash_to_index(new_capacity, hash, attempt);
-
-                while (new_entries[index] != NULL) {
-                    attempt++;
-                    index = hash_to_index(new_capacity, hash, attempt);
-                }
-
-                new_entries[index] = table->entries[i];
+                index = probe_index(&new_table, table->entries[i]->id, hash);
+                new_table.entries[index] = table->entries[i];
             }
         }
 
         moviedb_free(table->entries);
-        table->entries = new_entries;
-        table->capacity = new_capacity;
+        table->capacity = new_table.capacity;
+        table->entries = new_table.entries;
     }
 }

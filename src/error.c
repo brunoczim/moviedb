@@ -78,12 +78,33 @@ void error_print(struct error const *restrict error)
 
         case error_movie:
             fprintf(stderr,
-                    "invalid movie, line %lu\n",
+                    "invalid CSV movie row, line %lu\n",
+                    error->data.csv_movie.line);
+            break;
+
+        case error_rating:
+            fprintf(stderr,
+                    "invalid CSV rating row, line %lu\n",
+                    error->data.csv_movie.line);
+            break;
+
+        case error_tag:
+            fprintf(stderr,
+                    "invalid CSV tag row, line %lu\n",
                     error->data.csv_movie.line);
             break;
 
         case error_id:
             fputs("invalid ID ", stderr);
+            error_print_quote(error->data.id.string);
+            if (error->data.id.has_line) {
+                fprintf(stderr, ", line %lu", error->data.id.line);
+            }
+            fputc('\n', stderr);
+            break;
+
+        case error_double:
+            fputs("invalid fractional number", stderr);
             error_print_quote(error->data.id.string);
             if (error->data.id.has_line) {
                 fprintf(stderr, ", line %lu", error->data.id.line);

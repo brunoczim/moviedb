@@ -34,6 +34,14 @@ enum error_code {
      */
     error_movie,
     /**
+     * An error happened parsing a rating in a CSV file.
+     */
+    error_rating,
+    /**
+     * An error happened parsing a tag association in a CSV file.
+     */
+    error_tag,
+    /**
      * An error happened parsing the header of a CSV file.
      */
     error_csv_header,
@@ -41,6 +49,10 @@ enum error_code {
      * Error found when parsing an ID.
      */
     error_id,
+    /**
+     * An error happened parsing a double in a CSV file.
+     */
+    error_double,
     /**
      * Error found if there are two movies with the same ID.
      */
@@ -96,6 +108,26 @@ struct csv_movie_error {
 };
 
 /**
+ * Invalid rating error's data.
+ */
+struct csv_rating_error {
+    /**
+     * Line in a file where the error happened. Starts from 1.
+     */
+    unsigned long line;
+};
+
+/**
+ * Invalid tag association error's data.
+ */
+struct csv_tag_error {
+    /**
+     * Line in a file where the error happened. Starts from 1.
+     */
+    unsigned long line;
+};
+
+/**
  * Duplicated movie ID error's data.
  */
 struct dup_movie_id_error {
@@ -142,6 +174,28 @@ struct moviedb_id_error {
 };
 
 /**
+ * Invalid double error's data.
+ */
+struct double_error {
+    /**
+     * Whether there is a line in this error.
+     */
+    bool has_line;
+    /**
+     * Line in a file where the error happened. Starts from 1.
+     */
+    unsigned long line;
+    /**
+     * The string that was attempted to parse.
+     */
+    char const *string;
+    /**
+     * Whether to free the string.
+     */
+    bool free_string;
+};
+
+/**
  * Union that might be any error's data.
  */
 union error_data {
@@ -161,6 +215,18 @@ union error_data {
      * Data of an invalid movie error.
      */
     struct csv_movie_error csv_movie;
+    /**
+     * Data of an invalid rating error.
+     */
+    struct csv_rating_error csv_rating;
+    /**
+     * Data of an invalid tag association error.
+     */
+    struct csv_tag_error csv_tag;
+    /**
+     * Data of an invalid double error.
+     */
+    struct double_error double_f;
     /**
      * Data of an invalid ID error.
      */

@@ -61,7 +61,7 @@ struct movie_parser {
 void movie_parser_init(
         struct movie_parser *restrict parser,
         FILE *file,
-        struct strbuf *buf,
+        struct strbuf *restrict buf,
         struct error *restrict error);
 
 /**
@@ -70,13 +70,13 @@ void movie_parser_init(
  */
 bool movie_parse_row(
         struct movie_parser *restrict parser,
-        struct strbuf *buf,
-        struct movie_csv_row *row_out,
+        struct strbuf *restrict buf,
+        struct movie_csv_row *restrict row_out,
         struct error *restrict error);
 
 /**
  * Destroy the contents of a movie row.
  */
-void movie_destroy_row(struct movie_csv_row *row);
+void movie_destroy_row(struct movie_csv_row *restrict row);
 
 #endif
