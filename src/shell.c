@@ -8,13 +8,9 @@
  */
 struct shell {
     /**
-     * The trie mapping title -> movieid.
+     * An immutable pointer to the database.
      */
-    struct trie_node const *restrict trie_root;
-    /**
-     * The hash table mapping movieid -> movie.
-     */
-    struct movies_table const *restrict movies;
+    struct database const *restrict database;
     /**
      * Buffer used by the shell to read lines.
      */
@@ -69,15 +65,13 @@ static void read_single_arg(
  */
 static void print_help(void);
 
-void shell_run(struct trie_node const *restrict trie_root,
-        struct movies_table const *restrict movies,
+void shell_run(struct database const *restrict database,
         struct strbuf *restrict buf,
         struct error *restrict error)
 {
     bool read = true;
     struct shell shell;
-    shell.trie_root = trie_root;
-    shell.movies = movies;
+    shell.database = database;
     shell.buf = buf;
 
     while (read && error->code == error_none) {
@@ -147,10 +141,10 @@ static bool run_movie(
     }
 
     if (error->code == error_none) {
-        trie_search_prefix(shell->trie_root, prefix, &iter);
+        trie_search_prefix(&shell->database->trie_root, prefix, &iter);
         db_free(prefix);
         while (trie_next_movie(&iter, &movieid, error)) {
-            movie = movies_search(shell->movies, movieid);
+            movie = movies_search(&shell->database->movies, movieid);
             if (movie != NULL) {
                 movie_print(movie);
             }

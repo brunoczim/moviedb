@@ -57,6 +57,8 @@ HEADERS = src/error.h \
 		  src/trie.h \
 		  src/movies.h \
 		  src/users.h \
+		  src/tags.h \
+		  src/database.h \
 		  src/shell.h
 
 MOVIEDB_OBJS = $(OBJ_DIR)/main.o \
@@ -77,6 +79,7 @@ MOVIEDB_OBJS = $(OBJ_DIR)/main.o \
 			   $(OBJ_DIR)/movies.o \
 			   $(OBJ_DIR)/users.o \
 			   $(OBJ_DIR)/tags.o \
+			   $(OBJ_DIR)/database.o \
 			   $(OBJ_DIR)/shell.o
 
 TEST_CSV_OBJS = $(OBJ_DIR)/error.o \
