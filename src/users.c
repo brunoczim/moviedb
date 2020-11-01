@@ -8,7 +8,7 @@
  * Initializes a user by allocating a user in the heap.
  */
 static struct user *user_init(
-        struct rating_csv_row *restrict rating,
+        struct rating_csv_row *restrict rating_row,
         struct error *restrict error);
 
 /**
@@ -20,21 +20,13 @@ static void ratings_insert(
         struct error *restrict error);
 
 /**
- * Converts a hash to an index in the table.
- */
-static size_t hash_to_index(
-        struct users_table const *restrict table,
-        uint_fast64_t hash,
-        uint_fast64_t attempt);
-
-/**
  * Probes the given table until the place where the given movie ID should be
  * stored, given its hash. Returns the index of this place.
  */
 static size_t probe_index(
         struct users_table const *restrict table,
         moviedb_id userid,
-        uint_fast64_t hash);
+        moviedb_hash hash);
 
 /**
  * Resizes the table to have at least double capacity.
@@ -70,7 +62,7 @@ void users_insert_rating(
 {
     struct user_rating rating;
     double load;
-    uint_fast64_t hash;
+    moviedb_hash hash;
     size_t index;
 
     load = (table->length + 1) / (double) table->capacity;
@@ -99,7 +91,7 @@ struct user const *users_search(
         struct users_table const *restrict table,
         moviedb_id userid)
 {
-    uint_fast64_t hash = moviedb_id_hash(userid);
+    moviedb_hash hash = moviedb_id_hash(userid);
     size_t index = probe_index(table, userid, hash);
     return table->entries[index];
 }
@@ -119,13 +111,13 @@ void users_destroy(struct users_table *restrict table)
 }
 
 static struct user *user_init(
-        struct rating_csv_row *restrict rating,
+        struct rating_csv_row *restrict rating_row,
         struct error *restrict error)
 {
     struct user *user = moviedb_alloc(sizeof(struct user), error);
 
     if (error->code == error_none) {
-        user->id = rating->userid;
+        user->id = rating_row->userid;
         user->ratings.length = 1;
         user->ratings.capacity = 1;
         user->ratings.entries = moviedb_alloc(
@@ -133,8 +125,8 @@ static struct user *user_init(
                 error);
 
         if (error->code == error_none) {
-            user->ratings.entries[0].value = rating->value;
-            user->ratings.entries[0].movie = rating->movieid;
+            user->ratings.entries[0].value = rating_row->value;
+            user->ratings.entries[0].movie = rating_row->movieid;
         } else {
             moviedb_free(user);
             user = NULL;
@@ -170,35 +162,22 @@ static void ratings_insert(
     }
 }
 
-static size_t hash_to_index(
-        struct users_table const *restrict table,
-        uint_fast64_t hash,
-        uint_fast64_t attempt)
-{
-    uint_fast64_t term0 = hash % table->capacity;
-    uint_fast64_t term1 = attempt % table->capacity;
-    uint_fast64_t term2 = (term1 * term1) % table->capacity;
-    uint_fast64_t sum0 = (term0 + term1) % table->capacity;
-    
-    return (sum0 + term2) % table->capacity;
-}
-
 static size_t probe_index(
         struct users_table const *restrict table,
         moviedb_id userid,
-        uint_fast64_t hash)
+        moviedb_hash hash)
 {
-    uint_fast64_t attempt;
+    moviedb_hash attempt;
     size_t index;
     struct user *user;
 
     attempt = 0;
-    index = hash_to_index(table, hash, attempt);
+    index = moviedb_hash_to_index(hash, attempt, table->capacity);
     user = table->entries[index];
 
     while (user != NULL && user->id != userid) {
         attempt++;
-        index = hash_to_index(table, hash, attempt);
+        index = moviedb_hash_to_index(hash, attempt, table->capacity);
         user = table->entries[index];
     }
 
@@ -210,7 +189,7 @@ static void resize(
         struct error *restrict error)
 {
     size_t i;
-    uint_fast64_t hash;
+    moviedb_hash hash;
     size_t index;
     struct users_table new_table;
 

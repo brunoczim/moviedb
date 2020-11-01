@@ -44,12 +44,14 @@ HEADERS = src/error.h \
 		  src/alloc.h \
 		  src/strbuf.h \
 		  src/prime.h \
+		  src/hash.h \
 		  src/io.h \
 		  src/id/def.h \
 		  src/id.h \
 		  src/csv.h \
 		  src/csv/movie.h \
 		  src/csv/rating.h \
+		  src/csv/tag.h \
 		  src/trie/branch.h \
 		  src/trie/iter.h \
 		  src/trie.h \
@@ -62,10 +64,12 @@ MOVIEDB_OBJS = $(OBJ_DIR)/main.o \
 			   $(OBJ_DIR)/alloc.o \
 			   $(OBJ_DIR)/strbuf.o \
 			   $(OBJ_DIR)/prime.o \
+			   $(OBJ_DIR)/hash.o \
 			   $(OBJ_DIR)/io.o \
 			   $(OBJ_DIR)/csv.o \
 			   $(OBJ_DIR)/csv/movie.o \
 			   $(OBJ_DIR)/csv/rating.o \
+			   $(OBJ_DIR)/csv/tag.o \
 			   $(OBJ_DIR)/trie/branch.o \
 			   $(OBJ_DIR)/trie/iter.o \
 			   $(OBJ_DIR)/trie.o \

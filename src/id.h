@@ -3,6 +3,7 @@
 
 #include "id/def.h"
 #include "strbuf.h"
+#include "hash.h"
 
 /**
  * This file provides items related to IDs in the application.
@@ -25,6 +26,9 @@ moviedb_id moviedb_id_parse(
 /**
  * Processes the given id into a hash, so that the bits get scrambled.
  */
-uint_fast64_t moviedb_id_hash(moviedb_id id);
+moviedb_hash moviedb_hash_id(moviedb_id id)
+{
+    return moviedb_hash_uint64(id);
+}
 
 #endif

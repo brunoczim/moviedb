@@ -93,7 +93,7 @@ void users_init(
 
 /**
  * Inserts the given rating made by the given user, creating an entry for the
- * user in the table.
+ * user in the table if necessary.
  */
 void users_insert_rating(
         struct users_table *restrict table,

@@ -12,21 +12,13 @@
 #define CLEAR "\e[0m"
 
 /**
- * Converts a hash to an index in the table.
- */
-static size_t hash_to_index(
-        struct movies_table const *restrict table,
-        uint_fast64_t hash,
-        uint_fast64_t attempt);
-
-/**
  * Probes the given table until the place where the given movie ID should be
  * stored, given its hash. Returns the index of this place.
  */
 static size_t probe_index(
         struct movies_table const *restrict table,
         moviedb_id movieid,
-        uint_fast64_t hash);
+        moviedb_hash hash);
 
 /**
  * Resizes the table to have at least double capacity.
@@ -74,7 +66,7 @@ void movies_insert(
         struct error *restrict error)
 {
     double load;
-    uint_fast64_t hash;
+    moviedb_hash hash;
     size_t index;
     struct movie *movie;
 
@@ -113,7 +105,7 @@ void movies_add_rating(
 {
     unsigned long ratings;
     double sum;
-    uint_fast64_t hash = moviedb_id_hash(movieid);
+    moviedb_hash hash = moviedb_id_hash(movieid);
     size_t index = probe_index(table, movieid, hash);
 
     if (table->entries[index] != NULL) {
@@ -129,7 +121,7 @@ struct movie const *movies_search(
         struct movies_table const *restrict table,
         moviedb_id movieid)
 {
-    uint_fast64_t hash = moviedb_id_hash(movieid);
+    moviedb_hash hash = moviedb_id_hash(movieid);
     size_t index = probe_index(table, movieid, hash);
     return table->entries[index];
 }
@@ -149,35 +141,22 @@ void movies_destroy(struct movies_table *restrict table)
     moviedb_free(table->entries);
 }
 
-static size_t hash_to_index(
-        struct movies_table const *restrict table,
-        uint_fast64_t hash,
-        uint_fast64_t attempt)
-{
-    uint_fast64_t term0 = hash % table->capacity;
-    uint_fast64_t term1 = attempt % table->capacity;
-    uint_fast64_t term2 = (term1 * term1) % table->capacity;
-    uint_fast64_t sum0 = (term0 + term1) % table->capacity;
-    
-    return (sum0 + term2) % table->capacity;
-}
-
 static size_t probe_index(
         struct movies_table const *restrict table,
         moviedb_id movieid,
-        uint_fast64_t hash)
+        moviedb_hash hash)
 {
-    uint_fast64_t attempt;
+    moviedb_hash attempt;
     size_t index;
     struct movie *movie;
 
     attempt = 0;
-    index = hash_to_index(table, hash, attempt);
+    index = moviedb_hash_to_index(hash, attempt, table->capacity);
     movie = table->entries[index];
 
     while (movie != NULL && movie->id != movieid) {
         attempt++;
-        index = hash_to_index(table, hash, attempt);
+        index = moviedb_hash_to_index(hash, attempt, table->capacity);
         movie = table->entries[index];
     }
 
@@ -189,7 +168,7 @@ static void resize(
         struct error *restrict error)
 {
     size_t i;
-    uint_fast64_t hash;
+    moviedb_hash hash;
     size_t index;
     struct movies_table new_table;
 
