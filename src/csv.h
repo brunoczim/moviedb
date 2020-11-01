@@ -61,12 +61,17 @@ enum csv_state {
      * State when parsing a quoted field, and a backslash has been found _inside_
      * the field.
      */
-    csv_prev_backslash,
+    csv_quoted_backslash,
     /**
      * State when parsing a quoted field, and a quote has been found _inside_
      * the field.
      */
     csv_prev_quote,
+    /**
+     * State when parsing a quoted field, and a backslash following a quote has
+     * been found _inside_ the field.
+     */
+    csv_prev_quote_backslash,
     /**
      * State when an error has been found. Line and column number should be
      * checked.

@@ -201,7 +201,7 @@ static void transition(
                     parser->state = csv_error;
                     break;
                 case '\\':
-                    parser->state = csv_prev_backslash;
+                    parser->state = csv_quoted_backslash;
                     break;
                 case '\r':
                     parser->state = csv_quoted_cr;
@@ -212,8 +212,31 @@ static void transition(
             break;
 
         /*
-         * Group of states that is reading a quoted field when a quote happens
-         * inside the field.
+         * State that is reading a quoted field when a backslash happens inside
+         * the field.
+         */
+        case csv_quoted_backslash:
+            switch (symbol) {
+                case '"':
+                    parser->state = csv_prev_quote;
+                    break;
+                case EOF:
+                    parser->state = csv_error;
+                    break;
+                case '\r':
+                    parser->state = csv_quoted_cr;
+                    strbuf_push(out, symbol, error);
+                    break;
+                default:
+                    parser->state = csv_quoted;
+                    strbuf_push(out, symbol, error);
+                    break;
+            }
+            break;
+
+        /*
+         * States that is reading a quoted field when a quote happens inside the
+         * field.
          */
         case csv_prev_quote:
             switch (symbol) {
@@ -233,6 +256,9 @@ static void transition(
                 case EOF:
                     parser->state = csv_end_of_file;
                     break;
+                case '\\':
+                    parser->state = csv_prev_quote_backslash;
+                    break;
                 default:
                     parser->state = csv_error;
                     break;
@@ -240,24 +266,29 @@ static void transition(
             break;
 
         /*
-         * Group of states that is reading a quoted field when a backslash
-         * happens inside the field.
+         * State that is reading a quoted field when a quote happens inside the
+         * field followed by a backslash.
          */
-        case csv_prev_backslash:
+        case csv_prev_quote_backslash:
             switch (symbol) {
-                case EOF:
-                    parser->state = csv_error;
-                    break;
-                case '\\':
-                    parser->state = csv_prev_backslash;
-                    break;
-                case '\r':
-                    parser->state = csv_quoted_cr;
-                    strbuf_push(out, symbol, error);
-                    break;
-                default:
+                case '"':
                     parser->state = csv_quoted;
                     strbuf_push(out, symbol, error);
+                    break;
+                case '\r':
+                    parser->state = csv_car_return;
+                    break;
+                case '\n':
+                    parser->state = csv_linefeed;
+                    break;
+                case ',':
+                    parser->state = csv_comma;
+                    break;
+                case EOF:
+                    parser->state = csv_end_of_file;
+                    break;
+                default:
+                    parser->state = csv_error;
                     break;
             }
             break;
