@@ -20,7 +20,7 @@ void error_set_code(struct error *restrict error, enum error_code code)
         case error_dup_movie_title:
             if (error->data.dup_movie_title.free_title) {
                 ptr = error->data.dup_movie_title.title;
-                moviedb_free((void *) (void const *) ptr);
+                db_free((void *) (void const *) ptr);
             }
             break;
         default:
@@ -36,7 +36,7 @@ void error_set_context(
         bool free_context)
 {
     if (error->free_context) {
-        moviedb_free((void *) (void const *) error->context);
+        db_free((void *) (void const *) error->context);
     }
     error->context = context;
     error->free_context = free_context;

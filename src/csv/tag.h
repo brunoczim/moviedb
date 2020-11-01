@@ -17,7 +17,7 @@ struct tag_csv_row {
     /**
      * ID of the movie this tag refers to.
      */
-    moviedb_id movie;
+    db_id_t movieid;
     /**
      * Content of the tag. Should be heap allocated.
      */

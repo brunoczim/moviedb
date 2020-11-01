@@ -17,8 +17,8 @@
  */
 static size_t probe_index(
         struct movies_table const *restrict table,
-        moviedb_id movieid,
-        moviedb_hash hash);
+        db_id_t movieid,
+        db_hash_t hash);
 
 /**
  * Resizes the table to have at least double capacity.
@@ -49,7 +49,7 @@ void movies_init(
 
     table->length = 0;
     table->capacity = next_prime(initial_capacity);
-    table->entries = moviedb_alloc(
+    table->entries = db_alloc(
             sizeof(struct movie **) * table->capacity,
             error);
 
@@ -66,7 +66,7 @@ void movies_insert(
         struct error *restrict error)
 {
     double load;
-    moviedb_hash hash;
+    db_hash_t hash;
     size_t index;
     struct movie *movie;
 
@@ -77,10 +77,10 @@ void movies_insert(
     }
 
     if (error->code == error_none) {
-        hash = moviedb_id_hash(movie_row->id);
+        hash = db_id_hash(movie_row->id);
         index = probe_index(table, movie_row->id, hash);
         if (table->entries[index] == NULL) {
-            movie = moviedb_alloc(sizeof(struct movie), error);
+            movie = db_alloc(sizeof(struct movie), error);
         } else {
             error_set_code(error, error_dup_movie_id);
             error->data.dup_movie_id.id = movie_row->id;
@@ -100,12 +100,12 @@ void movies_insert(
 
 void movies_add_rating(
         struct movies_table *restrict table,
-        moviedb_id movieid,
+        db_id_t movieid,
         double rating)
 {
     unsigned long ratings;
     double sum;
-    moviedb_hash hash = moviedb_id_hash(movieid);
+    db_hash_t hash = db_id_hash(movieid);
     size_t index = probe_index(table, movieid, hash);
 
     if (table->entries[index] != NULL) {
@@ -119,9 +119,9 @@ void movies_add_rating(
 
 struct movie const *movies_search(
         struct movies_table const *restrict table,
-        moviedb_id movieid)
+        db_id_t movieid)
 {
-    moviedb_hash hash = moviedb_id_hash(movieid);
+    db_hash_t hash = db_id_hash(movieid);
     size_t index = probe_index(table, movieid, hash);
     return table->entries[index];
 }
@@ -132,31 +132,31 @@ void movies_destroy(struct movies_table *restrict table)
 
     for (i = 0; i < table->capacity; i++) {
         if (table->entries[i] != NULL) {
-            moviedb_free((void *) (void const *) table->entries[i]->title);
-            moviedb_free((void *) (void const *) table->entries[i]->genres);
-            moviedb_free(table->entries[i]);
+            db_free((void *) (void const *) table->entries[i]->title);
+            db_free((void *) (void const *) table->entries[i]->genres);
+            db_free(table->entries[i]);
         }
     }
 
-    moviedb_free(table->entries);
+    db_free(table->entries);
 }
 
 static size_t probe_index(
         struct movies_table const *restrict table,
-        moviedb_id movieid,
-        moviedb_hash hash)
+        db_id_t movieid,
+        db_hash_t hash)
 {
-    moviedb_hash attempt;
+    db_hash_t attempt;
     size_t index;
     struct movie *movie;
 
     attempt = 0;
-    index = moviedb_hash_to_index(hash, attempt, table->capacity);
+    index = db_hash_to_index(hash, attempt, table->capacity);
     movie = table->entries[index];
 
     while (movie != NULL && movie->id != movieid) {
         attempt++;
-        index = moviedb_hash_to_index(hash, attempt, table->capacity);
+        index = db_hash_to_index(hash, attempt, table->capacity);
         movie = table->entries[index];
     }
 
@@ -168,7 +168,7 @@ static void resize(
         struct error *restrict error)
 {
     size_t i;
-    moviedb_hash hash;
+    db_hash_t hash;
     size_t index;
     struct movies_table new_table;
 
@@ -178,7 +178,7 @@ static void resize(
         new_table.capacity = SIZE_MAX;
     }
 
-    new_table.entries = moviedb_alloc(
+    new_table.entries = db_alloc(
             sizeof(struct movie **) * new_table.capacity,
             error);
 
@@ -189,13 +189,13 @@ static void resize(
 
         for (i = 0; i < table->capacity; i++) {
             if (table->entries[i] != NULL) {
-                hash = moviedb_id_hash(table->entries[i]->id);
+                hash = db_id_hash(table->entries[i]->id);
                 index = probe_index(&new_table, table->entries[i]->id, hash);
                 new_table.entries[index] = table->entries[i];
             }
         }
 
-        moviedb_free(table->entries);
+        db_free(table->entries);
         table->capacity = new_table.capacity;
         table->entries = new_table.entries;
     }

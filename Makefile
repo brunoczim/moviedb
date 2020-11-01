@@ -76,6 +76,7 @@ MOVIEDB_OBJS = $(OBJ_DIR)/main.o \
 			   $(OBJ_DIR)/id.o \
 			   $(OBJ_DIR)/movies.o \
 			   $(OBJ_DIR)/users.o \
+			   $(OBJ_DIR)/tags.o \
 			   $(OBJ_DIR)/shell.o
 
 TEST_CSV_OBJS = $(OBJ_DIR)/error.o \
@@ -99,6 +100,7 @@ TEST_PRIME_OBJS = $(OBJ_DIR)/prime.o \
 TEST_MOVIES_TABLE_OBJS = $(OBJ_DIR)/error.o \
 						 $(OBJ_DIR)/alloc.o \
 						 $(OBJ_DIR)/strbuf.o \
+						 $(OBJ_DIR)/hash.o \
 						 $(OBJ_DIR)/id.o \
 						 $(OBJ_DIR)/prime.o \
 						 $(OBJ_DIR)/movies.o \
@@ -107,10 +109,23 @@ TEST_MOVIES_TABLE_OBJS = $(OBJ_DIR)/error.o \
 TEST_USERS_TABLE_OBJS = $(OBJ_DIR)/error.o \
 						$(OBJ_DIR)/alloc.o \
 						$(OBJ_DIR)/strbuf.o \
+						$(OBJ_DIR)/hash.o \
 						$(OBJ_DIR)/id.o \
 						$(OBJ_DIR)/prime.o \
 						$(OBJ_DIR)/users.o \
 						$(OBJ_DIR)/test/users_table.o
+
+TEST_TAGS_TABLE_OBJS = $(OBJ_DIR)/error.o \
+					   $(OBJ_DIR)/alloc.o \
+					   $(OBJ_DIR)/strbuf.o \
+					   $(OBJ_DIR)/hash.o \
+					   $(OBJ_DIR)/id.o \
+					   $(OBJ_DIR)/io.o \
+					   $(OBJ_DIR)/csv.o \
+					   $(OBJ_DIR)/csv/tag.o \
+					   $(OBJ_DIR)/prime.o \
+					   $(OBJ_DIR)/tags.o \
+					   $(OBJ_DIR)/test/tags_table.o
 
 $(OBJ_DIR)/%.o: src/%.c $(HEADERS)
 	mkdir -p $(dir $@)
@@ -139,6 +154,10 @@ test/movies_table: $(TEST_MOVIES_TABLE_OBJS)
 	$(CC) $(LDFLAGS) $^ -o $(BUILD_DIR)/$@
 
 test/users_table: $(TEST_USERS_TABLE_OBJS)
+	mkdir -p $(dir $(BUILD_DIR)/$@)
+	$(CC) $(LDFLAGS) $^ -o $(BUILD_DIR)/$@
+
+test/tags_table: $(TEST_TAGS_TABLE_OBJS)
 	mkdir -p $(dir $(BUILD_DIR)/$@)
 	$(CC) $(LDFLAGS) $^ -o $(BUILD_DIR)/$@
 

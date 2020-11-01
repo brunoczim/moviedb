@@ -81,9 +81,8 @@ bool tag_row_parse(
     bool end_of_file = false;
     bool row_boundary = false;
 
-    row_out->id = 0;
-    row_out->title = NULL;
-    row_out->genres = NULL;
+    row_out->name = NULL;
+    row_out->movieid = 0;
 
     while (column < COLUMNS && error->code == error_none && !end_of_file) {
         csv_parse_field(&parser->csv_parser, buf, error);
@@ -96,7 +95,7 @@ bool tag_row_parse(
             } else if (column == parser->movieid_column) {
                 strbuf_make_cstr(buf, error);
                 if (error->code == error_none) {
-                    row_out->movie = moviedb_id_parse(buf->ptr, error);
+                    row_out->movieid = db_id_parse(buf->ptr, error);
                 }
             } else if (column == parser->name_column) {
                 row_out->name = strbuf_copy_cstr(buf, error);
@@ -126,5 +125,5 @@ bool tag_row_parse(
 
 void tag_row_destroy(struct tag_csv_row *restrict row)
 {
-    moviedb_free((void *) (void const *) row->name);
+    db_free((void *) (void const *) row->name);
 }

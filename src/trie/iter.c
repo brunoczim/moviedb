@@ -4,7 +4,7 @@
 
 bool trie_next_movie(
     struct trie_iter *restrict iter,
-    moviedb_id *restrict movie_out,
+    db_id_t *restrict movie_out,
     struct error *restrict error)
 {
     bool leaf = false;
@@ -35,7 +35,7 @@ void trie_iter_enqueue(
 {
     struct trie_iter_node *node;
 
-    node = moviedb_alloc(sizeof(struct trie_iter_node), error);
+    node = db_alloc(sizeof(struct trie_iter_node), error);
 
     if (error->code == error_none) {
         node->next = NULL;
@@ -64,7 +64,7 @@ bool trie_iter_dequeue(
         *branches_out = queue->front->branches;
     }
     next = queue->front->next;
-    moviedb_free(queue->front);
+    db_free(queue->front);
     queue->front = next;
 
     if (next == NULL) {

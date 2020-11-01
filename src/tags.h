@@ -2,7 +2,7 @@
 #define MOVIEDB_TAGS_H 1
 
 #include "id.h"
-#include "csv/rating.h"
+#include "csv/tag.h"
 
 /**
  * This file exports items related to tags.
@@ -16,7 +16,7 @@ struct tag_movie_list {
      * Array of entries. Only internal tags hash table code is allowed
      * to update this value. Reading is fine.
      */
-    struct moviedb_id *entries;
+    db_id_t *entries;
     /**
      * How much entries are stored here. Only internal tags hash table code is
      * allowed to update this value. Reading is fine.
@@ -77,7 +77,8 @@ void tags_init(
 
 /**
  * Inserts the given tag-movie association, creating an entry for the tag in the
- * table if necessary.
+ * table if necessary. Name field should be heap-allocated, the given tag_row
+ * should not be used after this function is called.
  */
 void tags_insert(
         struct tags_table *restrict table,
@@ -89,7 +90,7 @@ void tags_insert(
  */
 struct tag const *tags_search(
         struct tags_table const *restrict table,
-        moviedb_id tagid);
+        char const *restrict name);
 
 /**
  * Destroys the given tags table, freeing all memory.

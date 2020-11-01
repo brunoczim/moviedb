@@ -19,16 +19,14 @@
 /**
  * Parses an ID from a given string buffer.
  */
-moviedb_id moviedb_id_parse(
-        char const *restrict string,
-        struct error *restrict error);
+db_id_t db_id_parse(char const *restrict string, struct error *restrict error);
 
 /**
  * Processes the given id into a hash, so that the bits get scrambled.
  */
-moviedb_hash moviedb_hash_id(moviedb_id id)
+inline db_hash_t db_id_hash(db_id_t id)
 {
-    return moviedb_hash_uint64(id);
+    return db_hash_uint64(id);
 }
 
 #endif

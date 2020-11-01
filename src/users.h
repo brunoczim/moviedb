@@ -21,7 +21,7 @@ struct user_rating {
      * The movie that was rated. Only internal users hash table code is allowed
      * to update this value. Reading is fine.
      */
-    moviedb_id movie;
+    db_id_t movie;
 };
 
 /**
@@ -53,7 +53,7 @@ struct user {
      * ID of the user. Only internal users hash table code is allowed to update
      * this value. Reading is fine.
      */
-    moviedb_id id;
+    db_id_t id;
     /**
      * List of the ratings made by this user. Only internal users hash table
      * code is allowed to update this value. Reading is fine.
@@ -105,7 +105,7 @@ void users_insert_rating(
  */
 struct user const *users_search(
         struct users_table const *restrict table,
-        moviedb_id userid);
+        db_id_t userid);
 
 /**
  * Destroys the given users table, freeing all memory.

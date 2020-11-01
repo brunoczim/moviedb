@@ -89,7 +89,7 @@ void load_all(
 
     then = clock();
 
-    file_buf = moviedb_alloc(IO_BUF_SIZE, error);
+    file_buf = db_alloc(IO_BUF_SIZE, error);
     if (error->code == error_none)  {
         load_movies(trie_root, movies, buf, file_buf, error);
         load_ratings(movies, users, buf, file_buf, error);

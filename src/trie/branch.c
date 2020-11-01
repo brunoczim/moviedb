@@ -53,7 +53,7 @@ void trie_branches_insert(
             new_cap = 255;
         }
 
-        new_entries = moviedb_realloc(
+        new_entries = db_realloc(
                 branches->entries,
                 sizeof(struct trie_branch) * new_cap,
                 error);
@@ -76,5 +76,5 @@ void trie_branches_insert(
 
 void trie_branches_destroy(struct trie_branch_list const *restrict branches)
 {
-    moviedb_free(branches->entries);
+    db_free(branches->entries);
 }

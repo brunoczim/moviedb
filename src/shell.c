@@ -138,7 +138,7 @@ static bool run_movie(
     char *prefix;
     struct trie_iter iter;
     struct movie const *movie;
-    moviedb_id movieid;
+    db_id_t movieid;
 
     read_single_arg(shell, error);
 
@@ -148,7 +148,7 @@ static bool run_movie(
 
     if (error->code == error_none) {
         trie_search_prefix(shell->trie_root, prefix, &iter);
-        moviedb_free(prefix);
+        db_free(prefix);
         while (trie_next_movie(&iter, &movieid, error)) {
             movie = movies_search(shell->movies, movieid);
             if (movie != NULL) {

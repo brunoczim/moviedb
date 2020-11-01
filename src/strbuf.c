@@ -15,7 +15,7 @@ void strbuf_reserve(
     char *new_alloc;
 
     new_capacity = buf->capacity + additional;
-    new_alloc = moviedb_realloc(buf->ptr, new_capacity, error);
+    new_alloc = db_realloc(buf->ptr, new_capacity, error);
     if (error->code == error_none) {
         buf->capacity = new_capacity;
         buf->ptr = new_alloc;
@@ -38,7 +38,7 @@ char *strbuf_copy_cstr(
     char *cstr = NULL;
 
     if (buf->ptr == NULL) {
-        cstr = moviedb_alloc(1, error);
+        cstr = db_alloc(1, error);
         if (error->code == error_none) {
             *cstr = 0;
         }
@@ -47,7 +47,7 @@ char *strbuf_copy_cstr(
             cstr = buf->ptr;
             strbuf_init(buf);
         } else {
-            cstr = moviedb_alloc(buf->length, error);
+            cstr = db_alloc(buf->length, error);
             if (error->code == error_none) {
                 memcpy(cstr, buf->ptr, buf->length);
             }
@@ -57,7 +57,7 @@ char *strbuf_copy_cstr(
         cstr[buf->length] = 0;
         strbuf_init(buf);
     } else {
-        cstr = moviedb_alloc(buf->length + 1, error);
+        cstr = db_alloc(buf->length + 1, error);
         if (error->code == error_none) {
             memcpy(cstr, buf->ptr, buf->length);
             cstr[buf->length] = 0;

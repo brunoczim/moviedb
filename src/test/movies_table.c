@@ -14,10 +14,10 @@
 
 void insert(
         struct movies_table *restrict table,
-        moviedb_id id,
-        char const *title,
-        char const *genres,
-        struct error *error)
+        db_id_t id,
+        char const *restrict title,
+        char const *restrict genres,
+        struct error *restrict error)
 {
     printf("Inserting %s\n", title);
 
@@ -26,12 +26,12 @@ void insert(
 
     row.id = id;
 
-    heap_title = moviedb_alloc(strlen(title) + 1, error);
+    heap_title = db_alloc(strlen(title) + 1, error);
     assert(error->code == error_none);
     strcpy(heap_title, title);
     row.title = heap_title;
 
-    heap_genres = moviedb_alloc(strlen(genres) + 1, error);
+    heap_genres = db_alloc(strlen(genres) + 1, error);
     assert(error->code == error_none);
     strcpy(heap_genres, genres);
     row.genres = heap_genres;
@@ -39,8 +39,8 @@ void insert(
     movies_insert(table, &row, error);
 
     if (error->code != error_none) {
-        moviedb_free(heap_title);
-        moviedb_free(heap_genres);
+        db_free(heap_title);
+        db_free(heap_genres);
     }
 }
 

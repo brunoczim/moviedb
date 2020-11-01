@@ -18,7 +18,7 @@ struct movie {
      * ID of the movie. Only internal movies hash table code is allowed to
      * update this, reading is fine.
      */
-    moviedb_id id;
+    db_id_t id;
     /**
      * Title of the movie. Heap-allocated. Only internal movies hash table code
      * is allowed to update this, reading is fine.
@@ -76,7 +76,8 @@ void movies_init(
 /**
  * Inserts a movie CSV row in the table. Title and genres of the CSV row should
  * be heap-allocated, since the table will free them. If movie ID is duplicated,
- * an error is set.
+ * an error is set. The given movie_row should not be used after this function
+ * is called.
  */
 void movies_insert(
         struct movies_table *restrict table,
@@ -88,7 +89,7 @@ void movies_insert(
  */
 void movies_add_rating(
         struct movies_table *restrict table,
-        moviedb_id movieid,
+        db_id_t movieid,
         double rating);
 
 /**
@@ -96,7 +97,7 @@ void movies_add_rating(
  */
 struct movie const *movies_search(
         struct movies_table const *restrict table,
-        moviedb_id movieid);
+        db_id_t movieid);
 
 /**
  * Destroys everything in the table. Movies. Titles. Genres. Entries.

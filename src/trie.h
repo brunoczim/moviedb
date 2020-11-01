@@ -24,7 +24,7 @@ struct trie_node {
      * The leaf data, in this case, the ID of a movie. Only initialized if this
      * node contains a leaf. Only trie internal code is allowed to touch this.
      */
-    moviedb_id movie;
+    db_id_t movie;
     /**
      * The branches of this node. Only trie internal code is allowed to touch
      * this.
@@ -48,7 +48,7 @@ inline void trie_root_init(struct trie_node *restrict root)
 void trie_insert(
         struct trie_node *root,
         char const *restrict title,
-        moviedb_id movie,
+        db_id_t movie,
         struct error *restrict error);
 
 /**
@@ -60,7 +60,7 @@ void trie_insert(
 bool trie_search(
         struct trie_node const *root,
         char const *restrict title,
-        moviedb_id *movie_out);
+        db_id_t *movie_out);
 
 /**
  * Searches for the movies in the trie tree with the given title prefix.

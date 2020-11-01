@@ -15,7 +15,7 @@
  *
  * NULL might still be returned in case of a zero-sized allocation.
  */
-inline void *moviedb_alloc(size_t size, struct error *restrict error)
+inline void *db_alloc(size_t size, struct error *restrict error)
 {
     void *mem = malloc(size);
     if (mem == NULL && size != 0) {
@@ -33,7 +33,7 @@ inline void *moviedb_alloc(size_t size, struct error *restrict error)
  *
  * NULL might still be returned in case of a zero-sized allocation.
  */
-inline void *moviedb_realloc(
+inline void *db_realloc(
         void *mem,
         size_t size,
         struct error *restrict error)
@@ -47,9 +47,9 @@ inline void *moviedb_realloc(
 }
 
 /**
- * Frees memory allocated by moviedb_alloc and moviedb_realloc.
+ * Frees memory allocated by db_alloc and db_realloc.
  */
-inline void moviedb_free(void *mem)
+inline void db_free(void *mem)
 {
     free(mem);
 }
