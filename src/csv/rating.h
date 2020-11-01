@@ -37,7 +37,7 @@ void rating_parser_init(
  * Attempts to parse a rating row. Returns whether the row was parsed. Returning
  * false and having no error means EOF.
  */
-bool rating_parse_row(
+bool rating_row_parse(
         struct rating_parser *restrict parser,
         struct strbuf *restrict buf,
         struct rating_csv_row *restrict row_out,

@@ -69,7 +69,7 @@ void tag_parser_init(
  * Attempts to parse a tag row. Returns whether the row was parsed. Returning
  * false and having no error means EOF.
  */
-bool tag_parse_row(
+bool tag_row_parse(
         struct tag_parser *restrict parser,
         struct strbuf *restrict buf,
         struct tag_csv_row *restrict row_out,
@@ -78,6 +78,6 @@ bool tag_parse_row(
 /**
  * Destroy the names of a tag row.
  */
-void tag_destroy_row(struct tag_csv_row *restrict row);
+void tag_row_destroy(struct tag_csv_row *restrict row);
 
 #endif

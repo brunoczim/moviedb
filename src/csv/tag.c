@@ -71,7 +71,7 @@ void tag_parser_init(
     }
 }
 
-bool tag_parse_row(
+bool tag_row_parse(
         struct tag_parser *restrict parser,
         struct strbuf *restrict buf,
         struct tag_csv_row *restrict row_out,
@@ -107,7 +107,7 @@ bool tag_parse_row(
     }
 
     if (error->code != error_none) {
-        tag_destroy_row(row_out);
+        tag_row_destroy(row_out);
         if (error->code == error_id) {
             error->data.id.has_line = true;
             if (csv_is_row_boundary(&parser->csv_parser)) {
@@ -124,7 +124,7 @@ bool tag_parse_row(
     return !end_of_file && error->code == error_none;
 }
 
-void tag_destroy_row(struct tag_csv_row *restrict row)
+void tag_row_destroy(struct tag_csv_row *restrict row)
 {
     moviedb_free((void *) (void const *) row->name);
 }

@@ -68,7 +68,7 @@ void movie_parser_init(
  * Attempts to parse a movie row. Returns whether the row was parsed. Returning
  * false and having no error means EOF.
  */
-bool movie_parse_row(
+bool movie_row_parse(
         struct movie_parser *restrict parser,
         struct strbuf *restrict buf,
         struct movie_csv_row *restrict row_out,
@@ -77,6 +77,6 @@ bool movie_parse_row(
 /**
  * Destroy the contents of a movie row.
  */
-void movie_destroy_row(struct movie_csv_row *restrict row);
+void movie_row_destroy(struct movie_csv_row *restrict row);
 
 #endif

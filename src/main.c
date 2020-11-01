@@ -124,7 +124,7 @@ void load_movies(
         movie_parser_init(&parser, file, buf, error);
 
         while (has_data) {
-            has_data = movie_parse_row(&parser, buf, &row, error);
+            has_data = movie_row_parse(&parser, buf, &row, error);
             if (has_data) {
                 trie_insert(trie_root, row.title, row.id, error);
 
@@ -135,7 +135,7 @@ void load_movies(
                     movies_insert(movies, &row, error);
                 } 
                 if (error->code != error_none) {
-                    movie_destroy_row(&row);
+                    movie_row_destroy(&row);
                 }
 
                 has_data = error->code == error_none;
@@ -174,7 +174,7 @@ void load_ratings(
         rating_parser_init(&parser, file, buf, error);
 
         while (has_data) {
-            has_data = rating_parse_row(&parser, buf, &row, error);
+            has_data = rating_row_parse(&parser, buf, &row, error);
 
             if (has_data) {
                 users_insert_rating(users, &row, error);

@@ -11,6 +11,7 @@ void movie_parser_init(
         struct error *restrict error)
 {
     bool found_id = false, found_title = false, found_genres = false;
+    bool found_all;
     bool row_boundary;
     size_t column = 0;
 
@@ -60,7 +61,7 @@ void movie_parser_init(
     }
 }
 
-bool movie_parse_row(
+bool movie_row_parse(
         struct movie_parser *restrict parser,
         struct strbuf *restrict buf,
         struct movie_csv_row *restrict row_out,
@@ -97,7 +98,7 @@ bool movie_parse_row(
     }
 
     if (error->code != error_none) {
-        movie_destroy_row(row_out);
+        movie_row_destroy(row_out);
         if (error->code == error_id) {
             error->data.id.has_line = true;
             if (csv_is_row_boundary(&parser->csv_parser)) {
@@ -114,7 +115,7 @@ bool movie_parse_row(
     return !end_of_file && error->code == error_none;
 }
 
-void movie_destroy_row(struct movie_csv_row *restrict row)
+void movie_row_destroy(struct movie_csv_row *restrict row)
 {
     moviedb_free((void *) (void const *) row->title);
     moviedb_free((void *) (void const *) row->genres);
