@@ -17,6 +17,15 @@
  */
 enum csv_state {
     /**
+     * State when the end of the file has been found.
+     */
+    csv_end_of_file,
+    /**
+     * State when a linefeed (LF, \n) is found outside of a field, and not after
+     * a carriage return (CR).
+     */
+    csv_linefeed,
+    /**
      * State when a carriage return (CR, \r) is found outside a field.
      */
     csv_car_return,
@@ -28,11 +37,6 @@ enum csv_state {
      * State when a comma is found outside a field.
      */
     csv_comma,
-    /**
-     * State when a linefeed (LF, \n) is found outside of a field, and not after
-     * a carriage return (CR).
-     */
-    csv_linefeed,
     /**
      * State when a linefeed (LF, \n) is found after a carriage return (CR),
      * outside of a field.
@@ -63,10 +67,6 @@ enum csv_state {
      * the field.
      */
     csv_prev_quote,
-    /**
-     * State when the end of the file has been found.
-     */
-    csv_end_of_file,
     /**
      * State when an error has been found. Line and column number should be
      * checked.

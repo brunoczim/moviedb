@@ -21,6 +21,16 @@ extern inline bool csv_is_row_boundary(
 
 extern inline bool csv_is_end_of_file(struct csv_parser const *restrict parser);
 
+/**
+ * Performs the transtion of states, given a character (symbol) read from a
+ * file. Also writes the correct characters to the output buffer.
+ */
+static void transition(
+        struct csv_parser *restrict parser,
+        int symbol,
+        struct strbuf *restrict out,
+        struct error *restrict error);
+
 double csv_parse_double(
         char const *restrict string,
         struct error *restrict error)
@@ -56,15 +66,6 @@ double csv_parse_double(
     return value;
 }
 
-/**
- * Performs the transtion of states, given a character (symbol) read from a
- * file. Also writes the correct characters to the output buffer.
- */
-static void transition(
-        struct csv_parser *restrict parser,
-        int symbol,
-        struct strbuf *restrict out,
-        struct error *restrict error);
 
 void csv_parse_field(
         struct csv_parser *restrict parser,
