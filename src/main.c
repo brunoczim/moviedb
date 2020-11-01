@@ -7,9 +7,11 @@
 #include "io.h"
 #include "csv/movie.h"
 #include "csv/rating.h"
+#include "csv/tag.h"
 #include "trie.h"
 #include "movies.h"
 #include "users.h"
+#include "tags.h"
 #include "shell.h"
 
 #define IO_BUF_SIZE 0x10000
@@ -18,22 +20,29 @@ void load_all(
         struct trie_node *restrict trie_root,
         struct movies_table *restrict movies,
         struct users_table *restrict users,
+        struct tags_table *restrict tags,
         struct strbuf *restrict buf,
-        struct error *error);
+        struct error *restrict error);
 
 void load_movies(
         struct trie_node *restrict trie_root,
         struct movies_table *restrict movies,
         struct strbuf *restrict buf,
         char *file_buf,
-        struct error *error);
+        struct error *restrict error);
 
 void load_ratings(
         struct movies_table *restrict movies,
         struct users_table *restrict users,
         struct strbuf *restrict buf,
         char *file_buf,
-        struct error *error);
+        struct error *restrict error);
+
+void load_tags(
+        struct tags_table *restrict tags,
+        struct strbuf *restrict buf,
+        char *file_buf,
+        struct error *restrict error);
 
 int main(int argc, char const *argv[])
 {
@@ -42,6 +51,7 @@ int main(int argc, char const *argv[])
     struct trie_node trie_root;
     struct movies_table movies;
     struct users_table users;
+    struct tags_table tags;
     struct strbuf buf;
 
     error_init(&error);
@@ -54,7 +64,11 @@ int main(int argc, char const *argv[])
     }
 
     if (error.code == error_none) {
-        load_all(&trie_root, &movies, &users, &buf, &error);
+        tags_init(&tags, 2003, &error);
+    }
+
+    if (error.code == error_none) {
+        load_all(&trie_root, &movies, &users, &tags, &buf, &error);
     }
 
     if (error.code == error_none) {
@@ -78,8 +92,9 @@ void load_all(
         struct trie_node *restrict trie_root,
         struct movies_table *restrict movies,
         struct users_table *restrict users,
+        struct tags_table *restrict tags,
         struct strbuf *restrict buf,
-        struct error *error)
+        struct error *restrict error)
 {
     clock_t then, now;
     double millis;
@@ -92,7 +107,12 @@ void load_all(
     file_buf = db_alloc(IO_BUF_SIZE, error);
     if (error->code == error_none)  {
         load_movies(trie_root, movies, buf, file_buf, error);
-        load_ratings(movies, users, buf, file_buf, error);
+        if (error->code == error_none)  {
+            load_ratings(movies, users, buf, file_buf, error);
+        }
+        if (error->code == error_none)  {
+            load_tags(tags, buf, file_buf, error);
+        }
         free(file_buf);
     }
     now = clock();
@@ -106,7 +126,7 @@ void load_movies(
         struct movies_table *restrict movies,
         struct strbuf *restrict buf,
         char *file_buf,
-        struct error *error)
+        struct error *restrict error)
 {
     char const *path = "movie.csv";
     FILE *file;
@@ -118,11 +138,12 @@ void load_movies(
 
     if (error->code == error_none) {
         input_file_setbuf(file, file_buf, IO_BUF_SIZE, error);
-    }
 
-    if (error->code == error_none) {
-        movie_parser_init(&parser, file, buf, error);
+        if (error->code == error_none) {
+            movie_parser_init(&parser, file, buf, error);
+        }
 
+        has_data = error->code == error_none;
         while (has_data) {
             has_data = movie_row_parse(&parser, buf, &row, error);
             if (has_data) {
@@ -143,7 +164,8 @@ void load_movies(
         }
 
         input_file_close(file);
-    } 
+    }
+
 
     if (error->code != error_none) {
         error_set_context(error, path, false);
@@ -156,7 +178,7 @@ void load_ratings(
         struct users_table *restrict users,
         struct strbuf *restrict buf,
         char *file_buf,
-        struct error *error)
+        struct error *restrict error)
 {
     char const *path = "rating.csv";
     FILE *file;
@@ -168,11 +190,12 @@ void load_ratings(
 
     if (error->code == error_none) {
         input_file_setbuf(file, file_buf, IO_BUF_SIZE, error);
-    }
 
-    if (error->code == error_none) {
-        rating_parser_init(&parser, file, buf, error);
+        if (error->code == error_none) {
+            rating_parser_init(&parser, file, buf, error);
+        }
 
+        has_data = error->code == error_none;
         while (has_data) {
             has_data = rating_row_parse(&parser, buf, &row, error);
 
@@ -186,7 +209,48 @@ void load_ratings(
         }
 
         input_file_close(file);
-    } 
+    }
+
+
+    if (error->code != error_none) {
+        error_set_context(error, path, false);
+    }
+}
+
+void load_tags(
+        struct tags_table *restrict tags,
+        struct strbuf *restrict buf,
+        char *file_buf,
+        struct error *restrict error)
+{
+    char const *path = "tag.csv";
+    FILE *file;
+    struct tag_parser parser;
+    struct tag_csv_row row;
+    bool has_data = true;
+
+    file = input_file_open(path, error);
+
+    if (error->code == error_none) {
+        input_file_setbuf(file, file_buf, IO_BUF_SIZE, error);
+
+        if (error->code == error_none) {
+            tag_parser_init(&parser, file, buf, error);
+        }
+
+        has_data = error->code == error_none;
+        while (has_data) {
+            has_data = tag_row_parse(&parser, buf, &row, error);
+
+            if (has_data) {
+                tags_insert(tags, &row, error);
+                has_data = error->code == error_none;
+            }
+        }
+
+        input_file_close(file);
+
+    }
 
     if (error->code != error_none) {
         error_set_context(error, path, false);
