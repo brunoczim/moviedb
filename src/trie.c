@@ -11,7 +11,7 @@ static struct trie_node *make_path(
         struct trie_node *node,
         size_t branch_pos,
         char const *restrict title,
-        size_t *current_key,
+        size_t *restrict current_key,
         struct error *restrict error);
 
 
@@ -43,7 +43,7 @@ static inline void destroy_branch_list(struct trie_branch_list *branches);
  */
 static void destroy_recursive(struct trie_node *restrict root);
 
-extern inline void trie_root_init(struct trie_node *root);
+extern inline void trie_root_init(struct trie_node *restrict root);
 
 void trie_insert(
         struct trie_node *root,
@@ -89,7 +89,7 @@ void trie_insert(
 bool trie_search(
         struct trie_node const *root,
         char const *restrict title,
-        db_id_t *movie_out)
+        db_id_t *restrict movie_out)
 {
     size_t current_key = 0;
     size_t branch_pos;
@@ -118,7 +118,7 @@ bool trie_search(
 void trie_search_prefix(
         struct trie_node const *root,
         char const *restrict prefix,
-        struct trie_iter *iter_out)
+        struct trie_iter *restrict iter_out)
 {
     size_t current_key = 0;
     size_t branch_pos;
@@ -176,7 +176,7 @@ static struct trie_node *make_path(
         struct trie_node *node,
         size_t branch_pos,
         char const *restrict title,
-        size_t *current_key,
+        size_t *restrict current_key,
         struct error *restrict error)
 {
     struct trie_node *child;

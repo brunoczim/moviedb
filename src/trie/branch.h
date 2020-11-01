@@ -84,5 +84,4 @@ void trie_branches_insert(
  */
 void trie_branches_destroy(struct trie_branch_list const *restrict branches);
 
-
 #endif

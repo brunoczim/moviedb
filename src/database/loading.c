@@ -1,10 +1,8 @@
-#include "alloc.h"
-#include "db.h"
-#include "io.h"
-#include "database.h"
-#include "csv/movie.h"
-#include "csv/rating.h"
-#include "csv/tag.h"
+#include "../database.h"
+#include "../io.h"
+#include "../csv/movie.h"
+#include "../csv/rating.h"
+#include "../csv/tag.h"
 
 #define IO_BUF_SIZE 0x10000
 

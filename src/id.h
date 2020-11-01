@@ -14,8 +14,6 @@
  */
 #define MOVIEDB_ID_BITS 64
 
-#define MOVIEDB_ID_DIGITS 20
-
 /**
  * Parses an ID from a given string buffer.
  */

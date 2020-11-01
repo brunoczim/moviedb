@@ -2,6 +2,7 @@
 #define MOVIEDB_DB_H 1
 
 #include "error.h"
+#include "alloc.h"
 #include "strbuf.h"
 #include "trie.h"
 #include "movies.h"
@@ -35,6 +36,27 @@ struct database {
 };
 
 /**
+ * Buffer to store the result of a movie query.
+ */
+struct movie_query_buf {
+    /**
+     * The pointer to pointers to rows, i.e. array of pointers to rows. Only
+     * internal database code is allowed to write to this. Reading is fine.
+     */
+    struct movie const **rows;
+    /**
+     * How many rows the query returned. Only internal database code is allowed
+     * to write to this. Reading is fine.
+     */
+    size_t length;
+    /**
+     * How many rows can be stored. Only internal database code is allowed to
+     * touch this.
+     */
+    size_t capacity;
+};
+
+/**
  * Initializes and loads a database. database_out should not be initialized, but
  * buf and error should.
  */
@@ -47,5 +69,37 @@ void database_load(
  * Destroys the database, by destroying every data structure it holds.
  */
 void database_destroy(struct database *restrict database);
+
+/**
+ * Initializes a movie query's buffer.
+ */
+inline void movie_query_init(
+        struct movie_query_buf *restrict buf,
+        struct error *restrict error)
+{
+    buf->rows = NULL;
+    buf->length = 0;
+    buf->capacity = 0;
+}
+
+/**
+ * Executes a movie query. The movie query returns all the movies with the given
+ * prefix in their names, sorted by ID. query_buf must be initialized, and
+ * might even contain data, but the data will be overwritten with the query
+ * result.
+ */
+void movie_query(
+        struct database const *restrict database,
+        char const *restrict prefix,
+        struct movie_query_buf *restrict query_buf,
+        struct error *restrict error);
+
+/**
+ * Destroys the movie query buffer.
+ */
+inline void movie_query_destroy(struct movie_query_buf *restrict buf)
+{
+    db_free(buf->rows);
+}
 
 #endif

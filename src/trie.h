@@ -60,7 +60,7 @@ void trie_insert(
 bool trie_search(
         struct trie_node const *root,
         char const *restrict title,
-        db_id_t *movie_out);
+        db_id_t *restrict movie_out);
 
 /**
  * Searches for the movies in the trie tree with the given title prefix.
@@ -70,7 +70,7 @@ bool trie_search(
 void trie_search_prefix(
         struct trie_node const *root,
         char const *restrict prefix,
-        struct trie_iter *iter_out);
+        struct trie_iter *restrict iter_out);
 
 /**
  * Destroys the given trie tree, freeing all the heap-allocated memory. Note
@@ -78,6 +78,5 @@ void trie_search_prefix(
  * One can (and should) allocate the root node in the stack.
  */
 void trie_destroy(struct trie_node *root);
-
 
 #endif
