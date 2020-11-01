@@ -14,6 +14,7 @@ void rating_parser_init(
     bool found_movieid = false;
     bool found_value = false;
     bool found_timestamp = false;
+    bool found_all;
     bool row_boundary;
     size_t column = 0;
 
@@ -62,6 +63,12 @@ void rating_parser_init(
             row_boundary = csv_is_row_boundary(&parser->csv_parser);
         }
     } while (error->code == error_none && !row_boundary);
+
+    found_all = found_userid && found_movieid && found_value && found_timestamp;
+
+    if (error->code == error_none && !found_all) {
+        error_set_code(error, error_csv_header);
+    }
 }
 
 bool rating_parse_row(

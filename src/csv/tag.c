@@ -1,16 +1,20 @@
 #include "../alloc.h"
-#include "movie.h"
+#include "tag.h"
 #include <string.h>
 
-#define COLUMNS 3
+#define COLUMNS 4
 
-void movie_parser_init(
-        struct movie_parser *restrict parser,
+void tag_parser_init(
+        struct tag_parser *restrict parser,
         FILE *file,
         struct strbuf *restrict buf,
         struct error *restrict error)
 {
-    bool found_id = false, found_title = false, found_genres = false;
+    bool found_userid = false;
+    bool found_movieid = false;
+    bool found_name = false;
+    bool found_timestamp = false;
+    bool found_all;
     bool row_boundary;
     size_t column = 0;
 
@@ -24,26 +28,33 @@ void movie_parser_init(
         }
 
         if (error->code == error_none) {
-            if (strcmp(buf->ptr, "movieId") == 0) {
-                if (found_id) {
+            if (strcmp(buf->ptr, "userId") == 0) {
+                if (found_userid) {
                     error_set_code(error, error_csv_header);
                 } else {
-                    found_id = true;
-                    parser->id_column = column;
+                    found_userid = true;
+                    parser->userid_column = column;
                 }
-            } else if (strcmp(buf->ptr, "title") == 0) {
-                if (found_title) {
+            } else if (strcmp(buf->ptr, "movieId") == 0) {
+                if (found_movieid) {
                     error_set_code(error, error_csv_header);
                 } else {
-                    found_title = true;
-                    parser->title_column = column;
+                    found_movieid = true;
+                    parser->movieid_column = column;
                 }
-            } else if (strcmp(buf->ptr, "genres") == 0) {
-                if (found_genres) {
+            } else if (strcmp(buf->ptr, "tag") == 0) {
+                if (found_name) {
                     error_set_code(error, error_csv_header);
                 } else {
-                    found_genres = true;
-                    parser->genres_column = column;
+                    found_name = true;
+                    parser->name_column = column;
+                }
+            } else if (strcmp(buf->ptr, "timestamp") == 0) {
+                if (found_timestamp) {
+                    error_set_code(error, error_csv_header);
+                } else {
+                    found_timestamp = true;
+                    parser->timestamp_column = column;
                 }
             } else {
                 error_set_code(error, error_csv_header);
@@ -53,17 +64,17 @@ void movie_parser_init(
         }
     } while (error->code == error_none && !row_boundary);
 
-    found_all = found_id && found_title && found_genres;
+    found_all = found_userid && found_movieid && found_name && found_timestamp;
 
     if (error->code == error_none && !found_all) {
         error_set_code(error, error_csv_header);
     }
 }
 
-bool movie_parse_row(
-        struct movie_parser *restrict parser,
+bool tag_parse_row(
+        struct tag_parser *restrict parser,
         struct strbuf *restrict buf,
-        struct movie_csv_row *restrict row_out,
+        struct tag_csv_row *restrict row_out,
         struct error *restrict error)
 {
     size_t column = 0;
@@ -80,24 +91,23 @@ bool movie_parse_row(
         if (!end_of_file && error->code == error_none) {
             row_boundary = csv_is_row_boundary(&parser->csv_parser);
             if (column < COLUMNS - 1 && row_boundary) {
-                error_set_code(error, error_movie);
-                error->data.csv_movie.line = parser->csv_parser.line - 1;
-            } else if (column == parser->id_column) {
+                error_set_code(error, error_tag);
+                error->data.csv_tag.line = parser->csv_parser.line - 1;
+            } else if (column == parser->movieid_column) {
                 strbuf_make_cstr(buf, error);
                 if (error->code == error_none) {
-                    row_out->id = moviedb_id_parse(buf->ptr, error);
+                    row_out->movie = moviedb_id_parse(buf->ptr, error);
                 }
-            } else if (column == parser->title_column) {
-                row_out->title = strbuf_copy_cstr(buf, error);
-            } else if (column == parser->genres_column) {
-                row_out->genres= strbuf_copy_cstr(buf, error);
+            } else if (column == parser->name_column) {
+                row_out->name = strbuf_copy_cstr(buf, error);
             }
+            /* userid and timestamp ignored */
         }
         column++;
     }
 
     if (error->code != error_none) {
-        movie_destroy_row(row_out);
+        tag_destroy_row(row_out);
         if (error->code == error_id) {
             error->data.id.has_line = true;
             if (csv_is_row_boundary(&parser->csv_parser)) {
@@ -107,15 +117,14 @@ bool movie_parse_row(
             }
         }
     } else if (!csv_is_row_boundary(&parser->csv_parser)) {
-        error_set_code(error, error_movie);
-        error->data.csv_movie.line = parser->csv_parser.line;
+        error_set_code(error, error_tag);
+        error->data.csv_tag.line = parser->csv_parser.line;
     }
 
     return !end_of_file && error->code == error_none;
 }
 
-void movie_destroy_row(struct movie_csv_row *restrict row)
+void tag_destroy_row(struct tag_csv_row *restrict row)
 {
-    moviedb_free((void *) (void const *) row->title);
-    moviedb_free((void *) (void const *) row->genres);
+    moviedb_free((void *) (void const *) row->name);
 }
