@@ -62,6 +62,9 @@ struct movies_table {
     size_t capacity;
 };
 
+/**
+ * Prints a movie to the screen.
+ */
 void movie_print(struct movie const *restrict movie);
 
 /**

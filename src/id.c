@@ -9,7 +9,7 @@ db_id_t db_id_parse(char const *restrict string, struct error *restrict error)
     char *error_string;
 
     while (string[i] != 0 && error->code == error_none) {
-        if (string[i] >= '0' && string[i] <= '9') {
+        if (id * 10 >= id && string[i] >= '0' && string[i] <= '9') {
             id *= 10;
             id += string[i] - '0';
             i++;
@@ -35,6 +35,26 @@ db_id_t db_id_parse(char const *restrict string, struct error *restrict error)
     }
 
     return id;
+}
+
+size_t db_id_to_str(db_id_t id, char *restrict buffer, size_t buf_size)
+{
+    size_t start = buf_size;
+
+    if (start > 0) {
+        start--;
+        buffer[start] = 0;
+
+        do {
+            if (start > 0) {
+                start--;
+                buffer[start] = '0' + id % 10;
+                id /= 10;
+            }
+        } while (start > 0 && id > 0);
+    }
+
+    return start;
 }
 
 extern inline db_hash_t db_id_hash(db_id_t id);

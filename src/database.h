@@ -73,9 +73,7 @@ void database_destroy(struct database *restrict database);
 /**
  * Initializes a movie query's buffer.
  */
-inline void movie_query_init(
-        struct movie_query_buf *restrict buf,
-        struct error *restrict error)
+inline void movie_query_init(struct movie_query_buf *restrict buf)
 {
     buf->rows = NULL;
     buf->length = 0;
@@ -93,6 +91,11 @@ void movie_query(
         char const *restrict prefix,
         struct movie_query_buf *restrict query_buf,
         struct error *restrict error);
+
+/**
+ * Prints the rows found in the query.
+ */
+void movie_query_print(struct movie_query_buf const *restrict query_buf);
 
 /**
  * Destroys the movie query buffer.

@@ -40,9 +40,7 @@ static void sort_heapify_above(
  */
 static void sort_heapify(struct movie_query_buf *restrict buf);
 
-extern inline void movie_query_init(
-        struct movie_query_buf *restrict buf,
-        struct error *restrict error);
+extern inline void movie_query_init(struct movie_query_buf *restrict buf);
 
 void movie_query(
         struct database const *restrict database,
@@ -69,8 +67,19 @@ void movie_query(
         }
     } while (has_data);
 
+    trie_iter_destroy(&iter);
+
     if (error->code == error_none) {
         sort_buf(query_buf);
+    }
+}
+
+void movie_query_print(struct movie_query_buf const *restrict query_buf)
+{
+    size_t i;
+
+    for (i = 0; i < query_buf->length; i++) {
+        movie_print(query_buf->rows[i]);
     }
 }
 
