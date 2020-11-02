@@ -144,6 +144,7 @@ static bool run_movie(
 
     if (error->code == error_none) {
         movie_query_print(&query_buf);
+        movie_query_destroy(&query_buf);
     }
 
     return error->code == error_none;

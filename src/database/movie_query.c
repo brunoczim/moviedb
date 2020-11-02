@@ -29,11 +29,12 @@ static inline size_t sort_heap_left(size_t parent);
 static inline size_t sort_heap_right(size_t parent);
 
 /**
- * Heapifies the buffer from the nodes above the given index.
+ * Heapifies the buffer from the nodes in the range [start, end).
  */
-static void sort_heapify_above(
+static void sort_heapify_range(
         struct movie_query_buf *restrict buf,
-        size_t index);
+        size_t start,
+        size_t end);
 
 /**
  * Heapifies the whole buffer.
@@ -139,12 +140,12 @@ static void sort_buf(struct movie_query_buf *restrict buf)
 
     i = buf->length;
 
-    while (i > 1) {
+    while (i > 0) {
         i--;
         tmp = buf->rows[0];
         buf->rows[0] = buf->rows[i];
         buf->rows[i] = tmp;
-        sort_heapify_above(buf, i);
+        sort_heapify_range(buf, i, buf->length);
     }
 }
 
@@ -153,29 +154,42 @@ static void sort_heapify(struct movie_query_buf *restrict buf)
     size_t i;
 
     for (i = 1; i < buf->length; i++) {
-        sort_heapify_above(buf, i);
+        sort_heapify_range(buf, 0, i + 1);
     }
 }
 
-static void sort_heapify_above(
+static void sort_heapify_range(
         struct movie_query_buf *restrict buf,
-        size_t index)
+        size_t start,
+        size_t end)
 {
-    size_t child, parent;
-    bool is_correct;
+    size_t max;
+    size_t parent = start;
+    size_t child = sort_heap_left(parent);
     struct movie const *tmp;
+    bool is_correct = false;
 
-    child = buf->length - 1;
-    is_correct = false;
+    while (child < end && !is_correct) {
+        max = parent;
 
-    while (child > index && !is_correct) {
-        parent = sort_heap_parent(child);
-        is_correct = buf->rows[parent]->id >= buf->rows[child]->id;
+        if (buf->rows[max]->id < buf->rows[child]->id) {
+            max = child;
+        }
+
+        child += 1;
+
+        if (child < end && buf->rows[max]->id < buf->rows[child]->id) {
+            max = child;
+        }
+
+        is_correct = max == parent;
+
         if (!is_correct) {
             tmp = buf->rows[parent];
-            buf->rows[parent] = buf->rows[child];
-            buf->rows[child] = tmp;
-            child = parent;
+            buf->rows[parent] = buf->rows[max];
+            buf->rows[max] = tmp;
+            parent = max;
+            child = sort_heap_left(parent);
         }
     }
 }

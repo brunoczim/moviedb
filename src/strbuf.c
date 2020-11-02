@@ -37,7 +37,7 @@ char *strbuf_copy_cstr(
 {
     char *cstr = NULL;
 
-    if (buf->ptr == NULL) {
+    if (buf->length == 0) {
         cstr = db_alloc(1, error);
         if (error->code == error_none) {
             *cstr = 0;
