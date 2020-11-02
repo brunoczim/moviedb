@@ -6,15 +6,38 @@
 #include "error.h"
 #include "strbuf.h"
 
+/**
+ * Terminal green foreground color. Needs to be printed.
+ */
 #define TERMINAL_GREEN "\e[92m"
+
+/**
+ * Terminal yellow foreground color. Needs to be printed.
+ */
 #define TERMINAL_YELLOW "\e[93m"
+
+/**
+ * Terminal blue foreground color. Needs to be printed.
+ */
 #define TERMINAL_BLUE "\e[94m"
+
+/**
+ * Terminal red foreground color. Needs to be printed.
+ */
 #define TERMINAL_RED "\e[91m"
+
+/**
+ * Terminal magenta foreground color. Needs to be printed.
+ */
 #define TERMINAL_MAGENTA "\e[95m"
+
+/**
+ * Resets the terminal colors to the default. Needs to be printed.
+ */
 #define TERMINAL_CLEAR "\e[0m"
 
 /**
- * This file provides some IO utilities for the application.ç
+ * This file provides some IO utilities for the application.
  */
 
 /**
