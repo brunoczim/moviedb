@@ -1,12 +1,5 @@
+#include "../io.h"
 #include "../database.h"
-
-#define GREEN "\e[92m"
-#define YELLOW "\e[93m"
-#define BLUE "\e[94m"
-#define RED "\e[91m"
-#define MAGENTA "\e[95m"
-#define CLEAR "\e[0m"
-
 
 /**
  * Appends a row to the query buffer.
@@ -86,41 +79,41 @@ void movie_query(
 void movie_query_print_header(void)
 {
     /* Puts the header by concatenating string literals. */
-    puts(MAGENTA "ID"
-            CLEAR ", "
-            GREEN "Title"
-            CLEAR ", "
-            YELLOW "Genres"
-            CLEAR ", "
-            RED "Mean Rating"
-            CLEAR ", "
-            BLUE "Ratings Count"
-            CLEAR);
+    puts(TERMINAL_MAGENTA "ID"
+            TERMINAL_CLEAR ", "
+            TERMINAL_GREEN "Title"
+            TERMINAL_CLEAR ", "
+            TERMINAL_YELLOW "Genres"
+            TERMINAL_CLEAR ", "
+            TERMINAL_RED "Mean Rating"
+            TERMINAL_CLEAR ", "
+            TERMINAL_BLUE "Ratings Count"
+            TERMINAL_CLEAR);
 }
 
-void movie_query_print_row(struct movie const *restrict movie)
+void movie_query_print_row(struct movie const *restrict row)
 {
     char id_buffer[MOVIEDB_ID_DIGITS + 1];
     size_t id_start;
 
-    id_start = db_id_to_str(movie->id, id_buffer, MOVIEDB_ID_DIGITS + 1);
+    id_start = db_id_to_str(row->id, id_buffer, MOVIEDB_ID_DIGITS + 1);
 
     /* Puts the row by concatenating string literals. */
-    printf(MAGENTA "%s"
-            CLEAR ", "
-            GREEN "%s"
-            CLEAR ", "
-            YELLOW "%s"
-            CLEAR ", "
-            RED "%.1lf"
-            CLEAR ", "
-            BLUE "%zu"
-            CLEAR "\n",
+    printf(TERMINAL_MAGENTA "%s"
+            TERMINAL_CLEAR ", "
+            TERMINAL_GREEN "%s"
+            TERMINAL_CLEAR ", "
+            TERMINAL_YELLOW "%s"
+            TERMINAL_CLEAR ", "
+            TERMINAL_RED "%.1lf"
+            TERMINAL_CLEAR ", "
+            TERMINAL_BLUE "%zu"
+            TERMINAL_CLEAR "\n",
             id_buffer + id_start,
-            movie->title,
-            movie->genres,
-            movie->mean_rating,
-            movie->ratings);
+            row->title,
+            row->genres,
+            row->mean_rating,
+            row->ratings);
 }
 
 
@@ -135,6 +128,8 @@ void movie_query_print(struct movie_query_buf const *restrict query_buf)
     for (i = 0; i < query_buf->length; i++) {
         movie_query_print_row(query_buf->rows[i]);
     }
+    
+    printf("\nFound %zu results\n", query_buf->length);
 }
 
 extern inline void movie_query_destroy(struct movie_query_buf *restrict buf);

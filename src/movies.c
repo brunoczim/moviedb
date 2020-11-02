@@ -48,7 +48,7 @@ void movies_insert(
     double load;
     db_hash_t hash;
     size_t index;
-    struct movie *movie;
+    struct movie *movie = NULL;
 
     load = (table->length + 1) / (double) table->capacity;
 

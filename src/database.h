@@ -56,6 +56,22 @@ struct movie_query_buf {
     size_t capacity;
 };
 
+struct user_query_row {
+    double user_rating;
+    char const *title;
+    double global_rating;
+    size_t ratings;
+};
+
+/**
+ * Buffer to store the result of a user query.
+ */
+struct user_query_iter {
+    struct database const *database;
+    struct user const *user;
+    size_t current;
+};
+
 /**
  * Initializes and loads a database. database_out should not be initialized, but
  * buf and error should.
@@ -100,7 +116,7 @@ void movie_query_print_header(void);
 /**
  * Prints a movie query's row to the screen.
  */
-void movie_query_print_row(struct movie const *restrict movie);
+void movie_query_print_row(struct movie const *restrict row);
 
 /**
  * Prints the rows found in the query.
@@ -114,5 +130,20 @@ inline void movie_query_destroy(struct movie_query_buf *restrict buf)
 {
     db_free(buf->rows);
 }
+
+void user_query_init(
+        struct user_query_iter *restrict iter_out,
+        struct database const *database,
+        db_id_t userid);
+
+bool user_query_next(
+        struct user_query_iter *restrict iter_out,
+        struct user_query_row *restrict row_out);
+
+void user_query_print_header(void);
+
+void user_query_print_row(struct user_query_row const *restrict row);
+
+void user_query_print(struct user_query_iter *restrict iter);
 
 #endif

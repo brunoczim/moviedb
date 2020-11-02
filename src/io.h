@@ -6,6 +6,13 @@
 #include "error.h"
 #include "strbuf.h"
 
+#define TERMINAL_GREEN "\e[92m"
+#define TERMINAL_YELLOW "\e[93m"
+#define TERMINAL_BLUE "\e[94m"
+#define TERMINAL_RED "\e[91m"
+#define TERMINAL_MAGENTA "\e[95m"
+#define TERMINAL_CLEAR "\e[0m"
+
 /**
  * This file provides some IO utilities for the application.ç
  */

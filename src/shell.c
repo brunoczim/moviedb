@@ -45,6 +45,10 @@ static bool run_movie(
         struct shell *restrict shell,
         struct error *restrict error);
 
+static bool run_user(
+        struct shell *restrict shell,
+        struct error *restrict error);
+
 /**
  * Reads the operation name entered by the user such as "movie" or "exit.
  * Returns whether the shell should still execute.
@@ -118,6 +122,8 @@ static bool run_cmd(
 
     if (strcmp(shell->buf->ptr, "movie") == 0) {
         run_movie(shell, error);
+    } else if (strcmp(shell->buf->ptr, "user") == 0) {
+        run_user(shell, error);
     } else {
         print_help();
     }
@@ -145,6 +151,34 @@ static bool run_movie(
     if (error->code == error_none) {
         movie_query_print(&query_buf);
         movie_query_destroy(&query_buf);
+    }
+
+    return error->code == error_none;
+}
+
+static bool run_user(
+        struct shell *restrict shell,
+        struct error *restrict error)
+{
+    struct user_query_iter iter;
+    db_id_t userid = 0;
+
+    read_single_arg(shell, error);
+
+    if (error->code == error_none) {
+        strbuf_make_cstr(shell->buf, error);
+    }
+
+    if (error->code == error_none) {
+        userid = db_id_parse(shell->buf->ptr, error);
+    }
+
+    if (error->code == error_id) {
+        error_print(error);
+        error_set_code(error, error_none);
+    } else {
+        user_query_init(&iter, shell->database, userid);
+        user_query_print(&iter);
     }
 
     return error->code == error_none;
@@ -211,6 +245,7 @@ static void read_single_arg(
 static void print_help(void)
 {
     fputs("Commands available:\n", stderr);
-    fputs("    $ movie <prefix or title>        searches movie\n", stderr);
-    fputs("    $ exit                           exits\n", stderr);
+    fputs("    $ movie <prefix or title>       searches movie\n", stderr);
+    fputs("    $ user <user ID>                finds user's ratings\n", stderr);
+    fputs("    $ exit                          exits\n", stderr);
 }

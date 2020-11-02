@@ -81,6 +81,7 @@ MOVIEDB_OBJS = $(OBJ_DIR)/main.o \
 			   $(OBJ_DIR)/tags.o \
 			   $(OBJ_DIR)/database/loading.o \
 			   $(OBJ_DIR)/database/movie_query.o \
+			   $(OBJ_DIR)/database/user_query.o \
 			   $(OBJ_DIR)/shell.o
 
 TEST_CSV_OBJS = $(OBJ_DIR)/error.o \
