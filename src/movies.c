@@ -4,13 +4,6 @@
 
 #define MAX_LOAD 0.5
 
-#define GREEN "\e[92m"
-#define YELLOW "\e[93m"
-#define BLUE "\e[94m"
-#define RED "\e[91m"
-#define MAGENTA "\e[95m"
-#define CLEAR "\e[0m"
-
 /**
  * Probes the given table until the place where the given movie ID should be
  * stored, given its hash. Returns the index of this place.
@@ -26,30 +19,6 @@ static size_t probe_index(
 static void resize(
         struct movies_table *restrict table,
         struct error *restrict error);
-
-void movie_print(struct movie const *restrict movie)
-{
-    char id_buffer[MOVIEDB_ID_DIGITS + 1];
-    size_t id_start;
-
-    id_start = db_id_to_str(movie->id, id_buffer, MOVIEDB_ID_DIGITS + 1);
-
-    printf(MAGENTA "%s"
-            CLEAR ", "
-            GREEN "%s"
-            CLEAR ", "
-            YELLOW "%s"
-            CLEAR ", "
-            RED "%.1lf"
-            CLEAR ", "
-            BLUE "%zu"
-            CLEAR "\n",
-            id_buffer + id_start,
-            movie->title,
-            movie->genres,
-            movie->mean_rating,
-            movie->ratings);
-}
 
 void movies_init(
         struct movies_table *restrict table,

@@ -93,6 +93,16 @@ void movie_query(
         struct error *restrict error);
 
 /**
+ * Prints a movie query's header to the screen.
+ */
+void movie_query_print_header(void);
+
+/**
+ * Prints a movie query's row to the screen.
+ */
+void movie_query_print_row(struct movie const *restrict movie);
+
+/**
  * Prints the rows found in the query.
  */
 void movie_query_print(struct movie_query_buf const *restrict query_buf);

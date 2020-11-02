@@ -63,11 +63,6 @@ struct movies_table {
 };
 
 /**
- * Prints a movie to the screen.
- */
-void movie_print(struct movie const *restrict movie);
-
-/**
  * Initializes the hash table. Initial capacity is rounded to the smallest prime
  * such that actual_initial_capacity >= initial_capacity.
  */
