@@ -14,6 +14,9 @@
  */
 #define MOVIEDB_ID_BITS 64
 
+/**
+ * Number of maximum decimal digits in an ID.
+ */
 #define MOVIEDB_ID_DIGITS 20
 
 /**
