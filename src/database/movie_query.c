@@ -140,21 +140,23 @@ static void sort_buf(struct movie_query_buf *restrict buf)
 
     i = buf->length;
 
-    while (i > 0) {
+    while (i > 1) {
         i--;
         tmp = buf->rows[0];
         buf->rows[0] = buf->rows[i];
         buf->rows[i] = tmp;
-        sort_heapify_range(buf, i, buf->length);
+        sort_heapify_range(buf, 0, i);
     }
 }
 
 static void sort_heapify(struct movie_query_buf *restrict buf)
 {
-    size_t i;
+    /* divide by 2 so we skip leaf nodes. */
+    size_t node = buf->length / 2;
 
-    for (i = 1; i < buf->length; i++) {
-        sort_heapify_range(buf, 0, i + 1);
+    while (node > 0) {
+        node--;
+        sort_heapify_range(buf, node, buf->length);
     }
 }
 
