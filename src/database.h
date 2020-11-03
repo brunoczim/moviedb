@@ -84,17 +84,64 @@ struct user_query_row {
  */
 struct user_query_iter {
     /**
-     * The database being looked at.
+     * The database being looked at. Only internal database code is allowed to
+     * touch this.
      */
     struct database const *database;
     /**
-     * The user whose ratings are being iterated over.
+     * The user whose ratings are being iterated over. Only internal database
+     * code is allowed to touch this.
      */
     struct user const *user;
     /**
-     * Current rating being iterated.
+     * Current rating being iterated. Only internal database code is allowed to
+     * touch this.
      */
     size_t current;
+};
+
+/**
+ * A row of the "user" query.
+ */
+struct user_query_row {
+    /**
+     * The rating given by the specific user.
+     */
+    double user_rating;
+    /**
+     * Title of the rated movie.
+     */
+    char const *title;
+    /**
+     * Global rating of the rated movie, i.e. mean of all rates given to the
+     * movie.
+     */
+    double global_rating;
+    /**
+     * Number of ratings given to the movie.
+     */
+    size_t ratings;
+};
+
+/**
+ * Buffer used by the topN query.
+ */
+struct topn_query_buf {
+    /**
+     * The pointer to pointers to rows, i.e. array of pointers to rows. Only
+     * internal database code is allowed to write to this. Reading is fine.
+     */
+    struct movie const **rows;
+    /**
+     * How many rows the query returned. Only internal database code is allowed
+     * to write to this. Reading is fine.
+     */
+    size_t length;
+    /**
+     * How many rows can be stored. This likely won't change. Only internal
+     * database code is allowed to touch this.
+     */
+    size_t capacity;
 };
 
 /**
@@ -186,5 +233,27 @@ void user_query_print_row(struct user_query_row const *restrict row);
  * Iterates through the user query rows and print them.
  */
 void user_query_print(struct user_query_iter *restrict iter);
+
+void topn_query_init(
+        struct topn_query_buf *restrict buf,
+        size_t capacity,
+        struct error *restrict error);
+
+void topn_query(
+        struct database const *restrict database,
+        char const *restrict prefix,
+        struct topn_query_buf *restrict query_buf,
+        struct error *restrict error);
+
+void topn_query_print_header(void);
+
+void topn_query_print_row(struct movie const *restrict row);
+
+void topn_query_print(struct topn_query_buf const *restrict query_buf);
+
+inline void topn_query_destroy(struct topn_query_buf *restrict buf)
+{
+    db_free(buf->rows);
+}
 
 #endif
