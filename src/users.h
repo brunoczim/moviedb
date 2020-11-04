@@ -29,8 +29,8 @@ struct user_rating {
  */
 struct user_rating_list {
     /**
-     * Array of entries. Only internal users hash table code is allowed
-     * to update this value. Reading is fine.
+     * Array of entries. Only internal users hash table code is allowed to touch
+     * this field.
      */
     struct user_rating *entries;
     /**
@@ -40,7 +40,7 @@ struct user_rating_list {
     size_t length;
     /**
      * How many entries we can currently store. Only internal users hash table
-     * code is allowed to touch this value.
+     * code is allowed to touch this field.
      */
     size_t capacity;
 };

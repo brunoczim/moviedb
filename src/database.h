@@ -168,7 +168,7 @@ void movie_query_print_header(void);
 void movie_query_print_row(struct movie const *restrict row);
 
 /**
- * Prints the rows found in the movie query.
+ * Prints a header and the rows found in the movie query.
  */
 void movie_query_print(struct movie_query_buf const *restrict query_buf);
 
@@ -207,27 +207,48 @@ void user_query_print_header(void);
 void user_query_print_row(struct user_query_row const *restrict row);
 
 /**
- * Iterates through the user query rows and print them.
+ * Iterates through the user query rows and print them. Prints a header too.
  */
 void user_query_print(struct user_query_iter *restrict iter);
 
+/**
+ * Initializes the topN query buffer to the given capacity. The query will NOT
+ * increase the capacity, it is intended to return only the N best.
+ */
 void topn_query_init(
         struct topn_query_buf *restrict buf,
         size_t capacity,
         struct error *restrict error);
 
+/**
+ * Performs the topN query. Searches for the best rated movies of the given
+ * genre and with at least min_ratings count of ratings. The buffer must be
+ * initalized and might be reused before being destroyed.
+ */
 void topn_query(
         struct database const *restrict database,
-        char const *restrict prefix,
-        struct topn_query_buf *restrict query_buf,
-        struct error *restrict error);
+        char const *restrict genre,
+        size_t min_ratings,
+        struct topn_query_buf *restrict query_buf);
 
+/**
+ * Prints a topN query's header to the screen.
+ */
 void topn_query_print_header(void);
 
+/**
+ * Prints a topN query's row to the screen.
+ */
 void topn_query_print_row(struct movie const *restrict row);
 
+/**
+ * Prints a header and the rows found in the topN query.
+ */
 void topn_query_print(struct topn_query_buf const *restrict query_buf);
 
+/**
+ * Destroys the buffer of a topN query.
+ */
 inline void topn_query_destroy(struct topn_query_buf *restrict buf)
 {
     db_free(buf->rows);

@@ -56,8 +56,7 @@ struct movies_table {
     size_t length;
     /**
      * How many movies can be stored in this hash table. The entries of the
-     * table. Only internal movie hash table code is allowed to write to this.
-     * Reading is fine.
+     * table. Only internal movie hash table code is allowed to touch this.
      */
     size_t capacity;
 };
@@ -77,6 +76,13 @@ struct movies_iter {
      */
     size_t current;
 };
+
+/**
+ * Tests if a given movie has the given genre.
+ */
+bool movie_has_genre(
+        struct movie const *restrict movie,
+        char const *restrict genre);
 
 /**
  * Initializes the hash table. Initial capacity is rounded to the smallest prime

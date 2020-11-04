@@ -1,3 +1,4 @@
+#include <ctype.h>
 #include "movies.h"
 #include "alloc.h"
 #include "prime.h"
@@ -19,6 +20,46 @@ static size_t probe_index(
 static void resize(
         struct movies_table *restrict table,
         struct error *restrict error);
+
+bool movie_has_genre(
+        struct movie const *restrict movie,
+        char const *restrict genre)
+{
+    size_t i = 0;
+    bool has_genre = false;
+    size_t j;
+    bool searching;
+    char const *restrict list = movie->genres;
+
+    while (!has_genre && list[i] != 0) {
+        searching = true;
+        j = 0;
+
+        while (!has_genre && searching) {
+            has_genre = (list[i] == 0 || list[i] == '|') && genre[j] == 0;
+
+            searching = list[i] != 0 && list[i] != '|' && genre[j] != 0;
+            searching = searching && tolower(list[i]) == tolower(genre[j]);
+
+            if (!has_genre && searching) {
+                i++;
+                j++;
+            }
+        }
+
+        if (!has_genre) {
+            while (list[i] != 0 && list[i] != '|') {
+                i++;
+            }
+
+            if (list[i] == '|') {
+                i++;
+            }
+        }
+    }
+
+    return has_genre;
+}
 
 void movies_init(
         struct movies_table *restrict table,

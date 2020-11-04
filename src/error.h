@@ -61,6 +61,28 @@ enum error_code {
      * Error found if there are two movies with the same title.
      */
     error_dup_movie_title,
+    /**
+     * Error that happens when something that is not a quoted is inserted at the
+     * beginning of an argument expected to be quoted.
+     */
+    error_bad_quote,
+    /**
+     * Error that happens when reading a quoted argument in shell mode and the
+     * argument was not terminated.
+     */
+    error_open_quote,
+    /**
+     * Error that happens when an argument is expected in shell mode.
+     */
+    error_expected_arg,
+    /**
+     * Error that happens when no more arguments are expected in shell mode.
+     */
+    error_expected_end,
+    /**
+     * Error that happens when an N in topN is not a valid number.
+     */
+    error_topn_count,
 };
 
 /**
@@ -196,6 +218,44 @@ struct double_error {
 };
 
 /**
+ * Open quote error's data.
+ */
+struct open_quote_error {
+    /**
+     * The given string.
+     */
+    char const *string;
+    /**
+     * Whether to free the string.
+     */
+    bool free_string;
+};
+
+/**
+ * Bad quote error's data.
+ */
+struct bad_quote_error {
+    /**
+     * The character that was found instead of the quote.
+     */
+    char found;
+};
+
+/**
+ * TopN count error's data.
+ */
+struct topn_count_error {
+    /**
+     * The given string.
+     */
+    char const *string;
+    /**
+     * Whether to free the string.
+     */
+    bool free_string;
+};
+
+/**
  * Union that might be any error's data.
  */
 union error_data {
@@ -239,6 +299,18 @@ union error_data {
      * Data of a duplicated movie title error.
      */
     struct dup_movie_title_error dup_movie_title;
+    /**
+     * Data of open quote error.
+     */
+    struct open_quote_error open_quote;
+    /**
+     * Data of bad quote error.
+     */
+    struct bad_quote_error bad_quote;
+    /**
+     * Data of topN bad count error.
+     */
+    struct topn_count_error topn_count;
 };
 
 /**

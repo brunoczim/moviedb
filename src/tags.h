@@ -56,7 +56,7 @@ struct tags_table {
     struct tag **entries;
     /**
      * How many elements are stored. Only internal tags hash table code is
-     * allowed to touch this value.
+     * allowed to write to this value. Reading is fine.
      */
     size_t length;
     /**

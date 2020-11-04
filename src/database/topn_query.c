@@ -1,5 +1,7 @@
 #include "../database.h"
 
+#define MIN_RATINGS 1000
+
 /* Colors for the columns */
 #define COLOR_TITLE TERMINAL_GREEN
 #define COLOR_GENRES TERMINAL_YELLOW
@@ -25,13 +27,14 @@ void topn_query_init(
 
 void topn_query(
         struct database const *restrict database,
-        char const *restrict prefix,
+        char const *restrict genre,
+        size_t min_ratings,
         struct topn_query_buf *restrict query_buf)
 {
     size_t pos;
     struct movies_iter iter;
-    struct movie const *movie, *tmp;
-    double last_rating, new_rating;
+    struct movie const *movie;
+    bool has_genre;
 
     query_buf->length = 0;
 
@@ -41,10 +44,13 @@ void topn_query(
         movie = movies_next(&iter);
 
         while (movie != NULL) {
-            pos = buf_search(buf, movie->rating);
+            has_genre = movie_has_genre(movie, genre);
+            if (has_genre && movie->ratings >= min_ratings) {
+                pos = buf_search(query_buf, movie->mean_rating);
 
-            if (pos < buf->capacity) {
-                buf_insert(buf, movie, pos);
+                if (pos < query_buf->capacity) {
+                    buf_insert(query_buf, movie, pos);
+                }
             }
 
             movie = movies_next(&iter);
@@ -98,10 +104,7 @@ void topn_query_print(struct topn_query_buf const *restrict query_buf)
     printf("\nFound %zu results\n", query_buf->length);
 }
 
-inline void topn_query_destroy(struct topn_query_buf *restrict buf)
-{
-    db_free(buf->rows);
-}
+extern inline void topn_query_destroy(struct topn_query_buf *restrict buf);
 
 static size_t buf_search(struct topn_query_buf *restrict buf, double rating)
 {

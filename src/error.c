@@ -50,6 +50,8 @@ void error_destroy(struct error *restrict error)
 
 void error_print(struct error const *restrict error)
 {
+    char quote_buf[2] = {0,};
+
     if (error->context != NULL) {
         fprintf(stderr, "%s: ", error->context);
     }
@@ -126,6 +128,33 @@ void error_print(struct error const *restrict error)
 
         case error_csv_header:
             fputs("invalid CSV header\n", stderr);
+            break;
+
+        case error_open_quote:
+            fputs("unterminated quoted argument ", stderr);
+            error_print_quote(error->data.open_quote.string);
+            fputc('\n', stderr);
+            break;
+
+        case error_bad_quote:
+            quote_buf[0] = error->data.bad_quote.found;
+            fputs("expected quote at the argument start, found ", stderr);
+            error_print_quote(quote_buf);
+            fputc('\n', stderr);
+            break;
+
+        case error_expected_arg:
+            fputs("expected an argument\n", stderr);
+            break;
+
+        case error_expected_end:
+            fputs("expected no more arguments\n", stderr);
+            break;
+
+        case error_topn_count:
+            fputs("topn count string ", stderr);
+            error_print_quote(error->data.open_quote.string);
+            fputs(" is not a valid number\n", stderr);
             break;
     }
 }

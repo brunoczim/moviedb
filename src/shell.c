@@ -2,6 +2,9 @@
 #include "alloc.h"
 #include "shell.h"
 #include <string.h>
+#include <inttypes.h>
+
+#define MIN_RATINGS 1000
 
 /**
  * Data shared by shell functions.
@@ -45,7 +48,19 @@ static bool run_movie(
         struct shell *restrict shell,
         struct error *restrict error);
 
+/**
+ * Runs the user command. The command searches for the ratings of a user.
+ * Returns whether the shell should still execute.
+ */
 static bool run_user(
+        struct shell *restrict shell,
+        struct error *restrict error);
+
+/**
+ * Runs the topN command. The command finds N movies with the best ratings of a
+ * given genre. Returns whether the shell should still execute.
+ */
+static bool run_topn(
         struct shell *restrict shell,
         struct error *restrict error);
 
@@ -61,6 +76,28 @@ static bool read_op(
  * Reads the single argument of an operation.
  */
 static void read_single_arg(
+        struct shell *restrict shell,
+        struct error *restrict error);
+
+/**
+ * Reads a quoted argument. I.e. an argument of the form 'abc'. Escapes \\, \n
+ * \" and \'.
+ */
+static void read_quoted_arg(
+        struct shell *restrict shell,
+        struct error *restrict error);
+
+/**
+ * Reads the end of a command. Sets an error if there is more arguments.
+ */
+static void read_end(
+        struct shell *restrict shell,
+        struct error *restrict error);
+
+/**
+ * Discards an entire line from the terminal input.
+ */
+static void discard_line(
         struct shell *restrict shell,
         struct error *restrict error);
 
@@ -124,6 +161,8 @@ static bool run_cmd(
         run_movie(shell, error);
     } else if (strcmp(shell->buf->ptr, "user") == 0) {
         run_user(shell, error);
+    } else if (strncmp(shell->buf->ptr, "top", sizeof("top") - 1) == 0) {
+        run_topn(shell, error);
     } else {
         print_help();
     }
@@ -160,7 +199,7 @@ static bool run_user(
         struct shell *restrict shell,
         struct error *restrict error)
 {
-    struct user_query_iter iter;
+    struct user_query_iter query_iter;
     db_id_t userid = 0;
 
     read_single_arg(shell, error);
@@ -177,11 +216,77 @@ static bool run_user(
         error_print(error);
         error_set_code(error, error_none);
     } else {
-        user_query_init(&iter, shell->database, userid);
-        user_query_print(&iter);
+        user_query_init(&query_iter, shell->database, userid);
+        user_query_print(&query_iter);
     }
 
     return error->code == error_none;
+}
+
+static bool run_topn(
+        struct shell *restrict shell,
+        struct error *restrict error)
+{
+    uintmax_t converted;
+    size_t count;
+    char *start, *end;
+    struct topn_query_buf query_buf;
+
+    puts(shell->buf->ptr);
+
+    start = shell->buf->ptr + (sizeof("top") - 1);
+
+    converted = strtoumax(start, &end, 10);
+
+    if (*end != 0) {
+        error_set_code(error, error_topn_count);
+        error->data.topn_count.string = start;
+        error->data.topn_count.free_string = false;
+    }
+
+    if (error->code == error_none) {
+        read_quoted_arg(shell, error);
+    }
+
+    if (error->code == error_none) {
+        read_end(shell, error);
+    }
+
+    if (error->code == error_none) {
+        strbuf_make_cstr(shell->buf, error);
+    }
+
+    if (error->code == error_none) {
+        if (converted > shell->database->movies.length) {
+            count = shell->database->movies.length;
+        } else {
+            count = converted;
+        }
+
+        topn_query_init(&query_buf, count, error);
+    }
+
+    switch (error->code) {
+        case error_none:
+            topn_query(shell->database,
+                    shell->buf->ptr,
+                    MIN_RATINGS,
+                    &query_buf);
+
+            topn_query_print(&query_buf);
+            topn_query_destroy(&query_buf);
+            return true;
+
+        case error_open_quote:
+        case error_expected_arg:
+        case error_bad_quote:
+            error_print(error);
+            error_set_code(error, error_none);
+            return true;
+
+        default:
+            return false;
+    }
 }
 
 static bool read_op(
@@ -192,8 +297,9 @@ static bool read_op(
 
     delimiter = false;
     shell->buf->length = 0;
+    skip_whitespace(shell, error);
 
-    do {
+    while (!delimiter && error->code == error_none) {
         switch (shell->curr_ch) {
             case '\n':
             case ' ':
@@ -207,7 +313,7 @@ static bool read_op(
                 }
                 break;
         }
-    } while (!delimiter && error->code == error_none);
+    }
 
     if (error->code != error_none) {
         return false;
@@ -220,10 +326,9 @@ static void read_single_arg(
         struct error *restrict error)
 {
     bool delimiter;
-    
-    skip_whitespace(shell, error);
 
     shell->buf->length = 0;
+    skip_whitespace(shell, error);
     delimiter = false;
 
     while (!delimiter && error->code == error_none) {
@@ -242,10 +347,120 @@ static void read_single_arg(
     }
 }
 
+static void read_quoted_arg(
+        struct shell *restrict shell,
+        struct error *restrict error)
+{
+    char bad_quote;
+    char quote = 0;
+    bool delimiter = false;
+    bool escape = false;
+
+    skip_whitespace(shell, error);
+
+    if (error->code == error_none) {
+        shell->buf->length = 0;
+
+        delimiter = false;
+
+        switch (shell->curr_ch) {
+            case EOF:
+                error_set_code(error, error_expected_arg);
+                break;
+            case '"':
+            case '\'':
+                quote = shell->curr_ch;
+                shell->curr_ch = input_file_read(stdin, error);
+                break;
+            default:
+                bad_quote = shell->curr_ch;
+                discard_line(shell, error);
+                if (error->code == error_none) {
+                    error_set_code(error, error_bad_quote);
+                    error->data.bad_quote.found = bad_quote;
+                }
+                break;
+        }
+
+        while (!delimiter && error->code == error_none) {
+            if (shell->curr_ch == EOF || shell->curr_ch == '\n') {
+                discard_line(shell, error);
+
+                if (error->code == error_none) {
+                    strbuf_make_cstr(shell->buf, error);
+                }
+
+                if (error->code == error_none) {
+                    error_set_code(error, error_open_quote);
+                    error->data.open_quote.string = shell->buf->ptr;
+                    error->data.open_quote.free_string = false;
+                }
+            } else if (escape) {
+                if (shell->curr_ch == 'n') {
+                    strbuf_push(shell->buf, '\n', error);
+                } else {
+                    strbuf_push(shell->buf, shell->curr_ch, error);
+                }
+                escape = false;
+            } else if (shell->curr_ch == quote) {
+                delimiter = true;
+            } else if (shell->curr_ch == '\\') {
+                escape = true;
+            } else {
+                strbuf_push(shell->buf, shell->curr_ch, error);
+            }
+
+            if (error->code == error_none) {
+                shell->curr_ch = input_file_read(stdin, error);
+            }
+        }
+    }
+}
+
+static void read_end(
+        struct shell *restrict shell,
+        struct error *restrict error)
+{
+    skip_whitespace(shell, error);
+
+    if (error->code == error_none) {
+        switch (shell->curr_ch) {
+            case EOF:
+            case '\n':
+                break;
+            default:
+                error_set_code(error, error_expected_end);
+                break;
+        }
+    }
+}
+
+static void discard_line(
+        struct shell *restrict shell,
+        struct error *restrict error)
+{
+    bool end = false;
+    while (error->code == error_none && !end) {
+        end = shell->curr_ch == EOF || shell->curr_ch == '\n';
+        if (!end) {
+            shell->curr_ch = input_file_read(stdin, error);
+        }
+    }
+}
+
 static void print_help(void)
 {
-    fputs("Commands available:\n", stderr);
-    fputs("    $ movie <prefix or title>       searches movie\n", stderr);
-    fputs("    $ user <user ID>                finds user's ratings\n", stderr);
-    fputs("    $ exit                          exits\n", stderr);
+    char const *head, *movie, *user, *topn, *exit;
+
+    head  = "Commands available:\n";
+    movie = "    $ movie <prefix or title>       searches movie\n";
+    user  = "    $ user <user ID>                finds user's ratings\n";
+    topn  = "    $ top<N> '<genre>'              lists genre's N best movies\n";
+    exit  = "    $ exit                          exits\n";
+
+    fputs(head, stderr);
+    fputs(movie, stderr);
+    fputs(user, stderr);
+    fputs(topn, stderr);
+    fputs(exit, stderr);
 }
