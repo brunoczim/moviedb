@@ -63,6 +63,22 @@ struct movies_table {
 };
 
 /**
+ * Iterator over the movies stored in a movies table.
+ */
+struct movies_iter {
+    /**
+     * The table being iterated over. Only internal movies hash table code is
+     * allowed to touch this.
+     */
+    struct movies_table const *table;
+    /**
+     * The current entry being checked. Only internal movies hash table code is
+     * allowed to touch this.
+     */
+    size_t current;
+};
+
+/**
  * Initializes the hash table. Initial capacity is rounded to the smallest prime
  * such that actual_initial_capacity >= initial_capacity.
  */
@@ -96,6 +112,23 @@ void movies_add_rating(
 struct movie const *movies_search(
         struct movies_table const *restrict table,
         db_id_t movieid);
+
+/**
+ * Initializes an iterator over the given table.
+ */
+inline void movies_iter(
+        struct movies_table const *table,
+        struct movies_iter *restrict iter_out)
+{
+    iter_out->table = table;
+    iter_out->current = 0;
+}
+
+/**
+ * Finds the next entry in the movies table using the given iterator. Returns
+ * NULL if all movies have been returned by the iterator.
+ */
+struct movie const *movies_next(struct movies_iter *restrict iter);
 
 /**
  * Destroys everything in the table. Movies. Titles. Genres. Entries.

@@ -1,6 +1,13 @@
 #include "../io.h"
 #include "../database.h"
 
+/* Colors for the columns */
+#define COLOR_ID TERMINAL_MAGENTA
+#define COLOR_TITLE TERMINAL_GREEN
+#define COLOR_GENRES TERMINAL_YELLOW
+#define COLOR_MEAN_RATING TERMINAL_RED
+#define COLOR_RATINGS TERMINAL_BLUE
+
 /**
  * Appends a row to the query buffer.
  */
@@ -79,15 +86,15 @@ void movie_query(
 void movie_query_print_header(void)
 {
     /* Puts the header by concatenating string literals. */
-    puts(TERMINAL_MAGENTA "ID"
+    puts(COLOR_ID "ID"
             TERMINAL_CLEAR ", "
-            TERMINAL_GREEN "Title"
+            COLOR_TITLE "Title"
             TERMINAL_CLEAR ", "
-            TERMINAL_YELLOW "Genres"
+            COLOR_GENRES "Genres"
             TERMINAL_CLEAR ", "
-            TERMINAL_RED "Mean Rating"
+            COLOR_MEAN_RATING "Mean Rating"
             TERMINAL_CLEAR ", "
-            TERMINAL_BLUE "Ratings Count"
+            COLOR_RATINGS "Ratings Count"
             TERMINAL_CLEAR);
 }
 
@@ -99,15 +106,15 @@ void movie_query_print_row(struct movie const *restrict row)
     id_start = db_id_to_str(row->id, id_buffer, MOVIEDB_ID_DIGITS + 1);
 
     /* Puts the row by concatenating string literals. */
-    printf(TERMINAL_MAGENTA "%s"
+    printf(COLOR_ID "%s"
             TERMINAL_CLEAR ", "
-            TERMINAL_GREEN "%s"
+            COLOR_TITLE "%s"
             TERMINAL_CLEAR ", "
-            TERMINAL_YELLOW "%s"
+            COLOR_GENRES "%s"
             TERMINAL_CLEAR ", "
-            TERMINAL_RED "%.1lf"
+            COLOR_MEAN_RATING "%.1lf"
             TERMINAL_CLEAR ", "
-            TERMINAL_BLUE "%zu"
+            COLOR_RATINGS "%zu"
             TERMINAL_CLEAR "\n",
             id_buffer + id_start,
             row->title,

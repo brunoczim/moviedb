@@ -106,6 +106,22 @@ struct movie const *movies_search(
     return table->entries[index];
 }
 
+extern inline void movies_iter(
+        struct movies_table const *table,
+        struct movies_iter *restrict iter_out);
+
+struct movie const *movies_next(struct movies_iter *restrict iter)
+{
+    struct movie const *movie = NULL;
+
+    while (iter->current < iter->table->length && movie == NULL) {
+        movie = iter->table->entries[iter->current];
+        iter->current++;
+    }
+
+    return movie;
+}
+
 void movies_destroy(struct movies_table *restrict table)
 {
     size_t i;

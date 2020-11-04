@@ -101,29 +101,6 @@ struct user_query_iter {
 };
 
 /**
- * A row of the "user" query.
- */
-struct user_query_row {
-    /**
-     * The rating given by the specific user.
-     */
-    double user_rating;
-    /**
-     * Title of the rated movie.
-     */
-    char const *title;
-    /**
-     * Global rating of the rated movie, i.e. mean of all rates given to the
-     * movie.
-     */
-    double global_rating;
-    /**
-     * Number of ratings given to the movie.
-     */
-    size_t ratings;
-};
-
-/**
  * Buffer used by the topN query.
  */
 struct topn_query_buf {

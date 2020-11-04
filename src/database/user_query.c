@@ -1,6 +1,12 @@
 #include "../io.h"
 #include "../database.h"
 
+/* Colors for the columns */
+#define COLOR_USER_RATING TERMINAL_MAGENTA
+#define COLOR_TITLE TERMINAL_GREEN
+#define COLOR_GLOBAL_RATING TERMINAL_RED
+#define COLOR_RATINGS TERMINAL_BLUE
+
 void user_query_init(
         struct user_query_iter *restrict iter_out,
         struct database const *database,
@@ -42,25 +48,25 @@ bool user_query_next(
 void user_query_print_header(void)
 {
     /* Puts the header by concatenating string literals. */
-    puts(TERMINAL_MAGENTA "User Rating"
+    puts(COLOR_USER_RATING "User Rating"
             TERMINAL_CLEAR ", "
-            TERMINAL_GREEN "Movie Title"
+            COLOR_TITLE "Movie Title"
             TERMINAL_CLEAR ", "
-            TERMINAL_YELLOW "Global Rating"
+            COLOR_GLOBAL_RATING "Global Rating"
             TERMINAL_CLEAR ", "
-            TERMINAL_RED "Ratings Count"
+            COLOR_RATINGS "Ratings Count"
             TERMINAL_CLEAR);
 }
 
 void user_query_print_row(struct user_query_row const *restrict row)
 {
-    printf(TERMINAL_MAGENTA "%.1lf"
+    printf(COLOR_USER_RATING "%.1lf"
             TERMINAL_CLEAR ", "
-            TERMINAL_GREEN "%s"
+            COLOR_TITLE "%s"
             TERMINAL_CLEAR ", "
-            TERMINAL_YELLOW "%.1f"
+            COLOR_GLOBAL_RATING "%.1f"
             TERMINAL_CLEAR ", "
-            TERMINAL_RED "%zu"
+            COLOR_RATINGS "%zu"
             TERMINAL_CLEAR "\n",
             row->user_rating,
             row->title,
