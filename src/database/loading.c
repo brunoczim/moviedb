@@ -208,8 +208,11 @@ static void load_tags(
             }
         }
 
-        input_file_close(file);
+        if (error->code == error_none) {
+            tags_sort_movies(&database->tags, error);
+        }
 
+        input_file_close(file);
     }
 
     if (error->code != error_none) {

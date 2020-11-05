@@ -93,6 +93,13 @@ struct tag const *tags_search(
         char const *restrict name);
 
 /**
+ * Sorts the movie lists associated with each tag.
+ */
+void tags_sort_movies(
+        struct tags_table *restrict table,
+        struct error *restrict error);
+
+/**
  * Destroys the given tags table, freeing all memory.
  */
 void tags_destroy(struct tags_table *restrict table);
