@@ -285,10 +285,10 @@ static db_id_t sort_choose_median(
     db_id_t tmp;
     size_t half = range->start + (range->end - range->start) / 2;
 
-    if (list->entries[half] > list->entries[range->end]) {
+    if (list->entries[half] > list->entries[range->end - 1]) {
         tmp = list->entries[half];
-        list->entries[half] = list->entries[range->end];
-        list->entries[range->end] = tmp;
+        list->entries[half] = list->entries[range->end - 1];
+        list->entries[range->end - 1] = tmp;
     }
 
     if (list->entries[half] < list->entries[range->start]) {
@@ -296,10 +296,10 @@ static db_id_t sort_choose_median(
         list->entries[half] = list->entries[range->start];
         list->entries[range->start] = tmp;
 
-        if (list->entries[half] > list->entries[range->end]) {
+        if (list->entries[half] > list->entries[range->end - 1]) {
             tmp = list->entries[half];
-            list->entries[half] = list->entries[range->end];
-            list->entries[range->end] = tmp;
+            list->entries[half] = list->entries[range->end - 1];
+            list->entries[range->end - 1] = tmp;
         }
     }
 
