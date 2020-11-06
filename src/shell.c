@@ -238,8 +238,6 @@ static bool run_topn(
     char *start, *end;
     struct topn_query_buf query_buf;
 
-    puts(shell->buf->ptr);
-
     start = shell->buf->ptr + (sizeof("top") - 1);
 
     converted = strtoumax(start, &end, 10);
@@ -286,6 +284,7 @@ static bool run_topn(
         case error_open_quote:
         case error_expected_arg:
         case error_bad_quote:
+        case error_topn_count:
             error_print(error);
             error_set_code(error, error_none);
             break;
@@ -510,18 +509,19 @@ static void discard_line(
 
 static void print_help(void)
 {
-    char const *head, *movie, *user, *topn, *exit;
+    char const *head, *movie, *user, *topn, *tags, *exit;
 
     head  = "Commands available:\n";
     movie = "    $ movie <prefix or title>       searches movies\n";
     user  = "    $ user <user ID>                finds user's ratings\n";
     topn  = "    $ top<N> '<genre>'              lists genre's N best movies\n";
-    topn  = "    $ tags <'list' 'of' 'tags'>     lists movies with all tags \n";
+    tags  = "    $ tags <'list' 'of' 'tags'>     lists movies with all tags \n";
     exit  = "    $ exit                          exits\n";
 
     fputs(head, stderr);
     fputs(movie, stderr);
     fputs(user, stderr);
     fputs(topn, stderr);
+    fputs(tags, stderr);
     fputs(exit, stderr);
 }
