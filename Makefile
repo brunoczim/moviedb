@@ -133,6 +133,7 @@ TEST_TAGS_TABLE_OBJS = $(OBJ_DIR)/error.o \
 					   $(OBJ_DIR)/csv.o \
 					   $(OBJ_DIR)/csv/tag.o \
 					   $(OBJ_DIR)/prime.o \
+					   $(OBJ_DIR)/tags/movies.o \
 					   $(OBJ_DIR)/tags.o \
 					   $(OBJ_DIR)/test/tags_table.o
 
