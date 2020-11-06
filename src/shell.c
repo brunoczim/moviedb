@@ -513,9 +513,10 @@ static void print_help(void)
     char const *head, *movie, *user, *topn, *exit;
 
     head  = "Commands available:\n";
-    movie = "    $ movie <prefix or title>       searches movie\n";
+    movie = "    $ movie <prefix or title>       searches movies\n";
     user  = "    $ user <user ID>                finds user's ratings\n";
     topn  = "    $ top<N> '<genre>'              lists genre's N best movies\n";
+    topn  = "    $ tags <'list' 'of' 'tags'>     lists movies with all tags \n";
     exit  = "    $ exit                          exits\n";
 
     fputs(head, stderr);
