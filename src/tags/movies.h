@@ -66,6 +66,14 @@ struct tag_movies_sort_stack {
 };
 
 /**
+ * Inserts a movie in the given tag movie list.
+ */
+void tag_movies_insert(
+        struct tag_movie_list *restrict movies,
+        db_id_t movie,
+        struct error *restrict error);
+
+/**
  * Tests if the given movie ID is in the movies list.
  *
  * ASSUMES THE LIST IS SORTED.

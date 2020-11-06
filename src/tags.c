@@ -13,14 +13,6 @@ static struct tag *tag_init(
         struct error *restrict error);
 
 /**
- * Inserts a movie in the given tag movie list.
- */
-static void tag_movies_insert(
-        struct tag_movie_list *restrict movies,
-        db_id_t movie,
-        struct error *restrict error);
-
-/**
  * Probes the given table until the place where the given tag name should be
  * stored, given its hash. Returns the index of this place.
  */
@@ -157,32 +149,6 @@ static struct tag *tag_init(
     }
 
     return tag;
-}
-
-static void tag_movies_insert(
-        struct tag_movie_list *restrict movies,
-        db_id_t movie,
-        struct error *restrict error)
-{
-    db_id_t *new_entries;
-    size_t new_cap = movies->capacity * 2;
-
-    if (movies->length == movies->capacity) {
-        new_entries = db_realloc(
-                movies->entries,
-                sizeof(db_id_t) * new_cap,
-                error);
-
-        if (error->code == error_none) {
-            movies->entries = new_entries;
-            movies->capacity = new_cap;
-        }
-    }
-
-    if (error->code == error_none) {
-        movies->entries[movies->length] = movie;
-        movies->length++;
-    }
 }
 
 static size_t probe_index(

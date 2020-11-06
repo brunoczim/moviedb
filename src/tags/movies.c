@@ -109,6 +109,37 @@ void tag_movies_sort(
     }
 }
 
+void tag_movies_insert(
+        struct tag_movie_list *restrict movies,
+        db_id_t movie,
+        struct error *restrict error)
+{
+    db_id_t *new_entries;
+    size_t new_cap;
+
+    if (movies->length == movies->capacity) {
+        new_cap = movies->capacity * 2;
+        if (new_cap == 0) {
+            new_cap = 1;
+        }
+
+        new_entries = db_realloc(
+                movies->entries,
+                sizeof(db_id_t) * new_cap,
+                error);
+
+        if (error->code == error_none) {
+            movies->entries = new_entries;
+            movies->capacity = new_cap;
+        }
+    }
+
+    if (error->code == error_none) {
+        movies->entries[movies->length] = movie;
+        movies->length++;
+    }
+}
+
 static void sort_push(
         struct tag_movies_sort_stack *restrict stack,
         struct tag_movies_sort_range const *restrict range,
