@@ -204,7 +204,7 @@ static void load_tags(
 
             if (has_data) {
                 tags_insert(&database->tags, &row, error);
-                if (error->code == error_dup_movie_title) {
+                if (error->code == error_dup_movie_id) {
                     error_set_code(error, error_none);
                 }
                 has_data = error->code == error_none;

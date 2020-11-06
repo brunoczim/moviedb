@@ -322,9 +322,6 @@ static bool run_tags(
     if (error->code == error_expected_arg) {
         error_set_code(error, error_none);
     }
-    if (error->code == error_bad_quote && shell->curr_ch == '\n') {
-        error_set_code(error, error_none);
-    }
 
     switch (error->code) {
         case error_none:
@@ -427,6 +424,7 @@ static void read_quoted_arg(
 
         switch (shell->curr_ch) {
             case EOF:
+            case '\n':
                 error_set_code(error, error_expected_arg);
                 break;
             case '"':
