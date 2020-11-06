@@ -91,26 +91,6 @@ struct tag const *tags_search(
     return table->entries[index];
 }
 
-void tags_sort_movies(
-        struct tags_table *restrict table,
-        struct error *restrict error)
-{
-    struct tag_movies_sort_stack stack;
-    size_t i = 0;
-
-    tag_movies_sort_init(&stack, 2, error);
-
-    if (error->code == error_none) {
-        while (i < table->capacity && error->code == error_none) {
-            if (table->entries[i] != NULL) {
-                tag_movies_sort(&table->entries[i]->movies, &stack, error);
-            }
-            i++;
-        }
-        tag_movies_sort_destroy(&stack);
-    }
-}
-
 void tags_destroy(struct tags_table *restrict table)
 {
     size_t i;
@@ -134,15 +114,14 @@ static struct tag *tag_init(
 
     if (error->code == error_none) {
         tag->name = tag_row->name;
-        tag->movies.length = 1;
-        tag->movies.capacity = 1;
-        tag->movies.entries = db_alloc(
-                sizeof(struct tag) * tag->movies.capacity,
-                error);
+        tag_movies_init(&tag->movies, 2, error);
 
         if (error->code == error_none) {
-            tag->movies.entries[0] = tag_row->movieid;
-        } else {
+            tag_movies_insert(&tag->movies, tag_row->movieid, error);
+        }
+
+        if (error->code != error_none) {
+            tag_movies_destroy(&tag->movies);
             db_free(tag);
             tag = NULL;
         }

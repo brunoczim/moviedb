@@ -80,17 +80,15 @@ void tags_query(
         struct tags_query_buf *restrict query_buf,
         struct error *restrict error)
 {
-    struct tag const *first;
     struct movie const *movie;
+    struct tag_movies_iter iter;
     size_t i;
     db_id_t movieid;
 
     if (query_input->length > 0) {
-        first = query_input->tags[0];
-        i = 0;
+        tag_movies_iter(&query_input->tags[0]->movies, &iter);
         
-        while (i < first->movies.length && error->code == error_none) {
-            movieid = first->movies.entries[i];
+        while (error->code == error_none && tag_movies_next(&iter, &movieid)) {
             if (movie_in_tags(query_input, movieid)) {
                 movie = movies_search(&database->movies, movieid);
                 if (movie != NULL) {

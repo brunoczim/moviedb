@@ -9,102 +9,108 @@
  */
 
 /**
- * The movies associated with a tag.
+ * The (hash) set of movies associated with a tag.
  */
-struct tag_movie_list {
+struct tag_movie_set {
     /**
-     * Array of entries. Only internal tags hash table code is allowed
-     * to update this value. Reading is fine.
+     * Array of entries. Only internal tag movies hash set code is allowed to
+     * touch this value.
      */
     db_id_t *entries;
     /**
-     * How much entries are stored here. Only internal tags hash table code is
-     * allowed to update this value. Reading is fine.
+     * Array of occupied flags, telling whether an entry of the same index is
+     * occupied. Only internal tag movies hash set code is allowed to touch
+     * this value.
+     */
+    bool *occupied;
+    /**
+     * How much entries are stored here. Only internal tag movies hash set
+     * code is allowed to update this value. Reading is fine.
      */
     size_t length;
     /**
-     * How many entries we can currently store. Only internal tags hash table
-     * code is allowed to touch this value.
+     * How many entries we can currently store. Only internal tag movies hash
+     * set code is allowed to touch this value.
      */
     size_t capacity;
 };
 
 /**
- * Range of a list in a sort implementation. Only tag movies sort internal code
- * is allowed to touch this.
+ * Iterator over the tag_movies stored in a tag movies hash set.
  */
-struct tag_movies_sort_range {
+struct tag_movies_iter {
     /**
-     * Start index, inclusive.
-     */
-    size_t start;
-    /**
-     * End index, exclusive.
-     */
-    size_t end;
-};
-
-/**
- * Stack used by the quicksort-related functions.
- */
-struct tag_movies_sort_stack {
-    /**
-     * The elements of the stack. Only tag movies sort internal code is allowed
-     * to touch this.
-     */
-    struct tag_movies_sort_range *ranges;
-    /**
-     * Number of elements in the stack. Only tag movies sort internal code is
+     * The set being iterated over. Only internal tag movies hash set code is
      * allowed to touch this.
      */
-    size_t length;
+    struct tag_movie_set const *set;
     /**
-     * How many elements the stack can store. Only tag movies sort internal code
+     * The current entry being checked. Only internal tag movies hash set code
      * is allowed to touch this.
      */
-    size_t capacity;
+    size_t current;
 };
 
 /**
- * Inserts a movie in the given tag movie list.
+ * Initializes the hash set. Initial capacity is rounded to the smallest prime
+ * such that actual_initial_capacity >= initial_capacity.
  */
-void tag_movies_insert(
-        struct tag_movie_list *restrict movies,
-        db_id_t movie,
+void tag_movies_init(
+        struct tag_movie_set *restrict set,
+        size_t initial_capacity,
         struct error *restrict error);
 
 /**
- * Tests if the given movie ID is in the movies list.
- *
- * ASSUMES THE LIST IS SORTED.
+ * Inserts a movie ID in the set. If movie ID is duplicated, an error is set
+ * (error_dup_movie_id).
+ */
+void tag_movies_insert(
+        struct tag_movie_set *restrict set,
+        db_id_t movieid,
+        struct error *restrict error);
+
+/**
+ * Adds a rating for a movie. If not found, rating is not added.
+ */
+void tag_movies_add_rating(
+        struct tag_movie_set *restrict set,
+        db_id_t movieid,
+        double rating);
+
+/**
+ * Search for the movie with the given ID. Returns whether it was found.
  */
 bool tag_movies_contain(
-        struct tag_movie_list const *restrict movies,
+        struct tag_movie_set const *restrict set,
         db_id_t movieid);
 
 /**
- * Sorts the given list of movies.
+ * Initializes an iterator over the given set.
  */
-void tag_movies_sort(
-        struct tag_movie_list *restrict list,
-        struct tag_movies_sort_stack *restrict stack,
-        struct error *restrict error);
-
-/**
- * Initalizes the sort stack with the given capacity.
- */
-void tag_movies_sort_init(
-        struct tag_movies_sort_stack *restrict stack,
-        size_t capacity,
-        struct error *error);
-
-/**
- * Destroys the sort stack.
- */
-inline void tag_movies_sort_destroy(
-        struct tag_movies_sort_stack *restrict stack)
+inline void tag_movies_iter(
+        struct tag_movie_set const *set,
+        struct tag_movies_iter *restrict iter_out)
 {
-    db_free(stack->ranges);
+    iter_out->set = set;
+    iter_out->current = 0;
+}
+
+/**
+ * Finds the next entry in the tag movies set, using the given iterator.
+ * Returns whether there was an entry. If there was, it is placed in
+ * movieid_out.
+ */
+bool tag_movies_next(
+        struct tag_movies_iter *restrict iter,
+        db_id_t *restrict movieid_out);
+
+/**
+ * Destroys everything in the set.
+ */
+inline void tag_movies_destroy(struct tag_movie_set *restrict set)
+{
+    db_free(set->entries);
+    db_free(set->occupied);
 }
 
 #endif

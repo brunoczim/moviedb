@@ -22,7 +22,7 @@ struct tag {
      * List of the movies associated with this tag. Only internal tags hash
      * table code is allowed to update this value. Reading is fine.
      */
-    struct tag_movie_list movies;
+    struct tag_movie_set movies;
 };
 
 /**
@@ -71,13 +71,6 @@ void tags_insert(
 struct tag const *tags_search(
         struct tags_table const *restrict table,
         char const *restrict name);
-
-/**
- * Sorts the movie lists associated with each tag.
- */
-void tags_sort_movies(
-        struct tags_table *restrict table,
-        struct error *restrict error);
 
 /**
  * Destroys the given tags table, freeing all memory.

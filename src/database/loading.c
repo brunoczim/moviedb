@@ -106,7 +106,7 @@ static void load_movies(
                 trie_insert(&database->trie_root, row.title, row.id, error);
 
                 if (error->code == error_dup_movie_title) {
-                    error->code = error_none;
+                    error_set_code(error, error_none);
                 }
                 if (error->code == error_none) {
                     movies_insert(&database->movies, &row, error);
@@ -204,12 +204,11 @@ static void load_tags(
 
             if (has_data) {
                 tags_insert(&database->tags, &row, error);
+                if (error->code == error_dup_movie_title) {
+                    error_set_code(error, error_none);
+                }
                 has_data = error->code == error_none;
             }
-        }
-
-        if (error->code == error_none) {
-            tags_sort_movies(&database->tags, error);
         }
 
         input_file_close(file);

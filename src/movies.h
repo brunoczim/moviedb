@@ -96,8 +96,8 @@ void movies_init(
 /**
  * Inserts a movie CSV row in the table. Title and genres of the CSV row should
  * be heap-allocated, since the table will free them. If movie ID is duplicated,
- * an error is set. The given movie_row should not be used after this function
- * is called.
+ * an error is set (error_dup_movie_id). The given movie_row should not be used
+ * after this function is called.
  */
 void movies_insert(
         struct movies_table *restrict table,
