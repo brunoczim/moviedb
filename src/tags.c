@@ -223,6 +223,32 @@ void tags_destroy(struct tags_table *restrict table)
     db_free(table->entries);
 }
 
+bool tag_movies_contain(
+        struct tag_movie_list const *restrict movies,
+        db_id_t movieid)
+{
+    bool found;
+    size_t low, high, mid;
+
+    low = 0;
+    high = movies->length;
+    found = false;
+
+    while (low < high && !found) {
+        mid = low + (high - low) / 2;
+
+        if (movies->entries[mid] < movieid) {
+            low = mid + 1;
+        } else if (movies->entries[mid] > movieid) {
+            high = mid;
+        } else {
+            found = true;
+        }
+    }
+
+    return found;
+}
+
 static void sort_init(
         struct sort_stack *restrict stack,
         size_t capacity,

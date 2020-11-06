@@ -1,7 +1,5 @@
 #include "../database.h"
 
-#define MIN_RATINGS 1000
-
 /* Colors for the columns */
 #define COLOR_TITLE TERMINAL_GREEN
 #define COLOR_GENRES TERMINAL_YELLOW

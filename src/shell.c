@@ -64,6 +64,10 @@ static bool run_topn(
         struct shell *restrict shell,
         struct error *restrict error);
 
+static bool run_tags(
+        struct shell *restrict shell,
+        struct error *restrict error);
+
 /**
  * Reads the operation name entered by the user such as "movie" or "exit.
  * Returns whether the shell should still execute.
@@ -161,6 +165,8 @@ static bool run_cmd(
         run_movie(shell, error);
     } else if (strcmp(shell->buf->ptr, "user") == 0) {
         run_user(shell, error);
+    } else if (strcmp(shell->buf->ptr, "tags") == 0) {
+        run_tags(shell, error);
     } else if (strncmp(shell->buf->ptr, "top", sizeof("top") - 1) == 0) {
         run_topn(shell, error);
     } else {
@@ -275,18 +281,69 @@ static bool run_topn(
 
             topn_query_print(&query_buf);
             topn_query_destroy(&query_buf);
-            return true;
+            break;
 
         case error_open_quote:
         case error_expected_arg:
         case error_bad_quote:
             error_print(error);
             error_set_code(error, error_none);
-            return true;
+            break;
 
         default:
-            return false;
+            break;
     }
+
+    return error->code == error_none;
+}
+
+static bool run_tags(
+        struct shell *restrict shell,
+        struct error *restrict error)
+{
+    struct tags_query_input query_input;
+    struct tags_query_buf query_buf;
+
+    tags_query_input_init(&query_input, 2, error);
+
+    while (error->code == error_none) {
+        read_quoted_arg(shell, error);
+        if (error->code == error_none) {
+            strbuf_make_cstr(shell->buf, error);
+        }
+        if (error->code == error_none) {
+            tags_query_input_add(&query_input,
+                    shell->database,
+                    shell->buf->ptr,
+                    error);
+        }
+    }
+
+    switch (error->code) {
+        case error_expected_arg:
+            error_set_code(error, error_none);
+        case error_none:
+            tags_query_init(&query_buf);
+            tags_query(shell->database, &query_input, &query_buf, error);        
+            if (error->code == error_none) {
+                tags_query_print(&query_buf);
+            }
+            tags_query_input_destroy(&query_input);
+            break;
+
+        case error_open_quote:
+        case error_bad_quote:
+            error_print(error);
+            error_set_code(error, error_none);
+            break;
+
+        default:
+            break;
+    }
+
+    tags_query_destroy(&query_buf);
+    
+    return error->code == error_none;
 }
 
 static bool read_op(

@@ -104,4 +104,8 @@ void tags_sort_movies(
  */
 void tags_destroy(struct tags_table *restrict table);
 
+bool tag_movies_contain(
+        struct tag_movie_list const *restrict movies,
+        db_id_t movieid);
+
 #endif

@@ -121,6 +121,12 @@ struct topn_query_buf {
     size_t capacity;
 };
 
+struct tags_query_input {
+    struct tag const **tags;
+    size_t length;
+    size_t capacity;
+};
+
 /**
  * Buffer used by the tags query.
  */
@@ -275,14 +281,34 @@ inline void topn_query_destroy(struct topn_query_buf *restrict buf)
     db_free(buf->rows);
 }
 
+void tags_query_input_init(
+        struct tags_query_input *restrict query_input,
+        size_t capacity,
+        struct error *restrict error);
+
+void tags_query_input_add(
+        struct tags_query_input *restrict query_input,
+        struct database const *restrict database,
+        char const *restrict name,
+        struct error *restrict error);
+
+
+inline void tags_query_input_destroy(
+        struct tags_query_input *restrict query_input)
+{
+    db_free(query_input->tags);
+}
+
 /**
  * Initializes the tags query buffer to the given capacity. The query will NOT
  * increase the capacity, it is intended to return only the N best.
  */
-void tags_query_init(
-        struct tags_query_buf *restrict buf,
-        size_t capacity,
-        struct error *restrict error);
+inline void tags_query_init(struct tags_query_buf *restrict buf)
+{
+    buf->rows = NULL;
+    buf->capacity = 0;
+    buf->length = 0;
+}
 
 /**
  * Performs the tags query. Searches for the best rated movies of the given
@@ -291,9 +317,9 @@ void tags_query_init(
  */
 void tags_query(
         struct database const *restrict database,
-        char const *restrict genre,
-        size_t min_ratings,
-        struct tags_query_buf *restrict query_buf);
+        struct tags_query_input const *restrict query_input,
+        struct tags_query_buf *restrict query_buf,
+        struct error *restrict error);
 
 /**
  * Prints a tags query's header to the screen.
