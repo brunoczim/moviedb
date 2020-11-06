@@ -3,31 +3,11 @@
 
 #include "id.h"
 #include "csv/tag.h"
+#include "tags/movies.h"
 
 /**
  * This file exports items related to tags.
  */
-
-/**
- * The movies associated with a tag.
- */
-struct tag_movie_list {
-    /**
-     * Array of entries. Only internal tags hash table code is allowed
-     * to update this value. Reading is fine.
-     */
-    db_id_t *entries;
-    /**
-     * How much entries are stored here. Only internal tags hash table code is
-     * allowed to update this value. Reading is fine.
-     */
-    size_t length;
-    /**
-     * How many entries we can currently store. Only internal tags hash table
-     * code is allowed to touch this value.
-     */
-    size_t capacity;
-};
 
 /**
  * A tag's data.
@@ -103,9 +83,5 @@ void tags_sort_movies(
  * Destroys the given tags table, freeing all memory.
  */
 void tags_destroy(struct tags_table *restrict table);
-
-bool tag_movies_contain(
-        struct tag_movie_list const *restrict movies,
-        db_id_t movieid);
 
 #endif

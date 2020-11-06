@@ -6,95 +6,6 @@
 #define MAX_LOAD 0.5
 
 /**
- * Range of a list in a quicksort implementation. Only quicksort internal code
- * is allowed to touch this.
- */
-struct sort_range {
-    /**
-     * Start index, inclusive.
-     */
-    size_t start;
-    /**
-     * End index, exclusive.
-     */
-    size_t end;
-};
-
-/**
- * Stack used by the quicksort-related functions.
- */
-struct sort_stack {
-    /**
-     * The elements of the stack. Only quicksort internal code is allowed to
-     * touch this.
-     */
-    struct sort_range *ranges;
-    /**
-     * Number of elements in the stack. Only quicksort internal code is allowed
-     * to touch this.
-     */
-    size_t length;
-    /**
-     * How many elements the stack can store. Only quicksort internal code is
-     * allowed to * touch this.
-     */
-    size_t capacity;
-};
-
-/**
- * Initalizes the stack with the given capacity.
- */
-static void sort_init(
-        struct sort_stack *restrict stack,
-        size_t capacity,
-        struct error *error);
-
-/**
- * Pushes the given range to the stack. Only internal quicksort code is allowed
- * to touch this.
- */
-static void sort_push(
-        struct sort_stack *restrict stack,
-        struct sort_range const *restrict range,
-        struct error *restrict error);
-
-/**
- * Tries to pop from the sort stack into range_out, returns whether the pop
- * happened. Only internal quicksort code is allowed to touch this.
- */
-static bool sort_pop(
-        struct sort_stack *restrict stack,
-        struct sort_range *restrict range_out);
-
-/**
- * Destroys the sort stack.
- */
-static void sort_destroy(struct sort_stack *restrict stack);
-
-/**
- * Chooses the median as the pivot of an iteration of quicksort.
- */
-static db_id_t sort_choose_median(
-        struct tag_movie_list *restrict list,
-        struct sort_range const *range);
-
-/**
- * Performs the hoare partition on the given list, given the pivot.
- */
-static size_t sort_partition_hoare(
-        struct tag_movie_list *restrict list,
-        db_id_t pivot,
-        struct sort_range const *range);
-
-/**
- * Performs quicksort on the given movie list.
- */
-static void quicksort(
-        struct tag_movie_list *restrict list,
-        struct sort_stack *restrict stack,
-        struct error *restrict error);
-
-/**
  * Initializes a tag by allocating a tag in the heap.
  */
 static struct tag *tag_init(
@@ -192,19 +103,19 @@ void tags_sort_movies(
         struct tags_table *restrict table,
         struct error *restrict error)
 {
-    struct sort_stack stack;
+    struct tag_movies_sort_stack stack;
     size_t i = 0;
 
-    sort_init(&stack, 2, error);
+    tag_movies_sort_init(&stack, 2, error);
 
     if (error->code == error_none) {
         while (i < table->capacity && error->code == error_none) {
             if (table->entries[i] != NULL) {
-                quicksort(&table->entries[i]->movies, &stack, error);
+                tag_movies_sort(&table->entries[i]->movies, &stack, error);
             }
             i++;
         }
-        sort_destroy(&stack);
+        tag_movies_sort_destroy(&stack);
     }
 }
 
@@ -221,182 +132,6 @@ void tags_destroy(struct tags_table *restrict table)
     }
 
     db_free(table->entries);
-}
-
-bool tag_movies_contain(
-        struct tag_movie_list const *restrict movies,
-        db_id_t movieid)
-{
-    bool found;
-    size_t low, high, mid;
-
-    low = 0;
-    high = movies->length;
-    found = false;
-
-    while (low < high && !found) {
-        mid = low + (high - low) / 2;
-
-        if (movies->entries[mid] < movieid) {
-            low = mid + 1;
-        } else if (movies->entries[mid] > movieid) {
-            high = mid;
-        } else {
-            found = true;
-        }
-    }
-
-    return found;
-}
-
-static void sort_init(
-        struct sort_stack *restrict stack,
-        size_t capacity,
-        struct error *error)
-{
-    stack->ranges = db_alloc(sizeof(struct sort_range) * capacity, error);
-    stack->length = 0;
-    stack->capacity = capacity;
-}
-
-static void sort_push(
-        struct sort_stack *restrict stack,
-        struct sort_range const *restrict range,
-        struct error *restrict error)
-{
-    struct sort_range *new_ranges;
-    size_t new_cap;
-
-    if (stack->length == stack->capacity) {
-        new_cap = stack->capacity * 2;
-        if (new_cap == 0) {
-            new_cap = 1;
-        }
-        new_ranges = db_realloc(
-                stack->ranges,
-                sizeof(struct sort_range) * new_cap,
-                error);
-
-        if (error->code == error_none) {
-            stack->capacity = new_cap;
-            stack->ranges = new_ranges;
-        }
-    }
-
-    stack->ranges[stack->length] = *range;
-    stack->length++;
-}
-
-static bool sort_pop(
-        struct sort_stack *restrict stack,
-        struct sort_range *restrict range_out)
-{
-    if (stack->length == 0) {
-        return false;
-    }
-    stack->length--;
-    *range_out = stack->ranges[stack->length];
-    return true;
-}
-
-static void sort_destroy(struct sort_stack *restrict stack)
-{
-    db_free(stack->ranges);
-}
-
-static db_id_t sort_choose_median(
-        struct tag_movie_list *restrict list,
-        struct sort_range const *range)
-{
-    db_id_t tmp;
-    size_t half = range->start + (range->end - range->start) / 2;
-
-    if (list->entries[half] > list->entries[range->end - 1]) {
-        tmp = list->entries[half];
-        list->entries[half] = list->entries[range->end - 1];
-        list->entries[range->end - 1] = tmp;
-    }
-
-    if (list->entries[half] < list->entries[range->start]) {
-        tmp = list->entries[half];
-        list->entries[half] = list->entries[range->start];
-        list->entries[range->start] = tmp;
-
-        if (list->entries[half] > list->entries[range->end - 1]) {
-            tmp = list->entries[half];
-            list->entries[half] = list->entries[range->end - 1];
-            list->entries[range->end - 1] = tmp;
-        }
-    }
-
-    return list->entries[half];
-}
-
-static size_t sort_partition_hoare(
-        struct tag_movie_list *restrict list,
-        db_id_t pivot,
-        struct sort_range const *range)
-{
-    db_id_t tmp;
-    size_t low = range->start;
-    size_t high = range->end - 1;
-    bool elems_left = true;
-
-    while (elems_left) {
-        do {
-            low++;
-        } while (list->entries[low] < pivot);
-
-        do {
-            high--;
-        } while (list->entries[high] > pivot);
-
-        elems_left = low < high;
-
-        if (elems_left) {
-            tmp = list->entries[low];
-            list->entries[low] = list->entries[high];
-            list->entries[high] = tmp;
-        }
-    }
-
-    return high + 1;
-}
-
-static void quicksort(
-        struct tag_movie_list *restrict list,
-        struct sort_stack *restrict stack,
-        struct error *restrict error)
-{
-    struct sort_range curr, lower, upper;
-    size_t split;
-    db_id_t pivot;
-
-    curr.start = 0;
-    curr.end = list->length;
-
-    if (curr.end - curr.start > 1) {
-        sort_push(stack, &curr, error);
-    }
-
-    while (error->code == error_none && sort_pop(stack, &curr)) {
-        pivot = sort_choose_median(list, &curr);
-        split = sort_partition_hoare(list, pivot, &curr);
-
-        lower.start = curr.start;
-        lower.end = split;
-
-        if (lower.end - lower.start > 1) {
-            sort_push(stack, &lower, error);
-        }
-
-        upper.start = split;
-        upper.end = curr.end;
-
-        if (upper.end - upper.start > 1) {
-            sort_push(stack, &upper, error);
-        }
-    }
 }
 
 static struct tag *tag_init(

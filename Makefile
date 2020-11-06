@@ -57,6 +57,7 @@ HEADERS = src/error.h \
 		  src/trie.h \
 		  src/movies.h \
 		  src/users.h \
+		  src/tags/movies.h \
 		  src/tags.h \
 		  src/database.h \
 		  src/shell.h
@@ -78,6 +79,7 @@ MOVIEDB_OBJS = $(OBJ_DIR)/main.o \
 			   $(OBJ_DIR)/id.o \
 			   $(OBJ_DIR)/movies.o \
 			   $(OBJ_DIR)/users.o \
+			   $(OBJ_DIR)/tags/movies.o \
 			   $(OBJ_DIR)/tags.o \
 			   $(OBJ_DIR)/database/loading.o \
 			   $(OBJ_DIR)/database/movie_query.o \
