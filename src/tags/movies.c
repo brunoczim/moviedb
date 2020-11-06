@@ -94,7 +94,7 @@ bool tag_movies_next(
 {
     bool found = false;
 
-    while (iter->current < iter->set->length && !found) {
+    while (iter->current < iter->set->capacity && !found) {
         found = iter->set->occupied[iter->current];
         if (found) {
             *movieid_out = iter->set->entries[iter->current];

@@ -42,6 +42,9 @@ int main(int argc, char const *argv[])
     struct error error;
     struct tag const *tag;
     struct tags_table table;
+    struct tag_movies_iter iter;
+    db_id_t movieid;
+    bool found88 = false, found90 = false, found92 = false;
 
     error_init(&error);
 
@@ -91,90 +94,37 @@ int main(int argc, char const *argv[])
     assert(tag != NULL);
     assert(strcmp(tag->name, "bad") == 0);
     assert(tag->movies.length == 1);
-    assert(tag->movies.entries[0] == 92);
+    tag_movies_iter(&tag->movies, &iter);
+    assert(tag_movies_next(&iter, &movieid));
+    assert(movieid == 92);
 
     tag = tags_search(&table, "good");
     assert(tag != NULL);
     assert(strcmp(tag->name, "good") == 0);
     assert(tag->movies.length == 3);
-    assert(tag->movies.entries[0] == 90);
-    assert(tag->movies.entries[1] == 92);
-    assert(tag->movies.entries[2] == 88);
 
-    insert(&table, "good", 96, &error);
-    assert(error.code == error_none);
-    insert(&table, "good", 89, &error);
-    assert(error.code == error_none);
-    insert(&table, "good", 83, &error);
-    assert(error.code == error_none);
-    insert(&table, "good", 158, &error);
-    assert(error.code == error_none);
-    insert(&table, "good", 87, &error);
-    assert(error.code == error_none);
-    insert(&table, "good", 0, &error);
-    assert(error.code == error_none);
-    insert(&table, "good", 957, &error);
-    assert(error.code == error_none);
-    assert(error.code == error_none);
-    insert(&table, "good", 2, &error);
-    assert(error.code == error_none);
-    insert(&table, "good", 3, &error);
-    assert(error.code == error_none);
-    insert(&table, "good", 4, &error);
-    assert(error.code == error_none);
-    insert(&table, "good", 5, &error);
-    assert(error.code == error_none);
-    insert(&table, "good", 6, &error);
-    assert(error.code == error_none);
-    insert(&table, "good", 7, &error);
-    assert(error.code == error_none);
-    insert(&table, "good", 8, &error);
-    assert(error.code == error_none);
-    insert(&table, "good", 9, &error);
-    assert(error.code == error_none);
-    insert(&table, "good", 1, &error);
-    assert(error.code == error_none);
+    tag_movies_iter(&tag->movies, &iter);
+    while (tag_movies_next(&iter, &movieid)) {
+        switch (movieid) {
+            case 88:
+                assert(!found88);
+                found88 = true;
+                break;
+            case 90:
+                assert(!found90);
+                found90 = true;
+                break;
+            case 92:
+                assert(!found92);
+                found92 = true;
+                break;
+            default:
+                assert(false);
+                break;
+        }
+    }
 
-    tag = tags_search(&table, "good");
-    assert(tag != NULL);
-    assert(strcmp(tag->name, "good") == 0);
-    assert(tag->movies.length == 19);
-
-    tags_sort_movies(&table, &error);
-    assert(error.code == error_none);
-
-    tag = tags_search(&table, "good");
-    assert(tag != NULL);
-    assert(strcmp(tag->name, "good") == 0);
-    assert(tag->movies.length == 19);
-    assert(tag->movies.entries[0] == 0);
-    assert(tag->movies.entries[1] == 1);
-    assert(tag->movies.entries[2] == 2);
-    assert(tag->movies.entries[3] == 3);
-    assert(tag->movies.entries[4] == 4);
-    assert(tag->movies.entries[5] == 5);
-    assert(tag->movies.entries[6] == 6);
-    assert(tag->movies.entries[7] == 7);
-    assert(tag->movies.entries[8] == 8);
-    assert(tag->movies.entries[9] == 9);
-    assert(tag->movies.entries[10] == 83);
-    assert(tag->movies.entries[11] == 87);
-    assert(tag->movies.entries[12] == 88);
-    assert(tag->movies.entries[13] == 89);
-    assert(tag->movies.entries[14] == 90);
-    assert(tag->movies.entries[15] == 92);
-    assert(tag->movies.entries[16] == 96);
-    assert(tag->movies.entries[17] == 158);
-    assert(tag->movies.entries[18] == 957);
-
-    assert(tag_movies_contain(&tag->movies, 0));
-    assert(tag_movies_contain(&tag->movies, 83));
-    assert(!tag_movies_contain(&tag->movies, 84));
-    assert(tag_movies_contain(&tag->movies, 92));
-    assert(tag_movies_contain(&tag->movies, 90));
-    assert(!tag_movies_contain(&tag->movies, 1000));
-    assert(!tag_movies_contain(&tag->movies, 91));
-    assert(!tag_movies_contain(&tag->movies, 93));
+    assert(found88 && found90 && found92);
 
     tags_destroy(&table);
     error_destroy(&error);
