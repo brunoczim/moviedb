@@ -319,16 +319,21 @@ static bool run_tags(
         }
     }
 
+    if (error->code == error_expected_arg) {
+        error_set_code(error, error_none);
+    }
+    if (error->code == error_bad_quote && shell->curr_ch == '\n') {
+        error_set_code(error, error_none);
+    }
+
     switch (error->code) {
-        case error_expected_arg:
-            error_set_code(error, error_none);
         case error_none:
             tags_query_init(&query_buf);
             tags_query(shell->database, &query_input, &query_buf, error);        
             if (error->code == error_none) {
                 tags_query_print(&query_buf);
             }
-            tags_query_input_destroy(&query_input);
+            tags_query_destroy(&query_buf);
             break;
 
         case error_open_quote:
@@ -341,8 +346,8 @@ static bool run_tags(
             break;
     }
 
-    tags_query_destroy(&query_buf);
-    
+    tags_query_input_destroy(&query_input);
+
     return error->code == error_none;
 }
 
