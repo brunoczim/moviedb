@@ -167,6 +167,15 @@ int main(int argc, char const *argv[])
     assert(tag->movies.entries[17] == 158);
     assert(tag->movies.entries[18] == 957);
 
+    assert(tag_movies_contain(&tag->movies, 0));
+    assert(tag_movies_contain(&tag->movies, 83));
+    assert(!tag_movies_contain(&tag->movies, 84));
+    assert(tag_movies_contain(&tag->movies, 92));
+    assert(tag_movies_contain(&tag->movies, 90));
+    assert(!tag_movies_contain(&tag->movies, 1000));
+    assert(!tag_movies_contain(&tag->movies, 91));
+    assert(!tag_movies_contain(&tag->movies, 93));
+
     tags_destroy(&table);
     error_destroy(&error);
 
