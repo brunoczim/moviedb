@@ -65,7 +65,11 @@ HEADERS = src/error.h \
 		  src/query/topn.h \
 		  src/query/tags.h \
 		  src/query.h \
-		  src/shell.h
+		  src/shell.h \
+		  src/shell/movie.h \
+		  src/shell/user.h \
+		  src/shell/topn.h \
+		  src/shell/tags.h
 
 MOVIEDB_OBJS = $(OBJ_DIR)/main.o \
 			   $(OBJ_DIR)/error.o \
@@ -91,7 +95,11 @@ MOVIEDB_OBJS = $(OBJ_DIR)/main.o \
 			   $(OBJ_DIR)/query/user.o \
 			   $(OBJ_DIR)/query/topn.o \
 			   $(OBJ_DIR)/query/tags.o \
-			   $(OBJ_DIR)/shell.o
+			   $(OBJ_DIR)/shell.o \
+			   $(OBJ_DIR)/shell/movie.o \
+			   $(OBJ_DIR)/shell/user.o \
+			   $(OBJ_DIR)/shell/topn.o \
+			   $(OBJ_DIR)/shell/tags.o
 
 TEST_CSV_OBJS = $(OBJ_DIR)/error.o \
 				$(OBJ_DIR)/alloc.o \
