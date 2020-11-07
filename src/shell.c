@@ -1,6 +1,7 @@
 #include "io.h"
 #include "alloc.h"
 #include "shell.h"
+#include "query.h"
 #include <string.h>
 #include <inttypes.h>
 

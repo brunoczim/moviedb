@@ -1,5 +1,5 @@
+#include "user.h"
 #include "../io.h"
-#include "../database.h"
 
 /* Colors for the columns */
 #define COLOR_USER_RATING TERMINAL_MAGENTA

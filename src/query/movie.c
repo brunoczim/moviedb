@@ -1,5 +1,5 @@
+#include "movie.h"
 #include "../io.h"
-#include "../database.h"
 
 /* Colors for the columns */
 #define COLOR_ID TERMINAL_MAGENTA

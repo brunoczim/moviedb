@@ -1,4 +1,5 @@
-#include "../database.h"
+#include "tags.h"
+#include "../io.h"
 
 /* Colors for the columns */
 #define COLOR_TITLE TERMINAL_GREEN
@@ -6,11 +7,19 @@
 #define COLOR_MEAN_RATING TERMINAL_RED
 #define COLOR_RATINGS TERMINAL_BLUE
 
+/**
+ * Appends a row to the query buffer.
+ */
 static void buf_append(
         struct tags_query_buf *restrict buf,
         struct movie const *movie,
         struct error *restrict error);
 
+/**
+ * Tests if the given movie is in the tags of the given query input, after
+ * the first tag, i.e. first tag is not tested, since the movie is assumed to
+ * come from the first tag.
+ */
 static bool movie_in_tags(
         struct tags_query_input const *restrict input,
         db_id_t movieid);

@@ -1,4 +1,5 @@
-#include "../database.h"
+#include "topn.h"
+#include "../io.h"
 
 /* Colors for the columns */
 #define COLOR_TITLE TERMINAL_GREEN
