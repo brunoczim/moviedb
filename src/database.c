@@ -84,7 +84,7 @@ static void load_movies(
         char *file_buf,
         struct error *restrict error)
 {
-    char const *path = "movie.csv";
+    char const *path = "data/movie.csv";
     FILE *file;
     struct movie_parser parser;
     struct movie_csv_row row;
@@ -135,7 +135,7 @@ static void load_ratings(
         char *file_buf,
         struct error *restrict error)
 {
-    char const *path = "rating.csv";
+    char const *path = "data/rating.csv";
     FILE *file;
     struct rating_parser parser;
     struct rating_csv_row row;
@@ -183,7 +183,7 @@ static void load_tags(
         char *file_buf,
         struct error *restrict error)
 {
-    char const *path = "tag.csv";
+    char const *path = "data/tag.csv";
     FILE *file;
     struct tag_parser parser;
     struct tag_csv_row row;

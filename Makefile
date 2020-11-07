@@ -150,15 +150,13 @@ TEST_TAGS_TABLE_OBJS = $(OBJ_DIR)/error.o \
 					   $(OBJ_DIR)/tags.o \
 					   $(OBJ_DIR)/test/tags_table.o
 
-$(OBJ_DIR)/%.o: src/%.c $(HEADERS)
-	mkdir -p $(dir $@)
-	$(CC) -c $< $(CFLAGS) -o $@
-
 moviedb: $(MOVIEDB_OBJS)
 	mkdir -p $(dir $(BUILD_DIR)/$@)
 	$(CC) $(LDFLAGS) $^ -o $(BUILD_DIR)/$@
 
-all: moviedb test/csv test/trie test/movies_table test/users_table
+$(OBJ_DIR)/%.o: src/%.c $(HEADERS)
+	mkdir -p $(dir $@)
+	$(CC) -c $< $(CFLAGS) -o $@
 
 test/prime: $(TEST_PRIME_OBJS)
 	mkdir -p $(dir $(BUILD_DIR)/$@)
