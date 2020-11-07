@@ -68,7 +68,7 @@ bool shell_run_cmd(struct shell *restrict shell, struct error *restrict error)
         shell_print_help();
     }
 
-    return true;
+    return error->code == error_none;
 }
 
 bool shell_read_op(struct shell *restrict shell, struct error *restrict error)
