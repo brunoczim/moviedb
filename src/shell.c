@@ -64,6 +64,7 @@ bool shell_run_cmd(struct shell *restrict shell, struct error *restrict error)
     } else if (strncmp(shell->buf->ptr, "top", sizeof("top") - 1) == 0) {
         shell_run_topn(shell, error);
     } else {
+        shell_discard_line(shell, error);
         shell_print_help();
     }
 

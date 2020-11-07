@@ -97,7 +97,7 @@ void tags_destroy(struct tags_table *restrict table)
 
     for (i = 0; i < table->capacity; i++) {
         if (table->entries[i] != NULL) {
-            db_free(table->entries[i]->movies.entries);
+            tag_movies_destroy(&table->entries[i]->movies);
             db_free((void *) (void const *) table->entries[i]->name);
             db_free(table->entries[i]);
         }

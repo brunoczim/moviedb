@@ -8,25 +8,37 @@ echoerr () {
 
 help() {
     echoerr Usage:
+    echoerr "    $0"
     echoerr "    $0 debug [PROGRAM]"
     echoerr "    $0 release [PROGRAM]"
     echoerr "    $0 sanitize [PROGRAM]"
     echoerr
     echoerr "PROGRAM is optional (default moviedb)"
+    echoerr
+    echoerr "If no arguments are given, \`$0 release moviedb\` is executed"
 }
 
-if [ $# -eq 1 ]
+if [ $# -ge 2 ]
 then
-    PROG="moviedb"
-elif [ $# -eq 2 ]
-then
-    PROG="$2"
-else
     help
     exit 1
 fi
 
-case $1 in
+if [ $# -eq 0 ]
+then
+    MODE=release
+else
+    MODE="$1"
+fi
+
+if [ $# -le 1 ]
+then
+    PROG="moviedb"
+else
+    PROG="$2"
+fi
+
+case "$MODE" in
     debug)
         PROFILE=DEBUG
         ;;
@@ -42,6 +54,6 @@ case $1 in
         ;;
 esac
 
-make "$PROG" PROFILE="$PROFILE"
+make "$PROG" PROFILE="$PROFILE" > /dev/null
 
-"./build/$1/$PROG"
+"./build/$MODE/$PROG"
