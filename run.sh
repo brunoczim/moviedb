@@ -18,7 +18,7 @@ help() {
     echoerr "If no arguments are given, \`$0 release moviedb\` is executed"
 }
 
-if [ $# -ge 2 ]
+if [ $# -ge 3 ]
 then
     help
     exit 1
