@@ -6,8 +6,13 @@ bool shell_run_tags(struct shell *restrict shell, struct error *restrict error)
     struct tags_query_input query_input;
     struct tags_query_buf query_buf;
 
+    /* Initializes tags query's input tags with initial capacity for 2. */
     tags_query_input_init(&query_input, 2, error);
 
+    /*
+     * Reads all arguments from the command line, and adds tags corresponding
+     * to each argument to the query input.
+     */
     while (error->code == error_none) {
         shell_read_quoted_arg(shell, error);
         if (error->code == error_none) {
@@ -25,6 +30,7 @@ bool shell_run_tags(struct shell *restrict shell, struct error *restrict error)
         error_set_code(error, error_none);
     }
 
+    /* Checks the error code and executes the query if everything is ok. */
     switch (error->code) {
         case error_none:
             tags_query_init(&query_buf);
