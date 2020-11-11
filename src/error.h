@@ -156,7 +156,7 @@ struct dup_movie_id_error {
     /**
      * The duplicated ID.
      */
-    db_id_t id;
+    moviedb_id_t id;
 };
 
 /**
@@ -176,7 +176,7 @@ struct dup_movie_title_error {
 /**
  * Invalid ID error's data.
  */
-struct db_id_error {
+struct moviedb_id_error {
     /**
      * Whether there is a line in this error.
      */
@@ -290,7 +290,7 @@ union error_data {
     /**
      * Data of an invalid ID error.
      */
-    struct db_id_error id;
+    struct moviedb_id_error id;
     /**
      * Data of a duplicated movie ID error.
      */

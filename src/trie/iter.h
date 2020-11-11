@@ -68,7 +68,7 @@ struct trie_iter {
  */
 bool trie_next_movie(
     struct trie_iter *restrict iter,
-    db_id_t *restrict movie_out,
+    moviedb_id_t *restrict movie_out,
     struct error *restrict error);
 
 /**

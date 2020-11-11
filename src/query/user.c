@@ -10,7 +10,7 @@
 void user_query_init(
         struct user_query_iter *restrict iter_out,
         struct database const *database,
-        db_id_t userid)
+        moviedb_id_t userid)
 {
     iter_out->database = database;
     iter_out->user = users_search(&database->users, userid);

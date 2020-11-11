@@ -4,7 +4,7 @@
 bool shell_run_user(struct shell *restrict shell, struct error *restrict error)
 {
     struct user_query_iter query_iter;
-    db_id_t userid = 0;
+    moviedb_id_t userid = 0;
 
     shell_read_single_arg(shell, error);
 
@@ -13,7 +13,7 @@ bool shell_run_user(struct shell *restrict shell, struct error *restrict error)
     }
 
     if (error->code == error_none) {
-        userid = db_id_parse(shell->buf->ptr, error);
+        userid = moviedb_id_parse(shell->buf->ptr, error);
     }
 
     if (error->code == error_id) {

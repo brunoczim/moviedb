@@ -72,7 +72,7 @@ void tags_query_input_add(
 inline void tags_query_input_destroy(
         struct tags_query_input *restrict query_input)
 {
-    db_free(query_input->tags);
+    moviedb_free(query_input->tags);
 }
 
 /**
@@ -117,7 +117,7 @@ void tags_query_print(struct tags_query_buf const *restrict query_buf);
  */
 inline void tags_query_destroy(struct tags_query_buf *restrict buf)
 {
-    db_free(buf->rows);
+    moviedb_free(buf->rows);
 }
 
 

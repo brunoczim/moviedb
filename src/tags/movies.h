@@ -16,7 +16,7 @@ struct tag_movie_set {
      * Array of entries. Only internal tag movies hash set code is allowed to
      * touch this value.
      */
-    db_id_t *entries;
+    moviedb_id_t *entries;
     /**
      * Array of occupied flags, telling whether an entry of the same index is
      * occupied. Only internal tag movies hash set code is allowed to touch
@@ -66,7 +66,7 @@ void tag_movies_init(
  */
 void tag_movies_insert(
         struct tag_movie_set *restrict set,
-        db_id_t movieid,
+        moviedb_id_t movieid,
         struct error *restrict error);
 
 /**
@@ -74,7 +74,7 @@ void tag_movies_insert(
  */
 void tag_movies_add_rating(
         struct tag_movie_set *restrict set,
-        db_id_t movieid,
+        moviedb_id_t movieid,
         double rating);
 
 /**
@@ -82,7 +82,7 @@ void tag_movies_add_rating(
  */
 bool tag_movies_contain(
         struct tag_movie_set const *restrict set,
-        db_id_t movieid);
+        moviedb_id_t movieid);
 
 /**
  * Initializes an iterator over the given set.
@@ -102,15 +102,15 @@ inline void tag_movies_iter(
  */
 bool tag_movies_next(
         struct tag_movies_iter *restrict iter,
-        db_id_t *restrict movieid_out);
+        moviedb_id_t *restrict movieid_out);
 
 /**
  * Destroys everything in the set.
  */
 inline void tag_movies_destroy(struct tag_movie_set *restrict set)
 {
-    db_free(set->entries);
-    db_free(set->occupied);
+    moviedb_free(set->entries);
+    moviedb_free(set->occupied);
 }
 
 #endif

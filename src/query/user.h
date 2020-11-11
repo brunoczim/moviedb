@@ -57,7 +57,7 @@ struct user_query_iter {
 void user_query_init(
         struct user_query_iter *restrict iter_out,
         struct database const *database,
-        db_id_t userid);
+        moviedb_id_t userid);
 
 /**
  * Builds the next row and returns whether there is a next row. If there is a

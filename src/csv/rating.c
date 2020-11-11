@@ -100,9 +100,9 @@ bool rating_row_parse(
 
             if (error->code == error_none) {
                 if (column == parser->userid_column) {
-                    row_out->userid = db_id_parse(buf->ptr, error);
+                    row_out->userid = moviedb_id_parse(buf->ptr, error);
                 } else if (column == parser->movieid_column) {
-                    row_out->movieid = db_id_parse(buf->ptr, error);
+                    row_out->movieid = moviedb_id_parse(buf->ptr, error);
                 } else if (column == parser->value_column) {
                     row_out->value = csv_parse_double(buf->ptr, error);
                 }

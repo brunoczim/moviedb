@@ -68,7 +68,7 @@ void topn_query_print(struct topn_query_buf const *restrict query_buf);
  */
 inline void topn_query_destroy(struct topn_query_buf *restrict buf)
 {
-    db_free(buf->rows);
+    moviedb_free(buf->rows);
 }
 
 

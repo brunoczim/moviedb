@@ -14,8 +14,8 @@
  */
 struct tag {
     /**
-     * Name of this tag. Only internal tags hash table code is allowed to update
-     * this value. Reading is fine.
+     * Name of this tag. Only internal tags hash table code is allowed to
+     * update this value. Reading is fine.
      */
     char const *name;
     /**
@@ -56,9 +56,9 @@ void tags_init(
         struct error *restrict error);
 
 /**
- * Inserts the given tag-movie association, creating an entry for the tag in the
- * table if necessary. Name field should be heap-allocated, the given tag_row
- * should not be used after this function is called.
+ * Inserts the given tag-movie association, creating an entry for the tag in
+ * the table if necessary. Name field should be heap-allocated, the given
+ * tag_row should not be used after this function is called.
  */
 void tags_insert(
         struct tags_table *restrict table,

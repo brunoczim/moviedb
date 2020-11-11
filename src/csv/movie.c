@@ -86,7 +86,7 @@ bool movie_row_parse(
             } else if (column == parser->id_column) {
                 strbuf_make_cstr(buf, error);
                 if (error->code == error_none) {
-                    row_out->id = db_id_parse(buf->ptr, error);
+                    row_out->id = moviedb_id_parse(buf->ptr, error);
                 }
             } else if (column == parser->title_column) {
                 row_out->title = strbuf_copy_cstr(buf, error);
@@ -117,6 +117,6 @@ bool movie_row_parse(
 
 void movie_row_destroy(struct movie_csv_row *restrict row)
 {
-    db_free((void *) (void const *) row->title);
-    db_free((void *) (void const *) row->genres);
+    moviedb_free((void *) (void const *) row->title);
+    moviedb_free((void *) (void const *) row->genres);
 }

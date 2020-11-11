@@ -52,7 +52,7 @@ void database_load(
     }
 
     if (error->code == error_none) {
-        file_buf = db_alloc(IO_BUF_SIZE, error);
+        file_buf = moviedb_alloc(IO_BUF_SIZE, error);
     }
 
     if (error->code == error_none)  {
@@ -66,7 +66,7 @@ void database_load(
             load_tags(database_out, buf, file_buf, error);
         }
 
-        db_free(file_buf);
+        moviedb_free(file_buf);
     }
 }
 

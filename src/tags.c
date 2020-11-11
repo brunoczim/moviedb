@@ -19,7 +19,7 @@ static struct tag *tag_init(
 static size_t probe_index(
         struct tags_table const *restrict table,
         char const *restrict name,
-        db_hash_t hash);
+        moviedb_hash_t hash);
 
 /**
  * Resizes the table to have at least double capacity.
@@ -37,7 +37,7 @@ void tags_init(
 
     table->length = 0;
     table->capacity = next_prime(initial_capacity);
-    table->entries = db_alloc(
+    table->entries = moviedb_alloc(
             sizeof(struct tag **) * table->capacity,
             error);
 
@@ -54,7 +54,7 @@ void tags_insert(
         struct error *restrict error)
 {
     double load;
-    db_hash_t hash;
+    moviedb_hash_t hash;
     size_t index;
 
     load = (table->length + 1) / (double) table->capacity;
@@ -63,7 +63,7 @@ void tags_insert(
     }
 
     if (error->code == error_none) {
-        hash = db_hash_str(tag_row->name);
+        hash = moviedb_hash_str(tag_row->name);
         index = probe_index(table, tag_row->name, hash);
 
         if (table->entries[index] == NULL) {
@@ -86,7 +86,7 @@ struct tag const *tags_search(
         struct tags_table const *restrict table,
         char const *restrict name)
 {
-    db_hash_t hash = db_hash_str(name);
+    moviedb_hash_t hash = moviedb_hash_str(name);
     size_t index = probe_index(table, name, hash);
     return table->entries[index];
 }
@@ -98,19 +98,19 @@ void tags_destroy(struct tags_table *restrict table)
     for (i = 0; i < table->capacity; i++) {
         if (table->entries[i] != NULL) {
             tag_movies_destroy(&table->entries[i]->movies);
-            db_free((void *) (void const *) table->entries[i]->name);
-            db_free(table->entries[i]);
+            moviedb_free((void *) (void const *) table->entries[i]->name);
+            moviedb_free(table->entries[i]);
         }
     }
 
-    db_free(table->entries);
+    moviedb_free(table->entries);
 }
 
 static struct tag *tag_init(
         struct tag_csv_row *restrict tag_row,
         struct error *restrict error)
 {
-    struct tag *tag = db_alloc(sizeof(struct tag), error);
+    struct tag *tag = moviedb_alloc(sizeof(struct tag), error);
 
     if (error->code == error_none) {
         tag->name = tag_row->name;
@@ -122,7 +122,7 @@ static struct tag *tag_init(
 
         if (error->code != error_none) {
             tag_movies_destroy(&tag->movies);
-            db_free(tag);
+            moviedb_free(tag);
             tag = NULL;
         }
     }
@@ -133,19 +133,19 @@ static struct tag *tag_init(
 static size_t probe_index(
         struct tags_table const *restrict table,
         char const *restrict name,
-        db_hash_t hash)
+        moviedb_hash_t hash)
 {
-    db_hash_t attempt;
+    moviedb_hash_t attempt;
     size_t index;
     struct tag *tag;
 
     attempt = 0;
-    index = db_hash_to_index(hash, attempt, table->capacity);
+    index = moviedb_hash_to_index(hash, attempt, table->capacity);
     tag = table->entries[index];
 
     while (tag != NULL && strcmp(tag->name, name) != 0) {
         attempt++;
-        index = db_hash_to_index(hash, attempt, table->capacity);
+        index = moviedb_hash_to_index(hash, attempt, table->capacity);
         tag = table->entries[index];
     }
 
@@ -157,7 +157,7 @@ static void resize(
         struct error *restrict error)
 {
     size_t i;
-    db_hash_t hash;
+    moviedb_hash_t hash;
     size_t index;
     struct tags_table new_table;
 
@@ -167,7 +167,7 @@ static void resize(
         new_table.capacity = SIZE_MAX;
     }
 
-    new_table.entries = db_alloc(
+    new_table.entries = moviedb_alloc(
             sizeof(struct tag **) * new_table.capacity,
             error);
 
@@ -178,13 +178,13 @@ static void resize(
 
         for (i = 0; i < table->capacity; i++) {
             if (table->entries[i] != NULL) {
-                hash = db_hash_str(table->entries[i]->name);
+                hash = moviedb_hash_str(table->entries[i]->name);
                 index = probe_index(&new_table, table->entries[i]->name, hash);
                 new_table.entries[index] = table->entries[i];
             }
         }
 
-        db_free(table->entries);
+        moviedb_free(table->entries);
         table->capacity = new_table.capacity;
         table->entries = new_table.entries;
     }

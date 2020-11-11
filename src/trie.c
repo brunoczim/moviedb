@@ -4,8 +4,9 @@
 /**
  * Makes path for a node. Starts by creating a child in the given node, in the
  * given branch_pos (branch position), advancing current_key to the end of the
- * string. Returns a heap-allocated node where a db_id_t with the given title 
- * should be inserted as leaf. The only possible error is an allocation error.
+ * string. Returns a heap-allocated node where a moviedb_id_t with the given
+ * title should be inserted as leaf. The only possible error is an allocation
+ * error.
  */
 static struct trie_node *make_path(
         struct trie_node *node,
@@ -16,8 +17,8 @@ static struct trie_node *make_path(
 
 
 /**
- * Destroys the given branches recursively (last resort, in case heap-allocation
- * of the queue fails).
+ * Destroys the given branches recursively (last resort, in case
+ * heap-allocation of the queue fails).
  */
 static inline void destroy_branches_recursive(
         struct trie_branch_list *restrict branches);
@@ -48,7 +49,7 @@ extern inline void trie_root_init(struct trie_node *restrict root);
 void trie_insert(
         struct trie_node *root,
         char const *restrict title,
-        db_id_t movie,
+        moviedb_id_t movie,
         struct error *restrict error)
 {
     struct trie_node *node;
@@ -89,7 +90,7 @@ void trie_insert(
 bool trie_search(
         struct trie_node const *root,
         char const *restrict title,
-        db_id_t *restrict movie_out)
+        moviedb_id_t *restrict movie_out)
 {
     size_t current_key = 0;
     size_t branch_pos;
@@ -182,7 +183,7 @@ static struct trie_node *make_path(
     struct trie_node *child;
     
     while (title[*current_key] != 0 && error->code == error_none) {
-        child = db_alloc(sizeof(struct trie_node), error);
+        child = moviedb_alloc(sizeof(struct trie_node), error);
         if (error->code == error_none) {
             child->has_leaf = false;
             child->branches.entries = NULL;
@@ -211,7 +212,7 @@ static inline void destroy_branches_recursive(
     size_t i;
     for (i = 0; i < branches->length; i++) {
         destroy_recursive(branches->entries[i].child);
-        db_free(branches->entries[i].child);
+        moviedb_free(branches->entries[i].child);
     }
     trie_branches_destroy(branches);
 }
@@ -241,7 +242,7 @@ static inline void destroy_branch_list(struct trie_branch_list *branches)
 {
     size_t i;
     for (i = 0; i < branches->length; i++) {
-        db_free(branches->entries[i].child);
+        moviedb_free(branches->entries[i].child);
     }
     trie_branches_destroy(branches);
 }
@@ -254,6 +255,6 @@ static void destroy_recursive(struct trie_node *restrict root)
     for (i = 0; i < root->branches.length; i++) {
         destroy_recursive(root->branches.entries[i].child);
         trie_branches_destroy(&root->branches.entries[i].child->branches);
-        db_free(root->branches.entries[i].child);
+        moviedb_free(root->branches.entries[i].child);
     }
 }

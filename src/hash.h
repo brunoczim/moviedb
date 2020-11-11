@@ -4,18 +4,18 @@
 #include <stddef.h>
 #include <stdint.h>
 
-typedef uint_fast64_t db_hash_t;
+typedef uint_fast64_t moviedb_hash_t;
 
-inline size_t db_hash_to_index(
-        db_hash_t hash,
-        db_hash_t attempt,
+inline size_t moviedb_hash_to_index(
+        moviedb_hash_t hash,
+        moviedb_hash_t attempt,
         size_t size)
 {
     /* quadratic probing */
-    db_hash_t term0 = hash % size;
-    db_hash_t term1 = attempt % size;
-    db_hash_t term2 = (term1 * term1) % size;
-    db_hash_t sum0 = (term0 + term1) % size;
+    moviedb_hash_t term0 = hash % size;
+    moviedb_hash_t term1 = attempt % size;
+    moviedb_hash_t term2 = (term1 * term1) % size;
+    moviedb_hash_t sum0 = (term0 + term1) % size;
     
     return (sum0 + term2) % size;
 
@@ -23,8 +23,8 @@ inline size_t db_hash_to_index(
     /* return (hash % size + attempt % size) % size; */
 }
 
-db_hash_t db_hash_uint64(uint_fast64_t integer);
+moviedb_hash_t moviedb_hash_uint64(uint_fast64_t integer);
 
-db_hash_t db_hash_str(char const *restrict string);
+moviedb_hash_t moviedb_hash_str(char const *restrict string);
 
 #endif

@@ -1,10 +1,10 @@
 #include "alloc.h"
 
-extern inline void *db_alloc(size_t bytes, struct error *restrict error);
+extern inline void *moviedb_alloc(size_t bytes, struct error *restrict error);
 
-extern inline void *db_realloc(
+extern inline void *moviedb_realloc(
         void *mem,
         size_t bytes,
         struct error *restrict error);
 
-extern inline void db_free(void *mem);
+extern inline void moviedb_free(void *mem);

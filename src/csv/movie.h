@@ -17,7 +17,7 @@ struct movie_csv_row {
     /**
      * ID of the movie.
      */
-    db_id_t id;
+    moviedb_id_t id;
     /**
      * Title of the movie. Should be heap allocated.
      */

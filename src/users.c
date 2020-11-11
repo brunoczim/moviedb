@@ -25,8 +25,8 @@ static void ratings_insert(
  */
 static size_t probe_index(
         struct users_table const *restrict table,
-        db_id_t userid,
-        db_hash_t hash);
+        moviedb_id_t userid,
+        moviedb_hash_t hash);
 
 /**
  * Resizes the table to have at least double capacity.
@@ -44,7 +44,7 @@ void users_init(
 
     table->length = 0;
     table->capacity = next_prime(initial_capacity);
-    table->entries = db_alloc(
+    table->entries = moviedb_alloc(
             sizeof(struct user **) * table->capacity,
             error);
 
@@ -62,7 +62,7 @@ void users_insert_rating(
 {
     struct user_rating rating;
     double load;
-    db_hash_t hash;
+    moviedb_hash_t hash;
     size_t index;
 
     load = (table->length + 1) / (double) table->capacity;
@@ -71,7 +71,7 @@ void users_insert_rating(
     }
 
     if (error->code == error_none) {
-        hash = db_id_hash(rating_row->userid);
+        hash = moviedb_id_hash(rating_row->userid);
         index = probe_index(table, rating_row->userid, hash);
 
         if (table->entries[index] == NULL) {
@@ -89,9 +89,9 @@ void users_insert_rating(
 
 struct user const *users_search(
         struct users_table const *restrict table,
-        db_id_t userid)
+        moviedb_id_t userid)
 {
-    db_hash_t hash = db_id_hash(userid);
+    moviedb_hash_t hash = moviedb_id_hash(userid);
     size_t index = probe_index(table, userid, hash);
     return table->entries[index];
 }
@@ -102,25 +102,25 @@ void users_destroy(struct users_table *restrict table)
 
     for (i = 0; i < table->capacity; i++) {
         if (table->entries[i] != NULL) {
-            db_free(table->entries[i]->ratings.entries);
-            db_free(table->entries[i]);
+            moviedb_free(table->entries[i]->ratings.entries);
+            moviedb_free(table->entries[i]);
         }
     }
 
-    db_free(table->entries);
+    moviedb_free(table->entries);
 }
 
 static struct user *user_init(
         struct rating_csv_row *restrict rating_row,
         struct error *restrict error)
 {
-    struct user *user = db_alloc(sizeof(struct user), error);
+    struct user *user = moviedb_alloc(sizeof(struct user), error);
 
     if (error->code == error_none) {
         user->id = rating_row->userid;
         user->ratings.length = 1;
         user->ratings.capacity = 1;
-        user->ratings.entries = db_alloc(
+        user->ratings.entries = moviedb_alloc(
                 sizeof(struct user_rating) * user->ratings.capacity,
                 error);
 
@@ -128,7 +128,7 @@ static struct user *user_init(
             user->ratings.entries[0].value = rating_row->value;
             user->ratings.entries[0].movie = rating_row->movieid;
         } else {
-            db_free(user);
+            moviedb_free(user);
             user = NULL;
         }
     }
@@ -145,7 +145,7 @@ static void ratings_insert(
     size_t new_cap = ratings->capacity * 2;
 
     if (ratings->length == ratings->capacity) {
-        new_entries = db_realloc(
+        new_entries = moviedb_realloc(
                 ratings->entries,
                 sizeof(struct user_rating) * new_cap,
                 error);
@@ -164,20 +164,20 @@ static void ratings_insert(
 
 static size_t probe_index(
         struct users_table const *restrict table,
-        db_id_t userid,
-        db_hash_t hash)
+        moviedb_id_t userid,
+        moviedb_hash_t hash)
 {
-    db_hash_t attempt;
+    moviedb_hash_t attempt;
     size_t index;
     struct user *user;
 
     attempt = 0;
-    index = db_hash_to_index(hash, attempt, table->capacity);
+    index = moviedb_hash_to_index(hash, attempt, table->capacity);
     user = table->entries[index];
 
     while (user != NULL && user->id != userid) {
         attempt++;
-        index = db_hash_to_index(hash, attempt, table->capacity);
+        index = moviedb_hash_to_index(hash, attempt, table->capacity);
         user = table->entries[index];
     }
 
@@ -189,7 +189,7 @@ static void resize(
         struct error *restrict error)
 {
     size_t i;
-    db_hash_t hash;
+    moviedb_hash_t hash;
     size_t index;
     struct users_table new_table;
 
@@ -199,7 +199,7 @@ static void resize(
         new_table.capacity = SIZE_MAX;
     }
 
-    new_table.entries = db_alloc(
+    new_table.entries = moviedb_alloc(
             sizeof(struct user **) * new_table.capacity,
             error);
 
@@ -210,13 +210,13 @@ static void resize(
 
         for (i = 0; i < table->capacity; i++) {
             if (table->entries[i] != NULL) {
-                hash = db_id_hash(table->entries[i]->id);
+                hash = moviedb_id_hash(table->entries[i]->id);
                 index = probe_index(&new_table, table->entries[i]->id, hash);
                 new_table.entries[index] = table->entries[i];
             }
         }
 
-        db_free(table->entries);
+        moviedb_free(table->entries);
         table->capacity = new_table.capacity;
         table->entries = new_table.entries;
     }

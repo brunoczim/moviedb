@@ -14,8 +14,8 @@
  * A rating row in the ratings CSV file.
  */
 struct rating_csv_row {
-    db_id_t userid;
-    db_id_t movieid;
+    moviedb_id_t userid;
+    moviedb_id_t movieid;
     double value;
 };
 

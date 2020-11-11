@@ -70,7 +70,7 @@ void movie_query_print(struct movie_query_buf const *restrict query_buf);
  */
 inline void movie_query_destroy(struct movie_query_buf *restrict buf)
 {
-    db_free(buf->rows);
+    moviedb_free(buf->rows);
 }
 
 #endif

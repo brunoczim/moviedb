@@ -58,7 +58,7 @@ void movie_query(
         struct error *restrict error)
 {
     struct trie_iter iter;
-    db_id_t movieid;
+    moviedb_id_t movieid;
     struct movie const *movie;
     bool has_data;
 
@@ -103,7 +103,7 @@ void movie_query_print_row(struct movie const *restrict row)
     char id_buffer[MOVIEDB_ID_DIGITS + 1];
     size_t id_start;
 
-    id_start = db_id_to_str(row->id, id_buffer, MOVIEDB_ID_DIGITS + 1);
+    id_start = moviedb_id_to_str(row->id, id_buffer, MOVIEDB_ID_DIGITS + 1);
 
     /* Puts the row by concatenating string literals. */
     printf(COLOR_ID "%s"
@@ -154,7 +154,7 @@ static void buf_append(
         if (new_cap == 0) {
             new_cap = 1;
         }
-        new_rows = db_realloc(
+        new_rows = moviedb_realloc(
                 buf->rows,
                 new_cap * sizeof (struct movie const *),
                 error);

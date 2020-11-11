@@ -18,7 +18,7 @@ struct movie {
      * ID of the movie. Only internal movies hash table code is allowed to
      * update this, reading is fine.
      */
-    db_id_t id;
+    moviedb_id_t id;
     /**
      * Title of the movie. Heap-allocated. Only internal movies hash table code
      * is allowed to update this, reading is fine.
@@ -109,7 +109,7 @@ void movies_insert(
  */
 void movies_add_rating(
         struct movies_table *restrict table,
-        db_id_t movieid,
+        moviedb_id_t movieid,
         double rating);
 
 /**
@@ -117,7 +117,7 @@ void movies_add_rating(
  */
 struct movie const *movies_search(
         struct movies_table const *restrict table,
-        db_id_t movieid);
+        moviedb_id_t movieid);
 
 /**
  * Initializes an iterator over the given table.

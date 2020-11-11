@@ -58,8 +58,8 @@ enum csv_state {
      */
     csv_quoted_cr,
     /**
-     * State when parsing a quoted field, and a backslash has been found _inside_
-     * the field.
+     * State when parsing a quoted field, and a backslash has been found
+     * _inside_ the field.
      */
     csv_quoted_backslash,
     /**

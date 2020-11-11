@@ -10,6 +10,6 @@
 /**
  * The type of any ID of this application.
  */
-typedef uint_least64_t db_id_t;
+typedef uint_least64_t moviedb_id_t;
 
 #endif

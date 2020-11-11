@@ -34,7 +34,7 @@ bool shell_run_tags(struct shell *restrict shell, struct error *restrict error)
     switch (error->code) {
         case error_none:
             tags_query_init(&query_buf);
-            tags_query(shell->database, &query_input, &query_buf, error);        
+            tags_query(shell->database, &query_input, &query_buf, error);
             if (error->code == error_none) {
                 tags_query_print(&query_buf);
             }

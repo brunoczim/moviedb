@@ -95,7 +95,7 @@ bool tag_row_parse(
             } else if (column == parser->movieid_column) {
                 strbuf_make_cstr(buf, error);
                 if (error->code == error_none) {
-                    row_out->movieid = db_id_parse(buf->ptr, error);
+                    row_out->movieid = moviedb_id_parse(buf->ptr, error);
                 }
             } else if (column == parser->name_column) {
                 row_out->name = strbuf_copy_cstr(buf, error);
@@ -125,5 +125,5 @@ bool tag_row_parse(
 
 void tag_row_destroy(struct tag_csv_row *restrict row)
 {
-    db_free((void *) (void const *) row->name);
+    moviedb_free((void *) (void const *) row->name);
 }

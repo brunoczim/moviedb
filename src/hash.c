@@ -1,11 +1,11 @@
 #include "hash.h"
 
-extern inline size_t db_hash_to_index(
-        db_hash_t hash,
-        db_hash_t attempt,
+extern inline size_t moviedb_hash_to_index(
+        moviedb_hash_t hash,
+        moviedb_hash_t attempt,
         size_t size);
 
-db_hash_t db_hash_uint64(uint_fast64_t integer)
+moviedb_hash_t moviedb_hash_uint64(uint_fast64_t integer)
 {
     uint_fast64_t hash = integer;
 
@@ -28,11 +28,11 @@ db_hash_t db_hash_uint64(uint_fast64_t integer)
     return hash;
 }
 
-db_hash_t db_hash_str(char const *restrict string)
+moviedb_hash_t moviedb_hash_str(char const *restrict string)
 {
     size_t index = 0;
-    db_hash_t curr;
-    db_hash_t hash = 0xFAABA99974B79A53;
+    moviedb_hash_t curr;
+    moviedb_hash_t hash = 0xFAABA99974B79A53;
 
     while (string[index] != 0) {
         curr = (unsigned char) string[index];
@@ -41,7 +41,7 @@ db_hash_t db_hash_str(char const *restrict string)
         index++;
     }
 
-    hash ^= db_hash_uint64(index);
+    hash ^= moviedb_hash_uint64(index);
 
     return hash;
 }

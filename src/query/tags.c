@@ -22,14 +22,16 @@ static void buf_append(
  */
 static bool movie_in_tags(
         struct tags_query_input const *restrict input,
-        db_id_t movieid);
+        moviedb_id_t movieid);
 
 void tags_query_input_init(
         struct tags_query_input *restrict query_input,
         size_t capacity,
         struct error *restrict error)
 {
-    query_input->tags = db_alloc(sizeof(struct tag const *) * capacity, error);
+    query_input->tags = moviedb_alloc(
+            sizeof(struct tag const *) * capacity,
+            error);
     query_input->capacity = capacity;
     query_input->length = 0;
 }
@@ -53,7 +55,7 @@ void tags_query_input_add(
                 new_cap = 1;
             }
 
-            new_tags = db_realloc(
+            new_tags = moviedb_realloc(
                     query_input->tags,
                     sizeof(struct tag const *) * new_cap,
                     error);
@@ -92,7 +94,7 @@ void tags_query(
     struct movie const *movie;
     struct tag_movies_iter iter;
     size_t i;
-    db_id_t movieid;
+    moviedb_id_t movieid;
 
     if (query_input->length > 0) {
         tag_movies_iter(&query_input->tags[0]->movies, &iter);
@@ -172,7 +174,7 @@ static void buf_append(
                 new_cap = 1;
             }
 
-            new_movies = db_realloc(
+            new_movies = moviedb_realloc(
                     buf->rows,
                     sizeof(struct movie const *) * new_cap,
                     error);
@@ -192,7 +194,7 @@ static void buf_append(
 
 static bool movie_in_tags(
         struct tags_query_input const *restrict input,
-        db_id_t movieid)
+        moviedb_id_t movieid)
 {
     size_t tag = 1;
     bool found = true;

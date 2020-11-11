@@ -9,8 +9,8 @@
  */
 static size_t probe_index(
         struct tag_movie_set const *restrict set,
-        db_id_t movieid,
-        db_hash_t hash);
+        moviedb_id_t movieid,
+        moviedb_hash_t hash);
 
 /**
  * Resizes the hash set to have at least double capacity.
@@ -28,13 +28,13 @@ void tag_movies_init(
 
     set->length = 0;
     set->capacity = next_prime(initial_capacity);
-    set->entries = db_alloc(sizeof(db_id_t) * set->capacity, error);
+    set->entries = moviedb_alloc(sizeof(moviedb_id_t) * set->capacity, error);
 
     if (error->code == error_none) {
-        set->occupied = db_alloc(sizeof(bool) * set->capacity, error);
+        set->occupied = moviedb_alloc(sizeof(bool) * set->capacity, error);
 
         if (error->code != error_none) {
-            db_free(set->entries);
+            moviedb_free(set->entries);
             set->entries = NULL;
         }
     }
@@ -48,11 +48,11 @@ void tag_movies_init(
 
 void tag_movies_insert(
         struct tag_movie_set *restrict set,
-        db_id_t movieid,
+        moviedb_id_t movieid,
         struct error *restrict error)
 {
     double load;
-    db_hash_t hash;
+    moviedb_hash_t hash;
     size_t index;
 
     load = (set->length + 1) / (double) set->capacity;
@@ -62,7 +62,7 @@ void tag_movies_insert(
     }
 
     if (error->code == error_none) {
-        hash = db_id_hash(movieid);
+        hash = moviedb_id_hash(movieid);
         index = probe_index(set, movieid, hash);
         if (set->occupied[index]) {
             error_set_code(error, error_dup_movie_id);
@@ -77,9 +77,9 @@ void tag_movies_insert(
 
 bool tag_movies_contain(
         struct tag_movie_set const *restrict set,
-        db_id_t movieid)
+        moviedb_id_t movieid)
 {
-    db_hash_t hash = db_id_hash(movieid);
+    moviedb_hash_t hash = moviedb_id_hash(movieid);
     size_t index = probe_index(set, movieid, hash);
     return set->occupied[index];
 }
@@ -90,7 +90,7 @@ extern inline void tag_movies_iter(
 
 bool tag_movies_next(
         struct tag_movies_iter *restrict iter,
-        db_id_t *restrict movieid_out)
+        moviedb_id_t *restrict movieid_out)
 {
     bool found = false;
 
@@ -109,18 +109,18 @@ extern inline void tag_movies_destroy(struct tag_movie_set *restrict set);
 
 static size_t probe_index(
         struct tag_movie_set const *restrict set,
-        db_id_t movieid,
-        db_hash_t hash)
+        moviedb_id_t movieid,
+        moviedb_hash_t hash)
 {
-    db_hash_t attempt;
+    moviedb_hash_t attempt;
     size_t index;
 
     attempt = 0;
-    index = db_hash_to_index(hash, attempt, set->capacity);
+    index = moviedb_hash_to_index(hash, attempt, set->capacity);
 
     while (set->occupied[index] && set->entries[index] != movieid) {
         attempt++;
-        index = db_hash_to_index(hash, attempt, set->capacity);
+        index = moviedb_hash_to_index(hash, attempt, set->capacity);
     }
 
     return index;
@@ -131,7 +131,7 @@ static void resize(
         struct error *restrict error)
 {
     size_t i;
-    db_hash_t hash;
+    moviedb_hash_t hash;
     size_t index;
     struct tag_movie_set new_set;
 
@@ -141,13 +141,17 @@ static void resize(
         new_set.capacity = SIZE_MAX;
     }
 
-    new_set.entries = db_alloc(sizeof(db_id_t) * new_set.capacity, error);
+    new_set.entries = moviedb_alloc(
+            sizeof(moviedb_id_t) * new_set.capacity,
+            error);
 
     if (error->code == error_none) {
-        new_set.occupied = db_alloc(sizeof(bool) * new_set.capacity, error);
+        new_set.occupied = moviedb_alloc(
+                sizeof(bool) * new_set.capacity,
+                error);
 
         if (error->code != error_none) {
-            db_free(new_set.entries);
+            moviedb_free(new_set.entries);
         }
     }
 
@@ -158,15 +162,15 @@ static void resize(
 
         for (i = 0; i < set->capacity; i++) {
             if (set->occupied[i]) {
-                hash = db_id_hash(set->entries[i]);
+                hash = moviedb_id_hash(set->entries[i]);
                 index = probe_index(&new_set, set->entries[i], hash);
                 new_set.entries[index] = set->entries[i];
                 new_set.occupied[index] = true;
             }
         }
 
-        db_free(set->occupied);
-        db_free(set->entries);
+        moviedb_free(set->occupied);
+        moviedb_free(set->entries);
         set->capacity = new_set.capacity;
         set->entries = new_set.entries;
         set->occupied = new_set.occupied;

@@ -15,7 +15,7 @@
 void insert(
         struct tags_table *restrict table,
         char const *restrict name,
-        db_id_t movie,
+        moviedb_id_t movie,
         struct error *restrict error)
 {
     printf("Inserting %s\n", name);
@@ -25,7 +25,7 @@ void insert(
 
     row.movieid = movie;
 
-    heap_name = db_alloc(strlen(name) + 1, error);
+    heap_name = moviedb_alloc(strlen(name) + 1, error);
     assert(error->code == error_none);
     strcpy(heap_name, name);
     row.name = heap_name;
@@ -33,7 +33,7 @@ void insert(
     tags_insert(table, &row, error);
 
     if (error->code != error_none) {
-        db_free(heap_name);
+        moviedb_free(heap_name);
     }
 }
 
@@ -43,7 +43,7 @@ int main(int argc, char const *argv[])
     struct tag const *tag;
     struct tags_table table;
     struct tag_movies_iter iter;
-    db_id_t movieid;
+    moviedb_id_t movieid;
     bool found88 = false, found90 = false, found92 = false;
 
     error_init(&error);
