@@ -42,6 +42,7 @@ void tags_init(
             error);
 
     if (error->code == error_none) {
+        /* Initializes all entries to NULL. */
         for (i = 0; i < table->capacity; i++) {
             table->entries[i] = NULL;
         }
@@ -59,6 +60,7 @@ void tags_insert(
 
     load = (table->length + 1) / (double) table->capacity;
     if (load >= MAX_LOAD) {
+        /* Resize if it would be above maximum load. */
         resize(table, error);
     }
 
@@ -67,16 +69,22 @@ void tags_insert(
         index = probe_index(table, tag_row->name, hash);
 
         if (table->entries[index] == NULL) {
+            /* No previous insert with the given tag name. */
             table->entries[index] = tag_init(tag_row, error);
             if (error->code == error_none) {
                 table->length++;
             }
         } else {
+            /* There was a previous insert with the given tag name. */
             tag_movies_insert(
                     &table->entries[index]->movies,
                     tag_row->movieid,
                     error);
 
+            /*
+             * We can destroy the row's data, since we don't need the tag name,
+             * which was heap-allocated.
+             */
             tag_row_destroy(tag_row);
         }
     }
@@ -95,6 +103,7 @@ void tags_destroy(struct tags_table *restrict table)
 {
     size_t i;
 
+    /* Iterates through all entries to free their user's memories. */
     for (i = 0; i < table->capacity; i++) {
         if (table->entries[i] != NULL) {
             tag_movies_destroy(&table->entries[i]->movies);
@@ -113,10 +122,12 @@ static struct tag *tag_init(
     struct tag *tag = moviedb_alloc(sizeof(struct tag), error);
 
     if (error->code == error_none) {
+        /* Initializes the tag. */
         tag->name = tag_row->name;
         tag_movies_init(&tag->movies, 2, error);
 
         if (error->code == error_none) {
+            /* Inserts the given movie ID into the tag's movie list. */
             tag_movies_insert(&tag->movies, tag_row->movieid, error);
         }
 
@@ -143,7 +154,12 @@ static size_t probe_index(
     index = moviedb_hash_to_index(hash, attempt, table->capacity);
     tag = table->entries[index];
 
+    /* Iterates while there is a tag and it is not our target. */
     while (tag != NULL && strcmp(tag->name, name) != 0) {
+        /*
+         * If we reached here, the condition failed, and we need to get the
+         * next attempt.
+         */
         attempt++;
         index = moviedb_hash_to_index(hash, attempt, table->capacity);
         tag = table->entries[index];
@@ -161,21 +177,19 @@ static void resize(
     size_t index;
     struct tags_table new_table;
 
-    if (SIZE_MAX / 2 >= table->capacity) {
-        new_table.capacity = next_prime(table->capacity * 2);
-    } else {
-        new_table.capacity = SIZE_MAX;
-    }
+    new_table.capacity = next_prime(table->capacity * 2);
 
     new_table.entries = moviedb_alloc(
             sizeof(struct tag **) * new_table.capacity,
             error);
 
     if (error->code == error_none) {
+        /* Initializes the new table's entries. */
         for (i = 0; i < new_table.capacity; i++) {
             new_table.entries[i] = NULL;
         }
 
+        /* Reinserts entries from old table into the new table. */
         for (i = 0; i < table->capacity; i++) {
             if (table->entries[i] != NULL) {
                 hash = moviedb_hash_str(table->entries[i]->name);
@@ -184,6 +198,7 @@ static void resize(
             }
         }
 
+        /* Frees the old table. */
         moviedb_free(table->entries);
         table->capacity = new_table.capacity;
         table->entries = new_table.entries;

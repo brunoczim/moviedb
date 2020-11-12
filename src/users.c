@@ -49,6 +49,7 @@ void users_init(
             error);
 
     if (error->code == error_none) {
+        /* Initializes all entries to NULL. */
         for (i = 0; i < table->capacity; i++) {
             table->entries[i] = NULL;
         }
@@ -67,6 +68,7 @@ void users_insert_rating(
 
     load = (table->length + 1) / (double) table->capacity;
     if (load >= MAX_LOAD) {
+        /* Resize if it would be above maximum load. */
         resize(table, error);
     }
 
@@ -75,11 +77,13 @@ void users_insert_rating(
         index = probe_index(table, rating_row->userid, hash);
 
         if (table->entries[index] == NULL) {
+            /* No previous insert with the given ID. */
             table->entries[index] = user_init(rating_row, error);
             if (error->code == error_none) {
                 table->length++;
             }
         } else {
+            /* There was a previous insert with the given ID. */
             rating.movie = rating_row->movieid;
             rating.value = rating_row->value;
             ratings_insert(&table->entries[index]->ratings, &rating, error);
@@ -100,6 +104,7 @@ void users_destroy(struct users_table *restrict table)
 {
     size_t i;
 
+    /* Iterates through all entries to free their user's memories. */
     for (i = 0; i < table->capacity; i++) {
         if (table->entries[i] != NULL) {
             moviedb_free(table->entries[i]->ratings.entries);
@@ -117,6 +122,7 @@ static struct user *user_init(
     struct user *user = moviedb_alloc(sizeof(struct user), error);
 
     if (error->code == error_none) {
+        /* Initializes the user. */
         user->id = rating_row->userid;
         user->ratings.length = 1;
         user->ratings.capacity = 1;
@@ -124,6 +130,7 @@ static struct user *user_init(
                 sizeof(struct user_rating) * user->ratings.capacity,
                 error);
 
+        /* Initializes the user's rating list with the given rating. */
         if (error->code == error_none) {
             user->ratings.entries[0].value = rating_row->value;
             user->ratings.entries[0].movie = rating_row->movieid;
@@ -142,9 +149,11 @@ static void ratings_insert(
         struct error *restrict error)
 {
     struct user_rating *new_entries;
-    size_t new_cap = ratings->capacity * 2;
+    size_t new_cap;
 
     if (ratings->length == ratings->capacity) {
+        /* Doubles capacity. 0 capacity never happens. */
+        new_cap = ratings->capacity * 2;
         new_entries = moviedb_realloc(
                 ratings->entries,
                 sizeof(struct user_rating) * new_cap,
@@ -157,6 +166,7 @@ static void ratings_insert(
     }
 
     if (error->code == error_none) {
+        /* Finally inserts the rating. */
         ratings->entries[ratings->length] = *rating;
         ratings->length++;
     }
@@ -175,7 +185,12 @@ static size_t probe_index(
     index = moviedb_hash_to_index(hash, attempt, table->capacity);
     user = table->entries[index];
 
+    /* Iterates while there is an user and it is not our target. */
     while (user != NULL && user->id != userid) {
+        /*
+         * If we reached here, the condition failed, and we need to get the
+         * next attempt.
+         */
         attempt++;
         index = moviedb_hash_to_index(hash, attempt, table->capacity);
         user = table->entries[index];
@@ -193,21 +208,19 @@ static void resize(
     size_t index;
     struct users_table new_table;
 
-    if (SIZE_MAX / 2 >= table->capacity) {
-        new_table.capacity = next_prime(table->capacity * 2);
-    } else {
-        new_table.capacity = SIZE_MAX;
-    }
+    new_table.capacity = next_prime(table->capacity * 2);
 
     new_table.entries = moviedb_alloc(
             sizeof(struct user **) * new_table.capacity,
             error);
 
     if (error->code == error_none) {
+        /* Initializes the new table's entries. */
         for (i = 0; i < new_table.capacity; i++) {
             new_table.entries[i] = NULL;
         }
 
+        /* Reinserts entries from old table into the new table. */
         for (i = 0; i < table->capacity; i++) {
             if (table->entries[i] != NULL) {
                 hash = moviedb_id_hash(table->entries[i]->id);
@@ -216,6 +229,7 @@ static void resize(
             }
         }
 
+        /* Frees the old table. */
         moviedb_free(table->entries);
         table->capacity = new_table.capacity;
         table->entries = new_table.entries;

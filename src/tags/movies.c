@@ -40,6 +40,7 @@ void tag_movies_init(
     }
 
     if (error->code == error_none) {
+        /* Initializes all occupied flags to false. */
         for (i = 0; i < set->capacity; i++) {
             set->occupied[i] = false;
         }
@@ -58,6 +59,7 @@ void tag_movies_insert(
     load = (set->length + 1) / (double) set->capacity;
 
     if (load >= MAX_LOAD) {
+        /* Resize if it would be above maximum load. */
         resize(set, error);
     }
 
@@ -65,9 +67,11 @@ void tag_movies_insert(
         hash = moviedb_id_hash(movieid);
         index = probe_index(set, movieid, hash);
         if (set->occupied[index]) {
+            /* Duplicated movie ID is an error, but ignorable. */
             error_set_code(error, error_dup_movie_id);
             error->data.dup_movie_id.id = movieid;
         } else {
+            /* Success case for the insert. */
             set->occupied[index] = true;
             set->entries[index] = movieid;
             set->length++;
@@ -94,6 +98,10 @@ bool tag_movies_next(
 {
     bool found = false;
 
+    /*
+     * Moves the iterator to the next position while entries are not occupied
+     * and there are entries left.
+     */
     while (iter->current < iter->set->capacity && !found) {
         found = iter->set->occupied[iter->current];
         if (found) {
@@ -118,7 +126,12 @@ static size_t probe_index(
     attempt = 0;
     index = moviedb_hash_to_index(hash, attempt, set->capacity);
 
+    /* Iterates while entry is occupied and it is not our target. */
     while (set->occupied[index] && set->entries[index] != movieid) {
+        /*
+         * If we reached here, the condition failed, and we need to get the
+         * next attempt.
+         */
         attempt++;
         index = moviedb_hash_to_index(hash, attempt, set->capacity);
     }
@@ -135,11 +148,7 @@ static void resize(
     size_t index;
     struct tag_movie_set new_set;
 
-    if (SIZE_MAX / 2 >= set->capacity) {
-        new_set.capacity = next_prime(set->capacity * 2);
-    } else {
-        new_set.capacity = SIZE_MAX;
-    }
+    new_set.capacity = next_prime(set->capacity * 2);
 
     new_set.entries = moviedb_alloc(
             sizeof(moviedb_id_t) * new_set.capacity,
@@ -156,10 +165,12 @@ static void resize(
     }
 
     if (error->code == error_none) {
+        /* Initializes the new hash set's occupied flags. */
         for (i = 0; i < new_set.capacity; i++) {
             new_set.occupied[i] = false;
         }
 
+        /* Reinserts entries from old hash set into the new hash set. */
         for (i = 0; i < set->capacity; i++) {
             if (set->occupied[i]) {
                 hash = moviedb_id_hash(set->entries[i]);
@@ -169,6 +180,7 @@ static void resize(
             }
         }
 
+        /* Frees the old hash set. */
         moviedb_free(set->occupied);
         moviedb_free(set->entries);
         set->capacity = new_set.capacity;

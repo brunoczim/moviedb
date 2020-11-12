@@ -189,7 +189,7 @@ struct movie const *movies_next(struct movies_iter *restrict iter)
 
     /*
      * Moves the iterator to the next position while entries are NULL and there
-     * are entries.
+     * are entries left.
      */
     while (iter->current < iter->table->length && movie == NULL) {
         movie = iter->table->entries[iter->current];
@@ -251,16 +251,7 @@ static void resize(
     size_t index;
     struct movies_table new_table;
 
-    if (SIZE_MAX / 2 >= table->capacity) {
-        /* Highly likely this is the executed branch. */
-        new_table.capacity = next_prime(table->capacity * 2);
-    } else {
-        /*
-         * Handle overflow, this likely to make the allocation fail, to be
-         * honest.
-         */
-        new_table.capacity = SIZE_MAX;
-    }
+    new_table.capacity = next_prime(table->capacity * 2);
 
     new_table.entries = moviedb_alloc(
             sizeof(struct movie **) * new_table.capacity,
