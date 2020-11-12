@@ -20,10 +20,13 @@ bool trie_branches_search(
         mid = low + (high - low) / 2;
 
         if (list->entries[mid].key < key) {
+            /* mid and blow is discarded. */
             low = mid + 1;
         } else if (list->entries[mid].key > key) {
+            /* mid and above is discarded. */
             high = mid;
         } else {
+            /* We are putting low in the output parameter below */
             low = mid;
             found = true;
         }
@@ -45,12 +48,11 @@ void trie_branches_insert(
     size_t new_cap;
     struct trie_branch *new_entries;
 
+    /* We have to increase allocation capacity for the new element. */
     if (branches->length >= branches->capacity) {
         new_cap = branches->capacity * 2;
         if (new_cap == 0) {
             new_cap = 1;
-        } else if (new_cap > 255) {
-            new_cap = 255;
         }
 
         new_entries = moviedb_realloc(
@@ -64,10 +66,12 @@ void trie_branches_insert(
     }
 
     if (error->code == error_none) {
+        /* Moves everything to the next position to make room. */
         for (i = branches->length; i > branch_pos; i--) {
             branches->entries[i] = branches->entries[i - 1];
         }
 
+        /* Inserts the element. */
         branches->entries[branch_pos].key = key;
         branches->entries[branch_pos].child = child;
         branches->length++;
