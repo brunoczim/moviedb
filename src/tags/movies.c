@@ -28,10 +28,13 @@ void tag_movies_init(
 
     set->length = 0;
     set->capacity = next_prime(initial_capacity);
-    set->entries = moviedb_alloc(sizeof(moviedb_id_t) * set->capacity, error);
+    set->entries = moviedb_alloc(sizeof(*set->entries), set->capacity, error);
 
     if (error->code == error_none) {
-        set->occupied = moviedb_alloc(sizeof(bool) * set->capacity, error);
+        set->occupied = moviedb_alloc(
+                sizeof(*set->occupied),
+                set->capacity,
+                error);
 
         if (error->code != error_none) {
             moviedb_free(set->entries);
@@ -151,12 +154,14 @@ static void resize(
     new_set.capacity = next_prime(set->capacity * 2);
 
     new_set.entries = moviedb_alloc(
-            sizeof(moviedb_id_t) * new_set.capacity,
+            sizeof(*new_set.entries),
+            new_set.capacity,
             error);
 
     if (error->code == error_none) {
         new_set.occupied = moviedb_alloc(
-                sizeof(bool) * new_set.capacity,
+                sizeof(*new_set.occupied),
+                new_set.capacity,
                 error);
 
         if (error->code != error_none) {

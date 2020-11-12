@@ -18,7 +18,11 @@ moviedb_id_t moviedb_id_parse(
             i++;
         } else {
             if (error->code == error_none) {
-                error_string = moviedb_alloc(strlen(string) + 1, error);
+                error_string = moviedb_alloc(
+                        sizeof(*error_string),
+                        strlen(string) + 1,
+                        error);
+
                 if (error->code == error_none) {
                     /* Copies the input string to an error. */
                     strcpy(error_string, string);

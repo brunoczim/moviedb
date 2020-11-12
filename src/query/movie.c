@@ -156,7 +156,8 @@ static void buf_append(
         }
         new_rows = moviedb_realloc(
                 buf->rows,
-                new_cap * sizeof (struct movie const *),
+                sizeof(*new_rows),
+                new_cap,
                 error);
 
         if (error->code == error_none) {

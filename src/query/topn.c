@@ -22,7 +22,8 @@ void topn_query_init(
     buf->capacity = capacity;
     buf->length = 0;
     buf->rows = moviedb_alloc(
-            sizeof(struct movie const *) * buf->capacity,
+            sizeof(*buf->rows),
+            buf->capacity,
             error);
 }
 

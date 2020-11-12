@@ -234,7 +234,7 @@ static struct trie_node *make_path(
     /* Loops while we did not reach the end of the string (and no error). */
     while (title[*current_key] != 0 && error->code == error_none) {
         /* Allocates a child node. */
-        child = moviedb_alloc(sizeof(struct trie_node), error);
+        child = moviedb_alloc(sizeof(*child), 1, error);
         if (error->code == error_none) {
             child->has_leaf = false;
             child->branches.entries = NULL;

@@ -93,7 +93,8 @@ void movies_init(
     table->length = 0;
     table->capacity = next_prime(initial_capacity);
     table->entries = moviedb_alloc(
-            sizeof(struct movie **) * table->capacity,
+            sizeof(*table->entries),
+            table->capacity,
             error);
 
     if (error->code == error_none) {
@@ -126,7 +127,7 @@ void movies_insert(
         index = probe_index(table, movie_row->id, hash);
         if (table->entries[index] == NULL) {
             /* Allocates a movie to be inserted. */
-            movie = moviedb_alloc(sizeof(struct movie), error);
+            movie = moviedb_alloc(sizeof(*movie), 1, error);
         } else {
             /* Duplicated movie ID error. */
             error_set_code(error, error_dup_movie_id);
@@ -254,7 +255,8 @@ static void resize(
     new_table.capacity = next_prime(table->capacity * 2);
 
     new_table.entries = moviedb_alloc(
-            sizeof(struct movie **) * new_table.capacity,
+            sizeof(*new_table.entries),
+            new_table.capacity,
             error);
 
     if (error->code == error_none) {

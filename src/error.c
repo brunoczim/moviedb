@@ -70,8 +70,10 @@ void error_print(struct error const *restrict error)
 
         case error_alloc:
             fprintf(stderr,
-                    "out of memory, allocation size %zu\n",
-                    error->data.alloc.size);
+                    "%s, requested element size %zu and %zu elements\n",
+                    "out of memory",
+                    error->data.alloc.elem_size,
+                    error->data.alloc.elements);
             break;
 
         case error_io:

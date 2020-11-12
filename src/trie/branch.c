@@ -57,8 +57,10 @@ void trie_branches_insert(
 
         new_entries = moviedb_realloc(
                 branches->entries,
-                sizeof(struct trie_branch) * new_cap,
+                sizeof(*new_entries),
+                new_cap,
                 error);
+
         if (error->code == error_none) {
             branches->entries = new_entries;
             branches->capacity = new_cap;

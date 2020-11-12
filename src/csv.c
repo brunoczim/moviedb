@@ -57,7 +57,11 @@ double csv_parse_double(
 
     /* If we are not at the end of the string, the parse failed. */
     if (*end != 0) {
-        error_string = moviedb_alloc(strlen(string) + 1, error);
+        error_string = moviedb_alloc(
+                sizeof(*error_string),
+                strlen(string) + 1,
+                error);
+
         if (error->code == error_none) {
             strcpy(error_string, string);
             error_set_code(error, error_double);

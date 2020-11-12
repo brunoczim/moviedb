@@ -16,7 +16,11 @@ void strbuf_reserve(
 
     /* Tries to reallocate. */
     new_capacity = buf->capacity + additional;
-    new_alloc = moviedb_realloc(buf->ptr, new_capacity, error);
+    new_alloc = moviedb_realloc(
+            buf->ptr,
+            sizeof(*buf->ptr),
+            new_capacity,
+            error);
 
     if (error->code == error_none) {
         /* If no error happened, publish the new allocation. */
@@ -42,7 +46,7 @@ char *strbuf_copy_cstr(
 
     if (buf->length == 0) {
         /* Empty string buffer. */
-        cstr = moviedb_alloc(1, error);
+        cstr = moviedb_alloc(sizeof(*cstr), 1, error);
         if (error->code == error_none) {
             *cstr = 0;
         }
@@ -54,7 +58,7 @@ char *strbuf_copy_cstr(
             strbuf_init(buf);
         } else {
             /* With extra space. So, it makes a new allocation. */
-            cstr = moviedb_alloc(buf->length, error);
+            cstr = moviedb_alloc(sizeof(*cstr), buf->length, error);
             if (error->code == error_none) {
                 memcpy(cstr, buf->ptr, buf->length);
             }
@@ -72,7 +76,7 @@ char *strbuf_copy_cstr(
          * Last string buffer character is not \0 AND adding \0 would NOT make
          * the buffer to be at full capacity. It would be either below or above.
          */
-        cstr = moviedb_alloc(buf->length + 1, error);
+        cstr = moviedb_alloc(sizeof(*cstr), buf->length + 1, error);
         if (error->code == error_none) {
             memcpy(cstr, buf->ptr, buf->length);
             cstr[buf->length] = 0;

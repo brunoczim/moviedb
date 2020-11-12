@@ -126,6 +126,8 @@ bool tag_row_parse(
         column++;
     }
 
+    row_boundary = csv_is_row_boundary(&parser->csv_parser);
+
     /* We must end the row with a row boundary (duh). */
     if (error->code == error_none && !row_boundary) {
         error_set_code(error, error_movie);

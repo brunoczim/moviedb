@@ -45,7 +45,8 @@ void users_init(
     table->length = 0;
     table->capacity = next_prime(initial_capacity);
     table->entries = moviedb_alloc(
-            sizeof(struct user **) * table->capacity,
+            sizeof(*table->entries),
+            table->capacity,
             error);
 
     if (error->code == error_none) {
@@ -119,7 +120,7 @@ static struct user *user_init(
         struct rating_csv_row *restrict rating_row,
         struct error *restrict error)
 {
-    struct user *user = moviedb_alloc(sizeof(struct user), error);
+    struct user *user = moviedb_alloc(sizeof(*user), 1, error);
 
     if (error->code == error_none) {
         /* Initializes the user. */
@@ -127,7 +128,8 @@ static struct user *user_init(
         user->ratings.length = 1;
         user->ratings.capacity = 1;
         user->ratings.entries = moviedb_alloc(
-                sizeof(struct user_rating) * user->ratings.capacity,
+                sizeof(*user->ratings.entries),
+                user->ratings.capacity,
                 error);
 
         /* Initializes the user's rating list with the given rating. */
@@ -156,7 +158,8 @@ static void ratings_insert(
         new_cap = ratings->capacity * 2;
         new_entries = moviedb_realloc(
                 ratings->entries,
-                sizeof(struct user_rating) * new_cap,
+                sizeof(*new_entries),
+                new_cap,
                 error);
 
         if (error->code == error_none) {
@@ -211,7 +214,8 @@ static void resize(
     new_table.capacity = next_prime(table->capacity * 2);
 
     new_table.entries = moviedb_alloc(
-            sizeof(struct user **) * new_table.capacity,
+            sizeof(*new_table.entries),
+            new_table.capacity,
             error);
 
     if (error->code == error_none) {

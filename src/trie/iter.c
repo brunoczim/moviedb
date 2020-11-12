@@ -40,7 +40,7 @@ void trie_iter_enqueue(
     /* This is an iteration's queue node, not a trie node. */
     struct trie_iter_node *node;
 
-    node = moviedb_alloc(sizeof(struct trie_iter_node), error);
+    node = moviedb_alloc(sizeof(*node), 1, error);
 
     if (error->code == error_none) {
         /* This is a linked list queue, remember. */

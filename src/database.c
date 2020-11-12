@@ -56,7 +56,7 @@ void database_load(
 
     if (error->code == error_none) {
         /* Allocates the buffer for file buffering. */
-        file_buf = moviedb_alloc(IO_BUF_SIZE, error);
+        file_buf = moviedb_alloc(sizeof(*file_buf), IO_BUF_SIZE, error);
     }
 
     /* Actually loads everything, if no error. */

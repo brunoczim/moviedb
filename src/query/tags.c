@@ -30,8 +30,10 @@ void tags_query_input_init(
         struct error *restrict error)
 {
     query_input->tags = moviedb_alloc(
-            sizeof(struct tag const *) * capacity,
+            sizeof(*query_input->tags),
+            capacity,
             error);
+
     query_input->capacity = capacity;
     query_input->length = 0;
 }
@@ -57,7 +59,8 @@ void tags_query_input_add(
 
             new_tags = moviedb_realloc(
                     query_input->tags,
-                    sizeof(struct tag const *) * new_cap,
+                    sizeof(*new_tags),
+                    new_cap,
                     error);
 
             if (error->code == error_none) {
@@ -176,7 +179,8 @@ static void buf_append(
 
             new_movies = moviedb_realloc(
                     buf->rows,
-                    sizeof(struct movie const *) * new_cap,
+                    sizeof(*new_movies),
+                    new_cap,
                     error);
 
             if (error->code == error_none) {

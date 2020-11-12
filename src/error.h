@@ -104,9 +104,13 @@ struct csv_error {
  */
 struct alloc_error {
     /**
-     * How much was attempted to allocate, in bytes.
+     * Size of an element in bytes.
      */
-    size_t size;
+    size_t elem_size;
+    /**
+     * How many elements were allocated.
+     */
+    size_t elements;
 };
 
 /**

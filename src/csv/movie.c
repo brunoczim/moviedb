@@ -106,11 +106,13 @@ bool movie_row_parse(
                 row_out->title = strbuf_copy_cstr(buf, error);
             } else if (column == parser->genres_column) {
                 /* Copies the genres. */
-                row_out->genres= strbuf_copy_cstr(buf, error);
+                row_out->genres = strbuf_copy_cstr(buf, error);
             }
         }
         column++;
     }
+
+    row_boundary = csv_is_row_boundary(&parser->csv_parser);
 
     /* We must end the row with a row boundary (duh). */
     if (error->code == error_none && !row_boundary) {

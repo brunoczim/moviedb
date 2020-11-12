@@ -15,15 +15,10 @@
  *
  * NULL might still be returned in case of a zero-sized allocation.
  */
-inline void *moviedb_alloc(size_t size, struct error *restrict error)
-{
-    void *mem = malloc(size);
-    if (mem == NULL && size != 0) {
-        error_set_code(error, error_alloc);
-        error->data.alloc.size = size;
-    }
-    return mem;
-}
+void *moviedb_alloc(
+        size_t elem_size,
+        size_t elements,
+        struct error *restrict error);
 
 /**
  * Reallocates a memory region of size given by size, and a previous
@@ -33,18 +28,11 @@ inline void *moviedb_alloc(size_t size, struct error *restrict error)
  *
  * NULL might still be returned in case of a zero-sized allocation.
  */
-inline void *moviedb_realloc(
+void *moviedb_realloc(
         void *mem,
-        size_t size,
-        struct error *restrict error)
-{
-    void *new_mem = realloc(mem, size);
-    if (new_mem == NULL && size != 0) {
-        error_set_code(error, error_alloc);
-        error->data.alloc.size = size;
-    }
-    return new_mem;
-}
+        size_t elem_size,
+        size_t elements,
+        struct error *restrict error);
 
 /**
  * Frees memory allocated by moviedb_alloc and moviedb_realloc.

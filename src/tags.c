@@ -38,7 +38,8 @@ void tags_init(
     table->length = 0;
     table->capacity = next_prime(initial_capacity);
     table->entries = moviedb_alloc(
-            sizeof(struct tag **) * table->capacity,
+            sizeof(*table->entries),
+            table->capacity,
             error);
 
     if (error->code == error_none) {
@@ -119,7 +120,7 @@ static struct tag *tag_init(
         struct tag_csv_row *restrict tag_row,
         struct error *restrict error)
 {
-    struct tag *tag = moviedb_alloc(sizeof(struct tag), error);
+    struct tag *tag = moviedb_alloc(sizeof(*tag), 1, error);
 
     if (error->code == error_none) {
         /* Initializes the tag. */
@@ -180,7 +181,8 @@ static void resize(
     new_table.capacity = next_prime(table->capacity * 2);
 
     new_table.entries = moviedb_alloc(
-            sizeof(struct tag **) * new_table.capacity,
+            sizeof(*new_table.entries),
+            new_table.capacity,
             error);
 
     if (error->code == error_none) {
