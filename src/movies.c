@@ -25,22 +25,36 @@ bool movie_has_genre(
         struct movie const *restrict movie,
         char const *restrict genre)
 {
-    size_t i = 0;
     bool has_genre = false;
+    /* Iterates over the movie's genre list. */
+    size_t i = 0;
+    /* Iterates over the input genre. */
     size_t j;
     bool searching;
     char const *restrict list = movie->genres;
 
+    /*
+     * Loops until it is confirmed that this movie has the given genre, or until
+     * that all movie's genres have been tested.
+     */
     while (!has_genre && list[i] != 0) {
         searching = true;
         j = 0;
 
+        /*
+         * Loops until either the end of one string is found or until characters
+         * don't match.
+         */
         while (!has_genre && searching) {
+            /* End of the current genre in list AND end of input genre? */
             has_genre = (list[i] == 0 || list[i] == '|') && genre[j] == 0;
 
+            /* NOT et the end of current genre AND NOT end of input genre? */
             searching = list[i] != 0 && list[i] != '|' && genre[j] != 0;
+            /* ALSO, are characters at both strings equals? */
             searching = searching && list[i] == genre[j];
 
+            /* Only advance if there is a next iteration again. */
             if (!has_genre && searching) {
                 i++;
                 j++;
@@ -48,10 +62,18 @@ bool movie_has_genre(
         }
 
         if (!has_genre) {
+            /*
+             * Skips the remaining characters in the current genre of the genre
+             * list, so we test the next genre in the next attempt.
+             */
             while (list[i] != 0 && list[i] != '|') {
                 i++;
             }
 
+            /*
+             * Also skips the separator if the end of the string has not been
+             * reached.
+             */
             if (list[i] == '|') {
                 i++;
             }
@@ -75,6 +97,7 @@ void movies_init(
             error);
 
     if (error->code == error_none) {
+        /* Initializes all entries to NULL. */
         for (i = 0; i < table->capacity; i++) {
             table->entries[i] = NULL;
         }
@@ -94,6 +117,7 @@ void movies_insert(
     load = (table->length + 1) / (double) table->capacity;
 
     if (load >= MAX_LOAD) {
+        /* Resize if it would be above maximum load. */
         resize(table, error);
     }
 
@@ -101,13 +125,16 @@ void movies_insert(
         hash = moviedb_id_hash(movie_row->id);
         index = probe_index(table, movie_row->id, hash);
         if (table->entries[index] == NULL) {
+            /* Allocates a movie to be inserted. */
             movie = moviedb_alloc(sizeof(struct movie), error);
         } else {
+            /* Duplicated movie ID error. */
             error_set_code(error, error_dup_movie_id);
             error->data.dup_movie_id.id = movie_row->id;
         }
 
         if (error->code == error_none) {
+            /* Finally inserts the movie. */
             movie->id = movie_row->id;
             movie->title = movie_row->title;
             movie->genres = movie_row->genres;
@@ -127,12 +154,17 @@ void movies_add_rating(
     unsigned long ratings;
     double sum;
     moviedb_hash_t hash = moviedb_id_hash(movieid);
+    /* Index of the movie. */
     size_t index = probe_index(table, movieid, hash);
 
     if (table->entries[index] != NULL) {
+        /* The given movie is present. */
         ratings = table->entries[index]->ratings;
+        /* Sum of ratings. */
         sum = table->entries[index]->mean_rating * ratings + rating;
+        /* Increase previous number of ratings. */
         ratings++;
+        /* Registers new mean and saves current number of ratings. */
         table->entries[index]->mean_rating = sum / ratings;
         table->entries[index]->ratings = ratings;
     }
@@ -155,6 +187,10 @@ struct movie const *movies_next(struct movies_iter *restrict iter)
 {
     struct movie const *movie = NULL;
 
+    /*
+     * Moves the iterator to the next position while entries are NULL and there
+     * are entries.
+     */
     while (iter->current < iter->table->length && movie == NULL) {
         movie = iter->table->entries[iter->current];
         iter->current++;
@@ -167,6 +203,7 @@ void movies_destroy(struct movies_table *restrict table)
 {
     size_t i;
 
+    /* Iterates through all entries to free their movie's memories. */
     for (i = 0; i < table->capacity; i++) {
         if (table->entries[i] != NULL) {
             moviedb_free((void *) (void const *) table->entries[i]->title);
@@ -191,7 +228,12 @@ static size_t probe_index(
     index = moviedb_hash_to_index(hash, attempt, table->capacity);
     movie = table->entries[index];
 
+    /* Iterates while there is a movie and it is not our target. */
     while (movie != NULL && movie->id != movieid) {
+        /*
+         * If we reached here, the condition failed, and we need to get the
+         * next attempt.
+         */
         attempt++;
         index = moviedb_hash_to_index(hash, attempt, table->capacity);
         movie = table->entries[index];
@@ -210,8 +252,13 @@ static void resize(
     struct movies_table new_table;
 
     if (SIZE_MAX / 2 >= table->capacity) {
+        /* Highly likely this is the executed branch. */
         new_table.capacity = next_prime(table->capacity * 2);
     } else {
+        /*
+         * Handle overflow, this likely to make the allocation fail, to be
+         * honest.
+         */
         new_table.capacity = SIZE_MAX;
     }
 
@@ -220,10 +267,12 @@ static void resize(
             error);
 
     if (error->code == error_none) {
+        /* Initializes the new table's entries. */
         for (i = 0; i < new_table.capacity; i++) {
             new_table.entries[i] = NULL;
         }
 
+        /* Reinserts entries from old table into the new table. */
         for (i = 0; i < table->capacity; i++) {
             if (table->entries[i] != NULL) {
                 hash = moviedb_id_hash(table->entries[i]->id);
@@ -232,6 +281,7 @@ static void resize(
             }
         }
 
+        /* Frees the old table. */
         moviedb_free(table->entries);
         table->capacity = new_table.capacity;
         table->entries = new_table.entries;
