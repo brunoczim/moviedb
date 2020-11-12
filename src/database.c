@@ -41,20 +41,25 @@ void database_load(
     char *file_buf;
 
     trie_root_init(&database_out->trie_root);
+    /* Initializes movies to capacity 2003. */
     movies_init(&database_out->movies, 2003, error);
 
     if (error->code == error_none) {
+        /* Initializes users to capacity 2003. */
         users_init(&database_out->users, 2003, error);
     }
 
     if (error->code == error_none) {
+        /* Initializes tags to capacity 2003. */
         tags_init(&database_out->tags, 2003, error);
     }
 
     if (error->code == error_none) {
+        /* Allocates the buffer for file buffering. */
         file_buf = moviedb_alloc(IO_BUF_SIZE, error);
     }
 
+    /* Actually loads everything, if no error. */
     if (error->code == error_none)  {
         load_movies(database_out, buf, file_buf, error);
 
@@ -96,6 +101,7 @@ static void load_movies(
         input_file_setbuf(file, file_buf, IO_BUF_SIZE, error);
 
         if (error->code == error_none) {
+            /* Initializes the CSV parser. */
             movie_parser_init(&parser, file, buf, error);
         }
 
@@ -103,15 +109,25 @@ static void load_movies(
         while (has_data) {
             has_data = movie_row_parse(&parser, buf, &row, error);
             if (has_data) {
+                /* Inserts into the trie. */
                 trie_insert(&database->trie_root, row.title, row.id, error);
 
                 if (error->code == error_dup_movie_title) {
+                    /* Ignore duplicated movie title error. */
                     error_set_code(error, error_none);
                 }
+
                 if (error->code == error_none) {
+                    /* Inserts into the movie table. */
                     movies_insert(&database->movies, &row, error);
                 } 
                 if (error->code != error_none) {
+                    /*
+                     * Destroys the row memory if an error happens.
+                     *
+                     * Normally, movie table would get the ownership of the
+                     * heap-allocated fields of the row.
+                     */
                     movie_row_destroy(&row);
                 }
 
@@ -147,6 +163,7 @@ static void load_ratings(
         input_file_setbuf(file, file_buf, IO_BUF_SIZE, error);
 
         if (error->code == error_none) {
+            /* Initializes the CSV parser. */
             rating_parser_init(&parser, file, buf, error);
         }
 
@@ -155,9 +172,11 @@ static void load_ratings(
             has_data = rating_row_parse(&parser, buf, &row, error);
 
             if (has_data) {
+                /* Inserts into the user table. */
                 users_insert_rating(&database->users, &row, error);
 
                 if (error->code == error_none) {
+                    /* Adds this rating to the respective movie. */
                     movies_add_rating(
                             &database->movies,
                             row.movieid,
@@ -195,6 +214,7 @@ static void load_tags(
         input_file_setbuf(file, file_buf, IO_BUF_SIZE, error);
 
         if (error->code == error_none) {
+            /* Initializes the CSV parser. */
             tag_parser_init(&parser, file, buf, error);
         }
 
@@ -203,8 +223,10 @@ static void load_tags(
             has_data = tag_row_parse(&parser, buf, &row, error);
 
             if (has_data) {
+                /* Inserts into the tag table. */
                 tags_insert(&database->tags, &row, error);
                 if (error->code == error_dup_movie_id) {
+                    /* Ignore duplicated movie ID error. */
                     error_set_code(error, error_none);
                 }
                 has_data = error->code == error_none;

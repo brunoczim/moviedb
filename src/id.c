@@ -12,6 +12,7 @@ moviedb_id_t moviedb_id_parse(
 
     while (string[i] != 0 && error->code == error_none) {
         if (id * 10 >= id && string[i] >= '0' && string[i] <= '9') {
+            /* Accounts the digit. */
             id *= 10;
             id += string[i] - '0';
             i++;
@@ -19,6 +20,7 @@ moviedb_id_t moviedb_id_parse(
             if (error->code == error_none) {
                 error_string = moviedb_alloc(strlen(string) + 1, error);
                 if (error->code == error_none) {
+                    /* Copies the input string to an error. */
                     strcpy(error_string, string);
                     error_set_code(error, error_id);
                     error->data.id.has_line = false;
@@ -29,6 +31,7 @@ moviedb_id_t moviedb_id_parse(
         }
     }
 
+    /* Empty string is an error. */
     if (i == 0 && error->code == error_none) {
         error_set_code(error, error_id);
         error->data.id.has_line = false;
@@ -50,6 +53,7 @@ size_t moviedb_id_to_str(
         start--;
         buffer[start] = 0;
 
+        /* Write the number digits starting backwards. */
         do {
             if (start > 0) {
                 start--;

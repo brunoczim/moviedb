@@ -36,11 +36,16 @@ moviedb_hash_t moviedb_hash_str(char const *restrict string)
 
     while (string[index] != 0) {
         curr = (unsigned char) string[index];
+        /* Multiplication of previous state by large prime. */
         hash *= 0xC3FB39E53E91D33F;
+        /* XOR with multiplication of current element by prime. */
         hash ^= curr * 0x1A3C2A17EE36142B;
+        /* Marks the index. */
+        hash += index;
         index++;
     }
 
+    /* Marks the key length. */
     hash ^= moviedb_hash_uint64(index);
 
     return hash;
