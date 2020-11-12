@@ -42,16 +42,20 @@ double csv_parse_double(
     
     i = 0;
 
+    /* Scans the string while a space is found. */
     while (string[i] == ' ') {
         i++;
     }
    
+    /* Do parse. */
     value = strtod(string + i, &end);
 
+    /* Scans the string while a space is found. */
     while (*end == ' ') {
         end++;
     }
 
+    /* If we are not at the end of the string, the parse failed. */
     if (*end != 0) {
         error_string = moviedb_alloc(strlen(string) + 1, error);
         if (error->code == error_none) {
@@ -80,18 +84,22 @@ void csv_parse_field(
     while (!done) {
         symbol = input_file_read(parser->file, error);
         if (error->code == error_none) {
+            /* Updates line and column for errors. */
             update_line_column(parser, symbol);
+            /* Makes the automaton's transition. */
             transition(parser, symbol, out, error);
         }
 
         if (error->code != error_none) {
             done = true;
         } else if (parser->state == csv_error) {
+            /* Sets the error with line and column. */
             error_set_code(error, error_csv);
             error->data.csv.line = parser->line;
             error->data.csv.column = parser->column;
             done = true;
         } else {
+            /* Otherwise test if filed is at the end. */
             done = parser->state == csv_comma;
             done = done || csv_is_row_boundary(parser);
             done = done || error->code != error_none;
