@@ -54,6 +54,11 @@ enum error_code {
      */
     error_double,
     /**
+     * An error happened when trying to resize a hash table to more than the
+     * maximum allowed capacity.
+     */
+    error_max_capacity,
+    /**
      * Error found if there are two movies with the same ID.
      */
     error_dup_movie_id,
@@ -222,6 +227,16 @@ struct double_error {
 };
 
 /**
+ * Maximum capacity reached error's data.
+ */
+struct max_capacity_error {
+    /**
+     * The reached maximum capacity.
+     */
+    size_t capacity;
+};
+
+/**
  * Open quote error's data.
  */
 struct open_quote_error {
@@ -291,6 +306,10 @@ union error_data {
      * Data of an invalid double error.
      */
     struct double_error double_f;
+    /**
+     * Data of a reached max_capacity error.
+     */
+    struct max_capacity_error max_capacity;
     /**
      * Data of an invalid ID error.
      */

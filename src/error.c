@@ -23,6 +23,30 @@ void error_set_code(struct error *restrict error, enum error_code code)
                 moviedb_free((void *) (void const *) ptr);
             }
             break;
+        case error_id:
+            if (error->data.id.free_string) {
+                ptr = error->data.id.string;
+                moviedb_free((void *) (void const *) ptr);
+            }
+            break;
+        case error_double:
+            if (error->data.double_f.free_string) {
+                ptr = error->data.double_f.string;
+                moviedb_free((void *) (void const *) ptr);
+            }
+            break;
+        case error_open_quote:
+            if (error->data.open_quote.free_string) {
+                ptr = error->data.open_quote.string;
+                moviedb_free((void *) (void const *) ptr);
+            }
+            break;
+        case error_topn_count:
+            if (error->data.topn_count.free_string) {
+                ptr = error->data.topn_count.string;
+                moviedb_free((void *) (void const *) ptr);
+            }
+            break;
         default:
             break;
     }
@@ -114,6 +138,12 @@ void error_print(struct error const *restrict error)
                 fprintf(stderr, ", line %lu", error->data.id.line);
             }
             fputc('\n', stderr);
+            break;
+
+        case error_max_capacity:
+            fprintf(stderr,
+                    "hash table reached maximum capacity of %zu elements\n",
+                    error->data.max_capacity.capacity);
             break;
 
         case error_dup_movie_id:

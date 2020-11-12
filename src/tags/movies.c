@@ -151,22 +151,34 @@ static void resize(
     size_t index;
     struct tag_movie_set new_set;
 
-    new_set.capacity = next_prime(set->capacity * 2);
+    /*
+     * Checks if there is a next prime with at least double capacity, in first
+     * place.
+     */
+    if (SIZE_MAX / 2 < table->capacity) {
+        new_table.capacity = SIZE_MAX;
+    } else {
+        new_table.capacity = next_prime(table->capacity * 2);
+    }
 
-    new_set.entries = moviedb_alloc(
-            sizeof(*new_set.entries),
-            new_set.capacity,
-            error);
+    /* Sets an error if no prime available. */
+    if (new_table.capacity == SIZE_MAX) {
+        error_set_code(error, error_max_capacity);
+        error->data.max_capacity.capacity = table->capacity;
+    }
 
     if (error->code == error_none) {
         new_set.occupied = moviedb_alloc(
                 sizeof(*new_set.occupied),
                 new_set.capacity,
                 error);
+    }
 
-        if (error->code != error_none) {
-            moviedb_free(new_set.entries);
-        }
+    if (error->code == error_none) {
+        new_set.entries = moviedb_alloc(
+                sizeof(*new_set.entries),
+                new_set.capacity,
+                error);
     }
 
     if (error->code == error_none) {

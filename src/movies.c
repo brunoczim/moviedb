@@ -252,12 +252,28 @@ static void resize(
     size_t index;
     struct movies_table new_table;
 
-    new_table.capacity = next_prime(table->capacity * 2);
+    /*
+     * Checks if there is a next prime with at least double capacity, in first
+     * place.
+     */
+    if (SIZE_MAX / 2 < table->capacity) {
+        new_table.capacity = SIZE_MAX;
+    } else {
+        new_table.capacity = next_prime(table->capacity * 2);
+    }
 
-    new_table.entries = moviedb_alloc(
-            sizeof(*new_table.entries),
-            new_table.capacity,
-            error);
+    /* Sets an error if no prime available. */
+    if (new_table.capacity == SIZE_MAX) {
+        error_set_code(error, error_max_capacity);
+        error->data.max_capacity.capacity = table->capacity;
+    }
+
+    if (error->code == error_none) {
+        new_table.entries = moviedb_alloc(
+                sizeof(*new_table.entries),
+                new_table.capacity,
+                error);
+    }
 
     if (error->code == error_none) {
         /* Initializes the new table's entries. */
