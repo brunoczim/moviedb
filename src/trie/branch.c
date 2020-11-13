@@ -20,13 +20,13 @@ bool trie_branches_search(
         mid = low + (high - low) / 2;
 
         if (list->entries[mid].key < key) {
-            /* mid and blow is discarded. */
+            /* mid and below is discarded. */
             low = mid + 1;
         } else if (list->entries[mid].key > key) {
             /* mid and above is discarded. */
             high = mid;
         } else {
-            /* We are putting low in the output parameter below */
+            /* We are putting low in the output parameter after the loop. */
             low = mid;
             found = true;
         }

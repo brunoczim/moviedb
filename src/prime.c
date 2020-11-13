@@ -6,16 +6,23 @@ bool is_prime(size_t number)
     size_t div, square, square_inc;
     bool is_prime, testing;
 
+    /* Default case: not prime. */
     is_prime = false;
 
     if (number == 2) {
+        /* Corner case, the even prime number. */
         is_prime = true;
     } else if (number % 2 != 0 && number > 2) {
+        /* Only search if not an even number. */
+        /* Start from 3. */
         div = 3;
+        /* Squared divisor. */
         square = div * div;
+        /* Increment to add to the square each iteration. */
         square_inc = 16;
         testing = true;
 
+        /* Loop while div < sqrt(number) AND possibly prime. */
         while (testing) {
             if (square > number) {
                 testing = false;
@@ -45,8 +52,10 @@ bool is_prime(size_t number)
 size_t next_prime(size_t number)
 {
     if (number <= 2) {
+        /* Corner case of 0, 1, and 2. */
         number = 2;
     } else if (number % 2 == 0) {
+        /* Even number, not 2, it will not be prime. Only odd numbers will. */
         number++;
     }
 

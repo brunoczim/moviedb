@@ -24,10 +24,12 @@ bool user_query_next(
     struct movie const *movie = NULL;
     struct user_rating const *rating = NULL;
 
+    /* user = NULL means the iteration ended. */
     if (iter->user == NULL) {
         return false;
     }
 
+    /* Iterates while there are movies and we did not actually find a movie. */
     while (iter->current < iter->user->ratings.length && movie == NULL) {
         rating = &iter->user->ratings.entries[iter->current];
         movie = movies_search(&iter->database->movies, rating->movie);

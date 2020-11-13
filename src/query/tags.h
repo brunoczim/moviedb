@@ -13,7 +13,7 @@
 struct tags_query_input {
     /**
      * The array of pointer to tags. Only internal tags query code is allowed to
-     * touch this.
+     * touch this. A tag with the less amount of movies goes first.
      */
     struct tag const **tags;
     /**

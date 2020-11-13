@@ -29,6 +29,7 @@ void tags_query_input_init(
         size_t capacity,
         struct error *restrict error)
 {
+    /* Initializes with the given capacity. */
     query_input->tags = moviedb_alloc(
             sizeof(*query_input->tags),
             capacity,
@@ -52,6 +53,7 @@ void tags_query_input_add(
 
     if (tag != NULL) {
         if (query_input->length == query_input->capacity) {
+            /* Doubles capacity, handles the case where capacity = 0. */
             new_cap = query_input->capacity * 2;
             if (new_cap == 0) {
                 new_cap = 1;
@@ -70,10 +72,12 @@ void tags_query_input_add(
         }
 
         if (error->code == error_none) {
+            /* Finally inserts the tag at the end. */
             query_input->tags[query_input->length] = tag;
             query_input->length++;
 
             if (query_input->tags[0]->movies.length > tag->movies.length) {
+                /* The tag with less movies goes first. */ 
                 tmp = query_input->tags[0];
                 query_input->tags[0] = tag;
                 query_input->tags[query_input->length - 1] = tmp;
@@ -100,10 +104,15 @@ void tags_query(
     moviedb_id_t movieid;
 
     if (query_input->length > 0) {
+        /* We will use the list of movies from the tag with less movies. */
         tag_movies_iter(&query_input->tags[0]->movies, &iter);
         
         while (error->code == error_none && tag_movies_next(&iter, &movieid)) {
             if (movie_in_tags(query_input, movieid)) {
+                /*
+                 * Inserts the movie into the query result buffer if present in
+                 * all tags.
+                 */
                 movie = movies_search(&database->movies, movieid);
                 if (movie != NULL) {
                     buf_append(query_buf, movie, error);
@@ -172,6 +181,7 @@ static void buf_append(
 
     if (movie != NULL) {
         if (buf->length == buf->capacity) {
+            /* Doubles capacity, handles the case where capacity = 0. */
             new_cap = buf->capacity * 2;
             if (new_cap == 0) {
                 new_cap = 1;
@@ -190,6 +200,7 @@ static void buf_append(
         }
 
         if (error->code == error_none) {
+            /* Finally inserts at the end. */
             buf->rows[buf->length] = movie;
             buf->length++;
         }
@@ -203,6 +214,7 @@ static bool movie_in_tags(
     size_t tag = 1;
     bool found = true;
 
+    /* For all tags, tests if they contain the given movie. */
     while (tag < input->length && found) {
         found = tag_movies_contain(&input->tags[tag]->movies, movieid);
         tag++;

@@ -19,6 +19,10 @@ void topn_query_init(
         size_t capacity,
         struct error *restrict error)
 {
+    /*
+     * Initializes the maximum, fixed capacity to the given parameter
+     * (the N in topN).
+     */
     buf->capacity = capacity;
     buf->length = 0;
     buf->rows = moviedb_alloc(
@@ -45,12 +49,22 @@ void topn_query(
 
         movie = movies_next(&iter);
 
+        /* While there is a movie yielded by the iterator. */
         while (movie != NULL) {
             has_genre = movie_has_genre(movie, genre);
             if (has_genre && movie->ratings >= min_ratings) {
+                /*
+                 * Only inserts if movie has the given genre, and if it has a
+                 * minimum number of ratings.
+                 */
+                /*
+                 * Gets the position where it should be inserted, using binary
+                 * search.
+                 */
                 pos = buf_search(query_buf, movie->mean_rating);
 
                 if (pos < query_buf->capacity) {
+                    /* Only inserts if there is room. Ordered insert. */
                     buf_insert(query_buf, movie, pos);
                 }
             }
@@ -118,14 +132,17 @@ static size_t buf_search(struct topn_query_buf *restrict buf, double rating)
     low = 0;
     high = buf->length;
 
+    /* Loops while there is an element to search. */
     while (low < high && !found) {
         mid = low + (high - low) / 2;
 
         stored_rating = buf->rows[mid]->mean_rating;
 
         if (stored_rating > rating) {
+            /* mid and below is discarded. */
             low = mid + 1;
         } else if (stored_rating < rating) {
+            /* mid and above is discarded. */
             high = mid;
         } else {
             low = mid;
@@ -133,6 +150,7 @@ static size_t buf_search(struct topn_query_buf *restrict buf, double rating)
         }
     }
 
+    /* The position where a movie with the given rating should be inserted. */
     return low;
 }
 
@@ -143,13 +161,16 @@ static void buf_insert(
 {
     size_t i;
 
+    /* Only increses length if length < N. */
     if (buf->length < buf->capacity) {
         buf->length++;
     }
 
+    /* Move everything behind. */
     for (i = buf->length - 1; i > pos; i--) {
         buf->rows[i] = buf->rows[i - 1];
     }
 
+    /* Finally puts the row in the correct position. */
     buf->rows[pos] = row;
 }

@@ -63,11 +63,14 @@ void movie_query(
     bool has_data;
 
     query_buf->length = 0;
+
+    /* Initializes the trie iterator over movies with given prefix. */
     trie_search_prefix(&database->trie_root, prefix, &iter);
 
     do {
         has_data = trie_next_movie(&iter, &movieid, error);
         if (has_data) {
+            /* Adds this movie to the buffer, if it exists. */
             movie = movies_search(&database->movies, movieid);
             if (movie != NULL) {
                 buf_append(query_buf, movie, error);
@@ -76,9 +79,11 @@ void movie_query(
         }
     } while (has_data);
 
+    /* Destroys the iterator. */
     trie_iter_destroy(&iter);
 
     if (error->code == error_none) {
+        /* Sorts the resulting buffer by ID. */
         sort_buf(query_buf);
     }
 }
@@ -150,6 +155,7 @@ static void buf_append(
     size_t new_cap;
 
     if (buf->length == buf->capacity) {
+        /* Doubles capacity, handles the case where capacity == 0. */
         new_cap = buf->capacity * 2;
         if (new_cap == 0) {
             new_cap = 1;
@@ -167,6 +173,7 @@ static void buf_append(
     }
 
     if (error->code == error_none) {
+        /* Finally appends the result. */
         buf->rows[buf->length] = row;
         buf->length++;
     }
@@ -196,6 +203,11 @@ static void sort_buf(struct movie_query_buf *restrict buf)
 
     i = buf->length;
 
+    /*
+     * Loops until we reach the minimum case (array of 1).
+     *
+     * Starts from the back.
+     */
     while (i > 1) {
         i--;
         tmp = buf->rows[0];
@@ -227,22 +239,27 @@ static void sort_heapify_range(
     struct movie const *tmp;
     bool is_correct = false;
 
+    /* Loops while correction on the heap is needed AND end is not reached. */
     while (child < end && !is_correct) {
         max = parent;
 
+        /* Tests if left child is max. */
         if (buf->rows[max]->id < buf->rows[child]->id) {
             max = child;
         }
 
         child += 1;
 
+        /* Tests if right child is max. */
         if (child < end && buf->rows[max]->id < buf->rows[child]->id) {
             max = child;
         }
 
+        /* If parent is max (not any children), we are done. */
         is_correct = max == parent;
 
         if (!is_correct) {
+            /* Swaps the parent with the actual max. */
             tmp = buf->rows[parent];
             buf->rows[parent] = buf->rows[max];
             buf->rows[max] = tmp;
