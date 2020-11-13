@@ -25,7 +25,7 @@ void insert(
 
     row.movieid = movie;
 
-    heap_name = moviedb_alloc(strlen(name) + 1, error);
+    heap_name = moviedb_alloc(sizeof(*heap_name), strlen(name) + 1, error);
     assert(error->code == error_none);
     strcpy(heap_name, name);
     row.name = heap_name;

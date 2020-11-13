@@ -26,12 +26,15 @@ void insert(
 
     row.id = id;
 
-    heap_title = moviedb_alloc(strlen(title) + 1, error);
+    heap_title = moviedb_alloc(sizeof(*heap_title), strlen(title) + 1, error);
     assert(error->code == error_none);
     strcpy(heap_title, title);
     row.title = heap_title;
 
-    heap_genres = moviedb_alloc(strlen(genres) + 1, error);
+    heap_genres = moviedb_alloc(
+            sizeof(*heap_genres),
+            strlen(genres) + 1,
+            error);
     assert(error->code == error_none);
     strcpy(heap_genres, genres);
     row.genres = heap_genres;
