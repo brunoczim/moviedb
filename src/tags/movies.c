@@ -155,16 +155,16 @@ static void resize(
      * Checks if there is a next prime with at least double capacity, in first
      * place.
      */
-    if (SIZE_MAX / 2 < table->capacity) {
-        new_table.capacity = SIZE_MAX;
+    if (SIZE_MAX / 2 < set->capacity) {
+        new_set.capacity = SIZE_MAX;
     } else {
-        new_table.capacity = next_prime(table->capacity * 2);
+        new_set.capacity = next_prime(set->capacity * 2);
     }
 
     /* Sets an error if no prime available. */
-    if (new_table.capacity == SIZE_MAX) {
+    if (new_set.capacity == SIZE_MAX) {
         error_set_code(error, error_max_capacity);
-        error->data.max_capacity.capacity = table->capacity;
+        error->data.max_capacity.capacity = set->capacity;
     }
 
     if (error->code == error_none) {
