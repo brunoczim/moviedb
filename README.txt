@@ -41,6 +41,8 @@ No diretório `src/` estão códigos fonte (`.c`) e cabeçalhos (`.h`).
 
 No diretório `src/test/` estão códigos fonte de programas testes.
 
+No diretório `data/` devem ser descompactados os arquivos com os dados.
+
 No diretório `build/` estão artefatos de compilação, como arquivos objeto (`.o`)
 e programas executáveis. Este diretório é gerado automaticamente pelo programa
 `make`.
