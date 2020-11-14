@@ -56,3 +56,11 @@ NÃO é NECESSÁRIO usar este script, é apenas uma facilidade de desenvolviment
 
 Por fim, o arquivo `Makefile` especifica as regras de _build_, usado pelo
 programa `make` para compilar o projeto.
+
+# NOTA
+
+O projeto não automatiza a compilação usando ferramentas nativas do Windows.
+A automatização acontece usando ferramentas nativas do Linux e do MacOS. Para
+construir o programa no Windows, é necessário usar um ambiente que emule o
+ambiente Linux/MacOS, tais como MinGw ou WSL. Outra alternativa seria compilar
+cada arquivo manualmente.
