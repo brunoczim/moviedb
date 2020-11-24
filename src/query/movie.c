@@ -65,19 +65,19 @@ void movie_query(
     query_buf->length = 0;
 
     /* Initializes the trie iterator over movies with given prefix. */
-    trie_search_prefix(&database->trie_root, prefix, &iter);
+    trie_search_prefix(&database->trie_root, prefix, &iter, error);
 
-    do {
+    has_data = true;
+    while (has_data && error->code == error_none) {
         has_data = trie_next_movie(&iter, &movieid, error);
         if (has_data) {
             /* Adds this movie to the buffer, if it exists. */
             movie = movies_search(&database->movies, movieid);
             if (movie != NULL) {
                 buf_append(query_buf, movie, error);
-                has_data = error->code == error_none;
             }
         }
-    } while (has_data);
+    }
 
     /* Destroys the iterator. */
     trie_iter_destroy(&iter);

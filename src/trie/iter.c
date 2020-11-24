@@ -128,7 +128,6 @@ void trie_iter_enqueue_children(
         struct trie_branch_list const *restrict branches,
         struct error *restrict error)
 {
-
     size_t i = 0;
     /* For all children of the given branch, enqueue them. */
     while (i < branches->length && error->code == error_none) {

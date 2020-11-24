@@ -141,7 +141,8 @@ bool trie_search(
 void trie_search_prefix(
         struct trie_node const *root,
         char const *restrict prefix,
-        struct trie_iter *restrict iter_out)
+        struct trie_iter *restrict iter_out,
+        struct error *restrict error)
 {
     size_t current_key = 0;
     size_t branch_pos;
@@ -170,6 +171,7 @@ void trie_search_prefix(
     iter_out->branch = 0;
     if (branch_found) {
         iter_out->current = node;
+        trie_iter_enqueue(&iter_out->queue, &node->branches, error);
     } else {
         /* If we did not found simply make this iterator stop at the first
          * attempt.

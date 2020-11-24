@@ -192,7 +192,7 @@ struct movie const *movies_next(struct movies_iter *restrict iter)
      * Moves the iterator to the next position while entries are NULL and there
      * are entries left.
      */
-    while (iter->current < iter->table->length && movie == NULL) {
+    while (iter->current < iter->table->capacity && movie == NULL) {
         movie = iter->table->entries[iter->current];
         iter->current++;
     }

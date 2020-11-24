@@ -70,7 +70,8 @@ bool trie_search(
 void trie_search_prefix(
         struct trie_node const *root,
         char const *restrict prefix,
-        struct trie_iter *restrict iter_out);
+        struct trie_iter *restrict iter_out,
+        struct error *restrict error);
 
 /**
  * Destroys the given trie tree, freeing all the heap-allocated memory. Note
