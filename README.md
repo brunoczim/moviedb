@@ -1,6 +1,7 @@
 # moviedb
 
 A dataset viewer over a movielens database.
+[A compatible dataset can be found here.](https://www.kaggle.com/datasets/grouplens/movielens-20m-dataset)
 
 # Data preparation
 
